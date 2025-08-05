@@ -1,0 +1,104 @@
+{
+  "scanSettings": {
+    "baseBranches": ["main", "develop"],
+    "enableLicenseViolations": true,
+    "enableReachability": true,
+    "scanComment": "AI Social Media SaaS Security Scan",
+    "configMode": "AUTO",
+    "enableImpactAnalysis": true
+  },
+  "checkRunSettings": {
+    "vulnerableCheckRunConclusionLevel": "failure",
+    "displayMode": "diff",
+    "useMendCheckNames": true,
+    "strictMode": true,
+    "showOnlyVulnerableLibraries": false
+  },
+  "issueSettings": {
+    "minSeverityLevel": "MEDIUM",
+    "issueType": "DEPENDENCY",
+    "failOnNewVulnerabilities": true,
+    "maxOpenIssues": 50,
+    "enableSecurityAdvisories": true
+  },
+  "remediateSettings": {
+    "enableLicenseViolations": true,
+    "enableVulnerabilities": true,
+    "extends": ["github>whitesource/merge-confidence:beta"]
+  },
+  "hostRules": [
+    {
+      "hostType": "npm",
+      "matchHost": "registry.npmjs.org",
+      "timeout": 120000
+    }
+  ],
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["^@types/"],
+      "groupName": "TypeScript definitions",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^eslint", "^prettier"],
+      "groupName": "Linting and formatting",
+      "automerge": true
+    },
+    {
+      "matchPackageNames": ["next", "react", "react-dom"],
+      "groupName": "Core framework updates",
+      "reviewers": ["team:security"]
+    },
+    {
+      "matchPackagePatterns": ["openai", "@anthropic-ai", "@google-ai"],
+      "groupName": "AI provider SDKs",
+      "reviewers": ["team:ai-team"],
+      "schedule": ["before 10am on monday"]
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "minimumReleaseAge": "3 days"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "addLabels": ["security", "vulnerability"],
+    "assignees": ["security-team"]
+  },
+  "licensePolicy": {
+    "allowedLicenses": [
+      "MIT",
+      "Apache-2.0",
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "ISC",
+      "0BSD"
+    ],
+    "rejectedLicenses": [
+      "GPL-2.0",
+      "GPL-3.0",
+      "AGPL-1.0",
+      "AGPL-3.0",
+      "LGPL-2.1",
+      "LGPL-3.0",
+      "CPAL-1.0",
+      "EPL-1.0",
+      "EPL-2.0"
+    ]
+  },
+  "ignoreSettings": {
+    "policy": "IgnoreAll",
+    "paths": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.next/**",
+      "**/coverage/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx"
+    ]
+  }
+}

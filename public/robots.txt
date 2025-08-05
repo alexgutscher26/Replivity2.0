@@ -1,0 +1,57 @@
+# Robots.txt for Replivity - AI Social Media Replier
+
+User-agent: *
+Allow: /
+
+# Disallow private/sensitive areas
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow public pages
+Allow: /
+Allow: /pricing
+Allow: /features
+Allow: /about
+Allow: /contact
+Allow: /blog
+
+# Sitemap location
+Sitemap: https://replivity.com/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
+
+# Specific bot instructions
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /auth/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /auth/
+
+# Block AI training bots (optional)
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
