@@ -5,6 +5,7 @@ import { initTRPC, TRPCError } from '@trpc/server'
 import { observable } from '@trpc/server/observable'
 import mitt from 'mitt'
 import { createChromeHandler } from 'trpc-chrome/adapter'
+import { defineBackground } from 'wxt/sandbox'
 import z from 'zod'
 
 type Events = Record<string, unknown> & {
@@ -26,56 +27,46 @@ const router = t.router({
     source: sourceSchema,
     tone: z.string(),
     type: generationTypeSchema,
-  })).output(z.object({ remainingUsage: z.number(), text: z.string() })).mutation(async ({ input }) => {
+  })).output(z.object({
+    confidence: z.number().optional(),
+    contextAnalysis: z.any().optional(),
+    remainingUsage: z.number(),
+    text: z.string(),
+  })).mutation(async ({ input }) => {
     const { handle, images, quotedPost, source, text, tone, type, url, username, video } = input
 
-    let fullText = text
-
-    // Add images information with URLs
-    if (images && images.length > 0) {
-      fullText += '\n\nImages:'
-      images.forEach((imageUrl, index) => {
-        fullText += `\n${index + 1}. ${imageUrl}`
-      })
-    }
-
-    // Add video information with poster
-    if (video) {
-      fullText += '\n\nVideo:'
-      fullText += `\nURL: ${video.url}`
-      if (video.poster) {
-        fullText += `\nThumbnail: ${video.poster}`
-      }
-    }
-
-    // Add quoted post information with media
-    if (quotedPost) {
-      fullText += '\n\nQuoted post:'
-      fullText += `\n@${quotedPost.handle}: ${quotedPost.text}`
-
-      if (quotedPost.images.length > 0) {
-        fullText += '\nQuoted post images:'
-        quotedPost.images.forEach((imageUrl, index) => {
-          fullText += `\n${index + 1}. ${imageUrl}`
-        })
-      }
-
-      if (quotedPost.video) {
-        fullText += '\nQuoted post video:'
-        fullText += `\nURL: ${quotedPost.video.url}`
-        if (quotedPost.video.poster) {
-          fullText += `\nThumbnail: ${quotedPost.video.poster}`
-        }
-      }
-    }
+    // Enhanced content preparation with better structure
+    const enhancedContent = prepareEnhancedContent({
+      images,
+      quotedPost,
+      source,
+      text,
+      type,
+      video,
+    })
 
     const res = await fetch(new URL('/api/ai', import.meta.env.WXT_SITE_URL).href, {
-      body: JSON.stringify({ author: username ?? handle, link: url, post: fullText, source, tone, type }),
+      body: JSON.stringify({
+        author: username ?? handle,
+        link: url,
+        // Add metadata for better context
+        metadata: {
+          contentLength: text.length,
+          hasImages: images && images.length > 0,
+          hasQuotedPost: !!quotedPost,
+          hasVideo: !!video,
+        },
+        post: enhancedContent,
+        source,
+        tone,
+        type,
+      }),
       headers: {
         'Content-Type': 'application/json',
       },
       method: 'POST',
     })
+
     const data = await res.json()
 
     if (!res.ok) {
@@ -136,3 +127,69 @@ export default defineBackground({
   },
   type: 'module',
 })
+
+// Remove this entire function - it's overriding the global WXT function
+// function defineBackground(_arg0: { main: () => void, type: string }) {
+//   throw new Error('Function not implemented.')
+// }
+
+// Enhanced content preparation function
+function prepareEnhancedContent({
+  images,
+  quotedPost,
+  source,
+  text,
+  type,
+  video,
+}: {
+  images?: string[]
+  quotedPost?: any
+  source: string
+  text: string
+  type: string
+  video?: any
+}) {
+  let enhancedContent = text
+
+  // Add structured media information
+  if (images && images.length > 0) {
+    enhancedContent += '\n\n[MEDIA CONTEXT]'
+    enhancedContent += `\nImages (${images.length}): Visual content that may influence response tone and context`
+    // Only include first few image URLs to avoid token limits
+    images.slice(0, 3).forEach((imageUrl, index) => {
+      enhancedContent += `\n  ${index + 1}. ${imageUrl}`
+    })
+    if (images.length > 3) {
+      enhancedContent += `\n  ... and ${images.length - 3} more images`
+    }
+  }
+
+  if (video) {
+    enhancedContent += '\n\n[VIDEO CONTENT]'
+    enhancedContent += `\nVideo URL: ${video.url}`
+    if (video.poster) {
+      enhancedContent += `\nThumbnail: ${video.poster}`
+    }
+  }
+
+  if (quotedPost) {
+    enhancedContent += '\n\n[QUOTED CONTENT]'
+    enhancedContent += `\nQuoted from @${quotedPost.handle}: ${quotedPost.text}`
+
+    if (quotedPost.images?.length > 0) {
+      enhancedContent += `\nQuoted post has ${quotedPost.images.length} image(s)`
+    }
+
+    if (quotedPost.video) {
+      enhancedContent += '\nQuoted post includes video content'
+    }
+  }
+
+  // Add platform and type context
+  enhancedContent += `\n\n[GENERATION CONTEXT]`
+  enhancedContent += `\nPlatform: ${source}`
+  enhancedContent += `\nType: ${type}`
+  enhancedContent += `\nContent Length: ${text.length} characters`
+
+  return enhancedContent
+}

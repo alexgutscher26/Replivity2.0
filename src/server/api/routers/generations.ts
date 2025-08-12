@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { billing } from "@/server/db/schema/billing-schema";
 import { generations } from "@/server/db/schema/generations-schema";
@@ -7,6 +8,7 @@ import { generationsSchema } from "@/utils/schema/generations";
 import { TRPCError } from "@trpc/server";
 import { generateText } from "ai";
 import { and, count, eq, gte, lte, or } from "drizzle-orm";
+import { ai } from "node_modules/better-auth/dist/shared/better-auth.6BOIvSei";
 import { z } from "zod";
 
 export const generationRouter = createTRPCRouter({
@@ -50,57 +52,18 @@ export const generationRouter = createTRPCRouter({
         });
       }
 
-      // Get AI settings and generate response
+      // Get AI settings
       const settings = await ctx.db.query.settings.findFirst();
       const ai = settings?.general?.ai;
-      const enabledModels = ai?.enabledModels ?? [];
+      const enabledModels = (ai?.enabledModels ?? []) as any[];
+      const customPrompt = ai?.systemPrompt ?? "";
 
-      const customPrompt = settings?.account?.customPrompt?.trim()
-        ? settings.account.customPrompt
-        : "[NO CUSTOM PROMPT]";
-
-      const defaultPrompt = `You are an AI social media manager designed to craft engaging and human-like social media content for various platforms (Twitter, Facebook, LinkedIn).
-
-For "reply" type:
-- Analyze the original post carefully and craft a contextually relevant response
-- Consider the author's perspective and the conversation context
-- Use the provided tone while maintaining natural dialogue
-
-For "status" type:
-- Create an original post about the given topic/keyword
-- Format appropriately for the specified platform
-- Use the provided tone to shape the message's style
-
-General Guidelines:
-- Adapt content style by platform (Twitter: concise, Facebook: moderate, LinkedIn: professional)
-- Keep responses natural and authentic, avoiding robotic language
-- Use appropriate emojis and casual language when it fits the context
-- Match the specified tone while maintaining engagement
-- Respond in the same language as the input content
-- Follow any additional custom instructions provided
-Custom Prompt: ${customPrompt}`;
-
-      const system = ai?.systemPrompt?.trim() ? ai.systemPrompt : defaultPrompt;
-
-      const post = `
-        - type: ${input.type}
-        - source: ${input.source}
-        - link: ${input.link ?? "[NO LINK]"}
-        - author: ${input.author ?? "[NO AUTHOR]"}
-        - tone: ${input.tone}
-        - post: ${input.post}
-        ${ai?.systemPrompt?.trim() ? `- customPrompt: ${customPrompt}` : ""}
-        `;
-
-      const { instance } = await getAIInstance({
-        apiKey: ai?.apiKey ?? "",
+      // Enhanced context analysis and response generation
+      const enhancedResponse = await generateEnhancedResponse({
+        input,
+        ai,
         enabledModels,
-      });
-
-      const result = await generateText({
-        model: instance,
-        system,
-        prompt: post,
+        customPrompt,
       });
 
       // Store the generation data
@@ -110,7 +73,7 @@ Custom Prompt: ${customPrompt}`;
         source: input.source,
         link: input.link,
         post: input.post,
-        reply: result.text,
+        reply: enhancedResponse.text,
         author: input.author,
       });
 
@@ -142,10 +105,10 @@ Custom Prompt: ${customPrompt}`;
       }
 
       return {
-        text: result.text,
-        remainingUsage: isTweetGenerationFromWebForm 
-          ? usageLimit - usageCount // Don't increment for tweet generation from web form
-          : usageLimit - (usageCount + 1),
+        text: enhancedResponse.text,
+        remainingUsage: usageLimit - (usageCount + 1),
+        confidence: enhancedResponse.confidence,
+        contextAnalysis: enhancedResponse.contextAnalysis,
       };
     }),
 
@@ -552,4 +515,326 @@ Custom Prompt: ${customPrompt}`;
         percentageChange,
       };
     }),
+
+  // TODO: Implement quality tracking features after creating responseRatings schema
+  // rateResponse: protectedProcedure
+  //   .input(z.object({
+  //     generationId: z.string(),
+  //     rating: z.number().min(1).max(5),
+  //     feedback: z.string().optional(),
+  //   }))
+  //   .mutation(async ({ ctx, input }) => {
+  //     // Store user feedback for continuous improvement
+  //     await ctx.db.insert(responseRatings).values({
+  //       generationId: input.generationId,
+  //       userId: ctx.session.user.id,
+  //       rating: input.rating,
+  //       feedback: input.feedback,
+  //       createdAt: new Date(),
+  //     });
+  //     
+  //     return { success: true };
+  //   }),
+    
+  // getQualityMetrics: protectedProcedure
+  //   .query(async ({ ctx }) => {
+  //     // Return quality metrics for admin dashboard
+  //     const metrics = await ctx.db
+  //       .select({
+  //         avgRating: avg(responseRatings.rating),
+  //         totalRatings: count(responseRatings.id),
+  //         platform: generations.source,
+  //       })
+  //       .from(responseRatings)
+  //       .innerJoin(generations, eq(responseRatings.generationId, generations.id))
+  //       .groupBy(generations.source);
+  //       
+  //     return metrics;
+  //   }),
 });
+
+// Enhanced response generation function
+async function generateEnhancedResponse({
+  input,
+  ai,
+  enabledModels,
+  customPrompt,
+}: {
+  input: any;
+  ai: any;
+  enabledModels: any[];
+  customPrompt: string;
+}) {
+  const { instance } = await getAIInstance({
+    apiKey: ai?.apiKey ?? "",
+    enabledModels,
+  });
+
+  // Step 1: Context Analysis
+  const contextAnalysis = await analyzeContext({
+    instance,
+    input,
+    customPrompt,
+  });
+
+  // Step 2: Generate Response with Enhanced Prompting
+  const response = await generateContextualResponse({
+    instance,
+    input,
+    contextAnalysis,
+    customPrompt,
+  });
+
+  // Step 3: Quality Enhancement
+  const enhancedResponse = await enhanceResponseQuality({
+    instance,
+    originalResponse: response,
+    input,
+    contextAnalysis,
+  });
+
+  return {
+    text: enhancedResponse.text,
+    confidence: enhancedResponse.confidence,
+    contextAnalysis,
+  };
+}
+
+// Context analysis function
+async function analyzeContext({
+  instance,
+  input,
+}: {
+  instance: any;
+  input: any;
+  customPrompt: string;
+}) {
+  const contextPrompt = `Analyze the following social media content and provide insights:
+
+Platform: ${input.source}
+Type: ${input.type}
+Content: ${input.post}
+Author: ${input.author ?? "Unknown"}
+Tone Requested: ${input.tone}
+
+Provide analysis in this JSON format:
+{
+  "sentiment": "positive|negative|neutral",
+  "topics": ["topic1", "topic2"],
+  "engagement_potential": "high|medium|low",
+  "content_type": "informational|promotional|conversational|humorous",
+  "target_audience": "description",
+  "key_points": ["point1", "point2"],
+  "cultural_context": "description",
+  "trending_elements": ["element1", "element2"]
+}`;
+
+  const result = await generateText({
+    model: instance,
+    prompt: contextPrompt,
+    temperature: 0.3, // Lower temperature for analysis
+  });
+
+  try {
+    return JSON.parse(result.text);
+  } catch {
+    // Fallback analysis
+    return {
+      sentiment: "neutral",
+      topics: ["general"],
+      engagement_potential: "medium",
+      content_type: "conversational",
+      target_audience: "general audience",
+      key_points: ["engagement"],
+      cultural_context: "general",
+      trending_elements: [],
+    };
+  }
+}
+
+// Enhanced contextual response generation
+async function generateContextualResponse({
+  instance,
+  input,
+  contextAnalysis,
+  customPrompt,
+}: {
+  instance: any;
+  input: any;
+  contextAnalysis: any;
+  customPrompt: string;
+}) {
+  const platformGuidelines = getPlatformGuidelines(input.source);
+  const toneInstructions = getToneInstructions(input.tone, contextAnalysis);
+  
+  const enhancedSystemPrompt = `You are an expert social media manager with deep understanding of human psychology, cultural nuances, and platform-specific best practices.
+
+${platformGuidelines}
+
+${toneInstructions}
+
+Context Analysis:
+- Sentiment: ${contextAnalysis.sentiment}
+- Topics: ${contextAnalysis.topics.join(", ")}
+- Engagement Potential: ${contextAnalysis.engagement_potential}
+- Content Type: ${contextAnalysis.content_type}
+- Target Audience: ${contextAnalysis.target_audience}
+- Key Points: ${contextAnalysis.key_points.join(", ")}
+
+Custom Instructions: ${customPrompt}
+
+Generate a response that:
+1. Matches the analyzed context and sentiment
+2. Uses platform-appropriate formatting and style
+3. Incorporates relevant trending elements when appropriate
+4. Maintains authentic human-like communication
+5. Optimizes for engagement while staying genuine
+6. Respects cultural context and sensitivities`;
+
+  const userPrompt = buildEnhancedUserPrompt(input, contextAnalysis);
+
+  return await generateText({
+    model: instance,
+    system: enhancedSystemPrompt,
+    prompt: userPrompt,
+    temperature: 0.7, // Balanced creativity
+  });
+}
+
+// Platform-specific guidelines
+function getPlatformGuidelines(platform: string): string {
+  const guidelines = {
+    x: `Twitter/X Guidelines:
+- Keep responses concise (under 280 characters when possible)
+- Use relevant hashtags strategically (1-3 max)
+- Encourage retweets and replies
+- Use threading for longer thoughts
+- Leverage trending topics when relevant`,
+    
+    facebook: `Facebook Guidelines:
+- Moderate length posts (1-3 paragraphs)
+- Use emojis to enhance emotional connection
+- Ask questions to encourage comments
+- Share personal insights or experiences
+- Use line breaks for readability`,
+    
+    linkedin: `LinkedIn Guidelines:
+- Professional yet personable tone
+- Longer-form content (3-5 paragraphs)
+- Include industry insights or career advice
+- Use professional hashtags
+- Encourage meaningful professional discussions
+- Share expertise and thought leadership`,
+  };
+  
+  return guidelines[platform as keyof typeof guidelines] || guidelines.x;
+}
+
+// Tone-specific instructions
+function getToneInstructions(tone: string, contextAnalysis: any): string {
+  const baseInstructions = {
+    professional: "Maintain a polished, authoritative voice while being approachable",
+    casual: "Use conversational language, contractions, and relatable expressions",
+    humorous: "Incorporate wit, wordplay, or light humor appropriate to the context",
+    inspirational: "Use uplifting language that motivates and encourages action",
+    educational: "Provide valuable insights while maintaining an accessible teaching tone",
+    empathetic: "Show understanding and emotional intelligence in your response",
+  };
+  
+  const sentimentAdjustment = {
+    positive: "Match and amplify the positive energy",
+    negative: "Acknowledge concerns while offering constructive perspective",
+    neutral: "Bring appropriate energy based on the desired tone",
+  };
+  
+  return `Tone: ${tone}
+${baseInstructions[tone as keyof typeof baseInstructions] || baseInstructions.casual}
+${sentimentAdjustment[contextAnalysis.sentiment as keyof typeof sentimentAdjustment]}`;
+}
+
+// Enhanced user prompt builder
+function buildEnhancedUserPrompt(input: any, _contextAnalysis: any): string {
+  let prompt = `Generate a ${input.type} for ${input.source}:\n\n`;
+  
+  if (input.type === "reply") {
+    prompt += `Original Post: ${input.post}\n`;
+    if (input.author) prompt += `Author: ${input.author}\n`;
+    if (input.url) prompt += `Link: ${input.url}\n`;
+    prompt += `\nCreate an engaging reply that adds value to the conversation.`;
+  } else {
+    prompt += `Topic/Keywords: ${input.post}\n`;
+    prompt += `\nCreate an original post about this topic.`;
+  }
+  
+  // Add media context if available
+  if (input.images?.length > 0) {
+    prompt += `\n\nImages attached: ${input.images.length} image(s)`;
+  }
+  
+  if (input.video) {
+    prompt += `\n\nVideo content included`;
+  }
+  
+  if (input.quotedPost) {
+    prompt += `\n\nQuoted content: @${input.quotedPost.handle}: ${input.quotedPost.text}`;
+  }
+  
+  return prompt;
+}
+
+// Quality enhancement function
+async function enhanceResponseQuality({
+  instance,
+  originalResponse,
+  input,
+  contextAnalysis,
+}: {
+  instance: any;
+  originalResponse: any;
+  input: any;
+  contextAnalysis: any;
+}) {
+  const qualityPrompt = `Review and enhance this social media response:
+
+Original Response: ${originalResponse.text}
+
+Platform: ${input.source}
+Tone: ${input.tone}
+Context: ${contextAnalysis.content_type}
+
+Improve the response by:
+1. Enhancing clarity and readability
+2. Optimizing engagement potential
+3. Ensuring platform-appropriate formatting
+4. Adding subtle personality without being artificial
+5. Maintaining the core message while improving flow
+
+Provide the enhanced response in this JSON format:
+{
+  "enhanced_text": "improved response here",
+  "confidence_score": 0.85,
+  "improvements_made": ["improvement1", "improvement2"]
+}`;
+
+  const result = await generateText({
+    model: instance,
+    prompt: qualityPrompt,
+    temperature: 0.4, // Moderate creativity for enhancement
+  });
+
+  try {
+    const parsed = JSON.parse(result.text);
+    return {
+      text: parsed.enhanced_text,
+      confidence: parsed.confidence_score,
+      improvements: parsed.improvements_made,
+    };
+  } catch {
+    // Fallback to original response
+    return {
+      text: originalResponse.text,
+      confidence: 0.7,
+      improvements: [],
+    };
+  }
+}
