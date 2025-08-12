@@ -554,6 +554,19 @@ export const generationRouter = createTRPCRouter({
 });
 
 // Enhanced response generation function
+/**
+ * Generates an enhanced response based on the input and AI configuration.
+ *
+ * This function orchestrates a multi-step process to generate a high-quality response.
+ * It first analyzes the context using the provided input and custom prompt.
+ * Then, it generates a contextual response using the analyzed context.
+ * Finally, it enhances the quality of the generated response before returning it.
+ *
+ * @param {any} input - The input data for generating the response.
+ * @param {any} ai - Configuration object containing AI-related settings like apiKey.
+ * @param {any[]} enabledModels - Array of models that are enabled for use.
+ * @param {string} customPrompt - A custom prompt string to guide the response generation.
+ */
 async function generateEnhancedResponse({
   input,
   ai,
@@ -601,6 +614,15 @@ async function generateEnhancedResponse({
 }
 
 // Context analysis function
+/**
+ * Analyzes social media content and provides insights in JSON format.
+ *
+ * This function constructs a prompt based on the provided input and sends it to a text generation model.
+ * It then attempts to parse the model's response as JSON. If parsing fails, it returns a fallback analysis.
+ *
+ * @param instance - The model instance used for generating text.
+ * @param input - The social media content data including source, type, post, author, and tone.
+ */
 async function analyzeContext({
   instance,
   input,
@@ -653,6 +675,9 @@ Provide analysis in this JSON format:
 }
 
 // Enhanced contextual response generation
+/**
+ * Generates a contextual response based on input and analysis.
+ */
 async function generateContextualResponse({
   instance,
   input,
@@ -702,6 +727,9 @@ Generate a response that:
 }
 
 // Platform-specific guidelines
+/**
+ * Retrieves platform-specific guidelines based on the given platform name.
+ */
 function getPlatformGuidelines(platform: string): string {
   const guidelines = {
     x: `Twitter/X Guidelines:
@@ -731,6 +759,9 @@ function getPlatformGuidelines(platform: string): string {
 }
 
 // Tone-specific instructions
+/**
+ * Generates tone instructions based on the specified tone and context analysis.
+ */
 function getToneInstructions(tone: string, contextAnalysis: any): string {
   const baseInstructions = {
     professional: "Maintain a polished, authoritative voice while being approachable",
@@ -753,6 +784,16 @@ ${sentimentAdjustment[contextAnalysis.sentiment as keyof typeof sentimentAdjustm
 }
 
 // Enhanced user prompt builder
+/**
+ * Constructs an enhanced user prompt based on input type and context.
+ *
+ * This function generates a detailed prompt for different types of content,
+ * such as replies or original posts, incorporating various contextual elements like
+ * author, URL, media attachments, and quoted content. The prompt is designed to guide
+ * the creation of engaging and relevant responses.
+ *
+ * @param input - An object containing details about the content to be generated.
+ */
 function buildEnhancedUserPrompt(input: any, _contextAnalysis: any): string {
   let prompt = `Generate a ${input.type} for ${input.source}:\n\n`;
   
@@ -783,6 +824,18 @@ function buildEnhancedUserPrompt(input: any, _contextAnalysis: any): string {
 }
 
 // Quality enhancement function
+/**
+ * Enhances the quality of a social media response by generating an improved version based on provided context and original response.
+ *
+ * The function constructs a prompt to guide the enhancement process, including details about the original response's platform, tone,
+ * and context. It then uses an AI model to generate the enhanced response, which is parsed for further processing. If parsing fails,
+ * it returns the original response with a default confidence score and no improvements listed.
+ *
+ * @param {any} instance - The AI model instance used for generating the enhanced response.
+ * @param {any} originalResponse - The original social media response to be enhanced.
+ * @param {any} input - The input data containing details about the platform and tone of the original response.
+ * @param {any} contextAnalysis - Analysis of the context in which the response was made, including content type.
+ */
 async function enhanceResponseQuality({
   instance,
   originalResponse,

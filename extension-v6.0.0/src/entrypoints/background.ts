@@ -134,6 +134,20 @@ export default defineBackground({
 // }
 
 // Enhanced content preparation function
+/**
+ * Prepares enhanced content by appending structured information about media, quoted posts, and context details.
+ *
+ * This function processes various types of media (images, video) and quoted posts to enrich the provided text content.
+ * It constructs a detailed string that includes relevant URLs, counts, and additional context such as platform and type.
+ *
+ * @param images - An optional array of image URLs associated with the content.
+ * @param quotedPost - An optional object representing a quoted post, containing handle and text among other details.
+ * @param source - A string indicating the source or platform from which the content originates.
+ * @param text - The main text content to be enhanced.
+ * @param type - A string describing the type of content (e.g., 'tweet', 'post').
+ * @param video - An optional object containing video details such as URL and poster image.
+ * @returns A string with the original text enriched by structured information about media, quoted posts, and context.
+ */
 function prepareEnhancedContent({
   images,
   quotedPost,

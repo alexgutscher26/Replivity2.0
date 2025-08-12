@@ -4,12 +4,19 @@ import type { ContentParser } from './content-parser'
 
 export abstract class BaseParser implements ContentParser {
   [x: string]: any
+  /**
+   * Retrieves content as PostData or returns null if not available.
+   */
   abstract getContent(): null | PostData
 
   abstract setText(text: string): Promise<void>
 
   /**
-   * Enhanced content extraction with context analysis
+   * Extracts enhanced context from a given container element.
+   *
+   * This function analyzes the content of the provided container to extract various metrics
+   * such as hashtag, link, and mention counts, as well as word count. It also retrieves engagement
+   * metrics, follower count, timestamp, and verification status by calling helper functions.
    */
   protected extractEnhancedContext(container: Element): {
     contentMetrics: {
@@ -39,6 +46,9 @@ export abstract class BaseParser implements ContentParser {
     }
   }
 
+  /**
+   * Simulates typing text into an editor element.
+   */
   protected simulateTyping(editor: HTMLElement, text: string): void {
     editor.focus()
     let index = 0
@@ -55,6 +65,9 @@ export abstract class BaseParser implements ContentParser {
     typeNextChar()
   }
 
+  /**
+   * Extracts engagement metrics (comments, likes, shares) from a given container element.
+   */
   private extractEngagementMetrics(container: Element) {
     // Platform-specific engagement extraction
     return {
@@ -64,6 +77,17 @@ export abstract class BaseParser implements ContentParser {
     }
   }
 
+  /**
+   * Extracts a number from a specified element within a container using a CSS selector.
+   *
+   * The function searches for an element within the provided container that matches the given selector.
+   * If the element is found, it attempts to extract a numeric value from the element's text content.
+   * The extracted number can be in a format with commas (e.g., "1,234"), which are removed before parsing.
+   * If no valid number is found or the element does not exist, the function returns 0.
+   *
+   * @param container - The parent DOM element to search within.
+   * @param selector - A CSS selector string used to find the target element.
+   */
   private extractNumber(container: Element, selector: string): number {
     const element = container.querySelector(selector)
     if (!element)
