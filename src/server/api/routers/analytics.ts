@@ -271,13 +271,28 @@ export const analyticsRouter = createTRPCRouter({
 });
 
 /**
- * Convert analytics data to CSV format
+ * Convert analytics data to CSV format.
+ *
+ * This function first checks if the input data is a valid object. It then flattens the object using the flattenObject helper function, which recursively constructs a flattened representation of the object. Finally, it generates CSV headers and values from the flattened object and returns them as a CSV string.
+ *
+ * @param data - The analytics data to be converted to CSV format.
+ * @returns A string representing the CSV format of the input data.
  */
 function convertToCSV(data: any): string {
   if (!data || typeof data !== 'object') {
     return '';
   }
 
+  /**
+   * Flattens a nested object into a single-level object with dot-separated keys.
+   *
+   * The function iterates over the properties of the input object, checking if each property is an object itself.
+   * If it is, the function recursively flattens that object, appending the current key to the prefix.
+   * Non-object properties are directly assigned to the flattened result using the constructed key.
+   *
+   * @param obj - The object to flatten.
+   * @param prefix - The prefix to prepend to the keys in the flattened object.
+   */
   const flattenObject = (obj: any, prefix = ''): Record<string, any> => {
     const flattened: Record<string, any> = {};
     
