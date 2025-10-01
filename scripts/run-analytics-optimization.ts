@@ -27,6 +27,16 @@ if (!connectionString) {
 const sql = postgres(connectionString, { max: 1 });
 const db = drizzle(sql);
 
+/**
+ * Run the analytics optimization process.
+ *
+ * This function reads a migration SQL file, executes its statements while handling errors, and summarizes the results.
+ * It also verifies materialized views and tests analytics performance after executing the statements.
+ * The function ensures that even if some statements fail, the process continues, and it logs the success and failure counts.
+ *
+ * @returns {Promise<void>} A promise that resolves when the optimization process is complete.
+ * @throws Error If a fatal error occurs during the analytics optimization.
+ */
 async function runAnalyticsOptimization() {
   console.log("🚀 Starting Analytics Optimization...\n");
 
@@ -114,6 +124,14 @@ async function runAnalyticsOptimization() {
   }
 }
 
+/**
+ * Verifies the status of materialized views in the public schema.
+ *
+ * This function retrieves materialized view information from the database, including their names,
+ * population status, and index presence. It logs the status of each view and checks for any
+ * missing expected views, providing appropriate messages based on the results. If an error occurs
+ * during the database query, it logs the error to the console.
+ */
 async function verifyMaterializedViews() {
   try {
     const views = await sql`
@@ -152,6 +170,16 @@ async function verifyMaterializedViews() {
   }
 }
 
+/**
+ * Test the performance of various analytics queries and functions.
+ *
+ * This function executes a series of predefined SQL queries to measure their execution time and logs the results.
+ * It handles errors for each query individually, ensuring that one failure does not halt the entire testing process.
+ * Additionally, it tests specific analytics functions and logs their performance metrics.
+ *
+ * @returns {Promise<void>} A promise that resolves when all tests are completed.
+ * @throws Error If an error occurs during the execution of the queries or functions.
+ */
 async function testAnalyticsPerformance() {
   try {
     const testQueries = [
