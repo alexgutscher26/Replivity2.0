@@ -10,13 +10,15 @@ import { usage } from "./schema/usage-schema";
 import { generations } from "./schema/generations-schema";
 import { billing } from "./schema/billing-schema";
 import { user } from "./schema/auth-schema";
+import { getCacheManager, QueryCache } from './cache-manager';
+import { CACHE_TAGS, CACHE_TTL } from './cached-queries';
 
 /**
  * Query optimization utilities and caching layer
  */
 
-// Simple in-memory cache for frequently accessed data
-class QueryCache {
+// Legacy simple cache for backward compatibility
+class LegacyQueryCache {
   private cache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
   private defaultTTL = 5 * 60 * 1000; // 5 minutes
 
@@ -61,10 +63,49 @@ class QueryCache {
   }
 }
 
-export const queryCache = new QueryCache();
+export const queryCache = new LegacyQueryCache();
+
+// Advanced cache instance
+let advancedCache: QueryCache | null = null;
+
+function getAdvancedCache(): QueryCache {
+  if (!advancedCache) {
+    try {
+      const cacheManager = getCacheManager();
+      advancedCache = new QueryCache(cacheManager);
+    } catch (error) {
+      console.warn('⚠️ Advanced cache not available, falling back to legacy cache:', error);
+      // Return a mock cache that uses the legacy system
+      return {
+        cacheQuery: async (query: string, queryFn: () => Promise<any>, params: any = {}, tags: string[] = [], ttl?: number) => {
+          const key = `${query}_${JSON.stringify(params)}`;
+          const cached = queryCache.get(key);
+          if (cached) return cached;
+          const result = await queryFn();
+          queryCache.set(key, result, ttl);
+          return result;
+        },
+        cache: async (key: string, queryFn: () => Promise<any>, tags: string[] = [], ttl?: number) => {
+          const cached = queryCache.get(key);
+          if (cached) return cached;
+          const result = await queryFn();
+          queryCache.set(key, result, ttl);
+          return result;
+        },
+        invalidate: async (tags: string[]) => {
+          queryCache.invalidate();
+        },
+        clear: async () => {
+          queryCache.invalidate();
+        }
+      } as QueryCache;
+    }
+  }
+  return advancedCache;
+}
 
 /**
- * Cached query executor
+ * Cached query executor (legacy)
  */
 export async function cachedQuery<T>(
   key: string,
@@ -84,6 +125,20 @@ export async function cachedQuery<T>(
   } finally {
     endTimer();
   }
+}
+
+/**
+ * Advanced cached query executor with Redis support
+ */
+export async function advancedCachedQuery<T>(
+  query: string,
+  queryFn: () => Promise<T>,
+  params: any = {},
+  tags: string[] = [],
+  ttl?: number
+): Promise<T> {
+  const cache = getAdvancedCache();
+  return cache.cacheQuery(query, queryFn, params, tags, ttl);
 }
 
 /**
@@ -179,8 +234,8 @@ export class UserQueryOptimizer {
    * Get user with active subscription (cached)
    */
   static async getUserWithActiveSubscription(userId: string) {
-    return cachedQuery(
-      `user_active_sub_${userId}`,
+    return advancedCachedQuery(
+      'getUserWithActiveSubscription',
       async () => {
         const result = await pooledDb.query.user.findFirst({
           where: eq(user.id, userId),
@@ -199,7 +254,9 @@ export class UserQueryOptimizer {
         });
         return result;
       },
-      2 * 60 * 1000 // 2 minutes cache
+      { userId },
+      [CACHE_TAGS.USER, CACHE_TAGS.BILLING],
+      CACHE_TTL.USER_DATA
     );
   }
 
@@ -207,8 +264,8 @@ export class UserQueryOptimizer {
    * Get user usage statistics (cached)
    */
   static async getUserUsageStats(userId: string, productId: string) {
-    return cachedQuery(
-      `user_usage_${userId}_${productId}`,
+    return advancedCachedQuery(
+      'getUserUsageStats',
       async () => {
         const result = await pooledDb.query.usage.findFirst({
           where: and(
@@ -218,7 +275,55 @@ export class UserQueryOptimizer {
         });
         return result;
       },
-      1 * 60 * 1000 // 1 minute cache
+      { userId, productId },
+      [CACHE_TAGS.USER, CACHE_TAGS.GENERATION],
+      CACHE_TTL.GENERATION_STATS
+    );
+  }
+
+  /**
+   * Get user dashboard data with advanced caching
+   */
+  static async getUserDashboardData(userId: string) {
+    return advancedCachedQuery(
+      'getUserDashboardData',
+      async () => {
+        const [userData, generationCount, recentGenerations] = await Promise.all([
+          pooledDb.query.user.findFirst({
+            where: eq(user.id, userId),
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              createdAt: true,
+              updatedAt: true,
+              role: true,
+              banned: true,
+              emailVerified: true,
+              twoFactorEnabled: true
+            }
+          }),
+          pooledDb
+            .select({ count: count() })
+            .from(generations)
+            .where(eq(generations.userId, userId)),
+          pooledDb
+            .select()
+            .from(generations)
+            .where(eq(generations.userId, userId))
+            .orderBy(desc(generations.createdAt))
+            .limit(5)
+        ]);
+
+        return {
+          user: userData,
+          generationCount: generationCount[0]?.count || 0,
+          recentGenerations
+        };
+      },
+      { userId },
+      [CACHE_TAGS.USER, CACHE_TAGS.GENERATION],
+      CACHE_TTL.USER_DATA
     );
   }
 }
@@ -235,10 +340,8 @@ export class GenerationQueryOptimizer {
     userId?: string,
     dateRange?: { from?: Date; to?: Date }
   ) {
-    const cacheKey = `platform_stats_${platform}_${userId ?? 'all'}_${dateRange?.from?.getTime() ?? 'no_from'}_${dateRange?.to?.getTime() ?? 'no_to'}`;
-    
-    return cachedQuery(
-      cacheKey,
+    return advancedCachedQuery(
+      'getPlatformStats',
       async () => {
         const conditions = [eq(generations.source, platform)];
         
@@ -293,7 +396,9 @@ export class GenerationQueryOptimizer {
           percentageChange,
         };
       },
-      5 * 60 * 1000 // 5 minutes cache
+      { platform, userId, dateFrom: dateRange?.from, dateTo: dateRange?.to },
+      [CACHE_TAGS.GENERATION, CACHE_TAGS.ANALYTICS],
+      CACHE_TTL.ANALYTICS
     );
   }
 
@@ -348,10 +453,8 @@ export class BillingQueryOptimizer {
    * Get active subscriptions with caching
    */
   static async getActiveSubscriptions(userId?: string) {
-    const cacheKey = `active_subs_${userId ?? 'all'}`;
-    
-    return cachedQuery(
-      cacheKey,
+    return advancedCachedQuery(
+      'getActiveSubscriptions',
       async () => {
         const conditions = [
           or(
@@ -379,7 +482,9 @@ export class BillingQueryOptimizer {
           orderBy: desc(billing.createdAt),
         });
       },
-      3 * 60 * 1000 // 3 minutes cache
+      { userId },
+      [CACHE_TAGS.BILLING],
+      CACHE_TTL.BILLING_DATA
     );
   }
 
