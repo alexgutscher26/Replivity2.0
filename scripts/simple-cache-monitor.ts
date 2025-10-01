@@ -6,6 +6,15 @@ config({ path: join(process.cwd(), ".env") });
 
 console.log('🚀 Starting simple cache monitoring...');
 
+/**
+ * Run a simple cache monitor to initialize and test cache operations.
+ *
+ * This function initializes a cache manager with Redis and memory settings, performs a health check,
+ * tests cache operations, and logs the final statistics. It handles errors by logging them and exiting the process.
+ *
+ * @returns {Promise<void>} A promise that resolves when the cache monitoring is completed.
+ * @throws {Error} If there is an error during cache initialization or operations.
+ */
 async function runSimpleCacheMonitor() {
   try {
     // Initialize cache
@@ -64,6 +73,9 @@ async function runSimpleCacheMonitor() {
   }
 }
 
+/**
+ * Converts a byte value to a human-readable string format.
+ */
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
   

@@ -8,6 +8,14 @@ const path = require('path');
 // Load environment variables
 config({ path: path.join(process.cwd(), ".env") });
 
+/**
+ * Tests the cache system functionality.
+ *
+ * This function initializes the cache manager with configuration settings for Redis and memory,
+ * then performs a series of tests including basic cache operations (set and get),
+ * retrieval of cache statistics, and checking the health of the cache.
+ * It logs the results of each test and handles any errors that may occur during the process.
+ */
 async function testCache() {
   console.log('🧪 Testing cache system...');
   
