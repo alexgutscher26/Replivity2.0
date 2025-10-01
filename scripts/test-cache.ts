@@ -12,6 +12,14 @@ import { join } from 'path';
 // Load environment variables
 config({ path: join(process.cwd(), ".env") });
 
+/**
+ * Tests the cache system functionality.
+ *
+ * This function initializes the cache manager with Redis and memory settings, performs basic cache operations, retrieves cache statistics, checks cache health, and tests cached queries. It handles errors gracefully, particularly for database availability during cached queries testing, and logs the results of each step.
+ *
+ * @returns {Promise<void>} A promise that resolves when the cache system test is completed.
+ * @throws Error If the cache system test fails at any point.
+ */
 async function testCache() {
   console.log('🧪 Testing cache system...');
   
