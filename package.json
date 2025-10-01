@@ -13,6 +13,7 @@
     "db:optimize": "tsx scripts/optimize-database.ts",
     "db:optimize-enhanced": "tsx scripts/run-database-optimization.ts",
     "db:monitor": "tsx scripts/monitor-database-performance.ts",
+    "analytics:optimize": "tsx scripts/run-analytics-optimization.ts",
     "seed:features": "tsx src/scripts/seed-feature-permissions.ts",
     "dev": "next dev --turbo",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
