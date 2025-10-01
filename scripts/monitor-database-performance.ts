@@ -36,6 +36,16 @@ interface PerformanceReport {
   recommendations: string[];
 }
 
+/**
+ * Generate a comprehensive database performance report.
+ *
+ * This function analyzes index usage, table sizes, and slow queries, and identifies unused indexes in the database.
+ * It compiles the results into a PerformanceReport object, which includes recommendations for optimization.
+ * If any errors occur during the analysis, they are logged, and the error is thrown to the caller.
+ *
+ * @returns A Promise that resolves to a PerformanceReport object containing the analysis results.
+ * @throws Error If an error occurs during the report generation process.
+ */
 async function generatePerformanceReport(): Promise<PerformanceReport> {
   console.log("📊 Generating comprehensive database performance report...\n");
 
@@ -142,6 +152,18 @@ async function generatePerformanceReport(): Promise<PerformanceReport> {
   }
 }
 
+/**
+ * Generate performance recommendations based on a performance report.
+ *
+ * This function analyzes various aspects of the performance report, including unused indexes, slow queries,
+ * table sizes, and index usage patterns. It compiles a list of recommendations aimed at optimizing database
+ * performance, such as dropping unused indexes, optimizing slow queries, and adding indexes for frequently
+ * queried columns.
+ *
+ * @param report - A PerformanceReport object containing data on unused indexes, slow queries, table sizes,
+ *                 and index usage patterns.
+ * @returns An array of strings containing performance improvement recommendations.
+ */
 function generateRecommendations(report: PerformanceReport): string[] {
   const recommendations: string[] = [];
 
@@ -199,6 +221,16 @@ function generateRecommendations(report: PerformanceReport): string[] {
   return recommendations;
 }
 
+/**
+ * Print a detailed performance report for database indexes and queries.
+ *
+ * This function generates a comprehensive report that includes index usage statistics,
+ * the top 10 most used indexes, unused indexes, table sizes, slow queries, and optimization
+ * recommendations. It formats the output for readability and provides visual indicators for
+ * index usage levels. The report is derived from the provided PerformanceReport object.
+ *
+ * @param report - The PerformanceReport object containing data for the report.
+ */
 function printReport(report: PerformanceReport) {
   console.log("\n" + "=".repeat(80));
   console.log("📊 DATABASE PERFORMANCE REPORT");
@@ -289,6 +321,9 @@ function printReport(report: PerformanceReport) {
   console.log("\n" + "=".repeat(80));
 }
 
+/**
+ * Saves a performance report to a JSON file in the reports directory.
+ */
 async function saveReport(report: PerformanceReport) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const filename = `database-performance-report-${timestamp}.json`;
@@ -305,6 +340,14 @@ async function saveReport(report: PerformanceReport) {
   console.log(`\n💾 Report saved to: ${filepath}`);
 }
 
+/**
+ * Executes the main performance monitoring workflow.
+ *
+ * This function generates a performance report by calling `generatePerformanceReport`,
+ * prints the report using `printReport`, and saves it with `saveReport`. It handles
+ * any errors that may occur during these operations and ensures that the SQL connection
+ * is closed in the `finally` block.
+ */
 async function main() {
   try {
     const report = await generatePerformanceReport();
