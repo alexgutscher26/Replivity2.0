@@ -37,7 +37,7 @@ class CacheMonitor {
   }
 
   /**
-   * Start monitoring cache performance
+   * Start monitoring cache performance.
    */
   async start(): Promise<void> {
     console.log('🚀 Starting cache performance monitoring...');
@@ -62,7 +62,7 @@ class CacheMonitor {
   }
 
   /**
-   * Stop monitoring
+   * Stops monitoring and generates a report.
    */
   stop(): void {
     if (this.intervalId) {
@@ -75,7 +75,12 @@ class CacheMonitor {
   }
 
   /**
-   * Check cache health
+   * Check the health of the cache and log the status.
+   *
+   * This function retrieves the health status and statistics of the cache, logging details such as connectivity to Redis, memory health, hit rate, and memory usage.
+   * If any health issues are detected, appropriate warnings are logged. The function handles errors gracefully, logging any failures during the health check process.
+   *
+   * @returns A Promise that resolves to void.
    */
   private async checkHealth(): Promise<void> {
     try {
@@ -107,7 +112,11 @@ class CacheMonitor {
   }
 
   /**
-   * Collect cache statistics
+   * Collect cache statistics.
+   *
+   * This method retrieves the current cache statistics and health status, then stores them in the stats array with a timestamp.
+   * If the verbose configuration is enabled, it logs the hit rate and memory entry count to the console.
+   * Errors during the collection process are caught and logged to the console.
    */
   private async collectStats(): Promise<void> {
     try {
@@ -129,7 +138,12 @@ class CacheMonitor {
   }
 
   /**
-   * Generate performance report
+   * Generate performance report.
+   *
+   * This function calculates and logs various performance metrics based on the collected statistics.
+   * It computes average, maximum, and minimum hit rates, memory usage, and memory entry counts.
+   * Additionally, it evaluates the health metrics for Redis uptime and memory health.
+   * Finally, it invokes the generateRecommendations function to provide performance recommendations based on the calculated metrics.
    */
   private generateReport(): void {
     if (this.stats.length === 0) {
@@ -180,7 +194,14 @@ class CacheMonitor {
   }
 
   /**
-   * Generate performance recommendations
+   * Generate performance recommendations based on cache metrics.
+   *
+   * This function evaluates the average hit rate, memory usage, Redis uptime, and memory health to provide tailored performance recommendations. It logs warnings for low hit rates, high memory usage, Redis connection issues, and memory health problems, along with actionable suggestions. Additionally, it offers configuration suggestions to optimize caching strategies.
+   *
+   * @param avgHitRate - The average hit rate of the cache as a percentage.
+   * @param avgMemoryUsage - The average memory usage of the cache in bytes.
+   * @param redisUptime - The uptime of the Redis server as a percentage.
+   * @param memoryHealth - The health status of the memory cache as a percentage.
    */
   private generateRecommendations(
     avgHitRate: number,
@@ -230,7 +251,7 @@ class CacheMonitor {
   }
 
   /**
-   * Format bytes to human readable format
+   * Converts a byte value to a human-readable string format.
    */
   private formatBytes(bytes: number): string {
     if (bytes === 0) return '0 B';
@@ -243,7 +264,13 @@ class CacheMonitor {
   }
 
   /**
-   * Format duration to human readable format
+   * Format duration to human readable format.
+   *
+   * This function takes a duration in milliseconds and converts it into a string representation
+   * that expresses the duration in hours, minutes, and seconds. It calculates the total seconds,
+   * minutes, and hours, and formats the output based on the largest unit present in the duration.
+   *
+   * @param ms - The duration in milliseconds to be formatted.
    */
   private formatDuration(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -261,7 +288,12 @@ class CacheMonitor {
 }
 
 /**
- * Main execution function
+ * Main execution function for cache monitoring.
+ *
+ * This function initializes the cache manager with Redis and memory settings, parses command line arguments for monitoring intervals and verbosity, and starts the cache monitoring process. It also sets up handlers for graceful shutdown on SIGINT and SIGTERM signals, ensuring the monitor stops correctly. If any errors occur during execution, they are logged, and the process exits with a failure status.
+ *
+ * @returns A promise that resolves when the monitoring process is complete.
+ * @throws Error If cache monitoring initialization fails.
  */
 async function runCacheMonitoring(): Promise<void> {
   try {
