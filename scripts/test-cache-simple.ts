@@ -6,6 +6,14 @@ config({ path: join(process.cwd(), ".env") });
 
 console.log('🧪 Testing cache system...');
 
+/**
+ * Test the functionality of the cache manager.
+ *
+ * This function initializes the cache manager with Redis and memory configurations, then performs a series of tests including setting and getting a cache value, retrieving cache statistics, and checking cache health. It logs the results of each operation and handles any errors that occur during the process.
+ *
+ * @returns {Promise<void>} A promise that resolves when the cache system test is completed.
+ * @throws Error If any of the cache operations fail.
+ */
 async function testCache() {
   try {
     // Test cache manager initialization
