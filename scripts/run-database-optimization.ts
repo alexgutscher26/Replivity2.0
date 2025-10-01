@@ -46,6 +46,17 @@ if (!connectionString) {
 const sql = postgres(connectionString, { max: 1 });
 const db = drizzle(sql);
 
+/**
+ * Run the database optimization process by executing SQL migration statements.
+ *
+ * This function reads a migration file containing SQL statements, splits them into individual commands,
+ * and executes each statement while tracking success and failure counts. It also performs a performance
+ * analysis after executing the statements. Errors encountered during execution are logged, and the
+ * function ensures that all statements are attempted even if some fail.
+ *
+ * @returns {Promise<void>} A promise that resolves when the optimization process is complete.
+ * @throws Error If a fatal error occurs during the optimization process.
+ */
 async function runOptimization() {
   console.log("🚀 Starting Database Optimization...\n");
 
@@ -129,6 +140,16 @@ async function runOptimization() {
   }
 }
 
+/**
+ * Analyze the performance of the database by checking index usage, unused indexes, table sizes, and slow queries.
+ *
+ * The function performs several SQL queries to gather information about index usage levels, identifies unused indexes,
+ * retrieves the sizes of the largest tables, and checks for slow queries if the pg_stat_statements extension is available.
+ * It logs the results to the console, providing insights into database performance and potential areas for optimization.
+ *
+ * @returns {Promise<void>} A promise that resolves when the performance analysis is complete.
+ * @throws Error If an error occurs during the performance analysis or SQL execution.
+ */
 async function analyzePerformance() {
   try {
     console.log("📊 Analyzing database performance...\n");
@@ -249,6 +270,11 @@ async function analyzePerformance() {
   }
 }
 
+/**
+ * Tests the performance of various SQL queries.
+ *
+ * This function logs the execution time for a set of predefined SQL queries related to user lookups, session counts, recent generations, and active subscriptions. It measures the duration of each query execution and handles any errors that may occur during the process, logging appropriate messages for both successful and failed queries.
+ */
 async function testQueryPerformance() {
   console.log("\n🧪 Testing Query Performance...");
   
