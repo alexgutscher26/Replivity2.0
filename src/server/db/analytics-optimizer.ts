@@ -48,6 +48,9 @@ class AnalyticsCache {
   private static readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
   private static readonly LONG_TTL = 30 * 60 * 1000; // 30 minutes
 
+  /**
+   * Stores data in the analytics cache with a specified key and time-to-live.
+   */
   static set(key: string, data: any, ttl = this.DEFAULT_TTL) {
     analyticsCache.set(key, {
       data,
@@ -56,6 +59,15 @@ class AnalyticsCache {
     });
   }
 
+  /**
+   * Retrieves cached analytics data by key.
+   *
+   * This function checks if the data associated with the provided key exists in the analyticsCache.
+   * If the data is found, it verifies whether the data has expired based on its timestamp and time-to-live (ttl).
+   * If the data is expired, it removes the entry from the cache and returns null. Otherwise, it returns the cached data.
+   *
+   * @param key - The key associated with the cached analytics data.
+   */
   static get(key: string): any | null {
     const cached = analyticsCache.get(key);
     if (!cached) return null;
@@ -69,6 +81,9 @@ class AnalyticsCache {
     return cached.data;
   }
 
+  /**
+   * Clears entries from the analyticsCache based on the provided pattern.
+   */
   static clear(pattern?: string) {
     if (pattern) {
       for (const key of analyticsCache.keys()) {
@@ -81,6 +96,9 @@ class AnalyticsCache {
     }
   }
 
+  /**
+   * Generates a key by combining a prefix with filter entries.
+   */
   static generateKey(prefix: string, filters: AnalyticsFilters): string {
     const filterStr = Object.entries(filters)
       .filter(([_, value]) => value !== undefined)
@@ -95,7 +113,12 @@ class AnalyticsCache {
  */
 export class AnalyticsOptimizer {
   /**
-   * Get comprehensive dashboard analytics with optimized joins
+   * Get comprehensive dashboard analytics with optimized joins.
+   *
+   * This function retrieves various analytics data based on the provided filters, including total generations, platform statistics, recent activity, user statistics, and revenue statistics. It first checks the cache for existing results and builds conditions based on userId and dateRange. It then executes multiple database queries in parallel to gather the required data and caches the result for future requests.
+   *
+   * @param filters - An object containing filters for userId, dateRange, and isAdmin status.
+   * @returns An object containing totalGenerations, platformStats, recentActivity, userStats, and revenueStats.
    */
   static async getDashboardAnalytics(filters: AnalyticsFilters = {}) {
     const cacheKey = AnalyticsCache.generateKey('dashboard', filters);
@@ -192,7 +215,13 @@ export class AnalyticsOptimizer {
   }
 
   /**
-   * Get user analytics with optimized joins
+   * Get user analytics with optimized joins.
+   *
+   * This function retrieves user analytics by first checking the cache for existing data. If not found, it builds conditions based on the provided filters, including userId, platform, and date range. It then queries the database for the user's subscription, current usage, and generation statistics, aggregating the results. Finally, it caches the result and returns the user analytics data.
+   *
+   * @param userId - The ID of the user for whom analytics are being retrieved.
+   * @param filters - An optional object containing filters for the analytics query, including dateRange and platform.
+   * @returns An object containing user data, usage data, generation statistics, and usage percentage.
    */
   static async getUserAnalytics(userId: string, filters: AnalyticsFilters = {}) {
     const cacheKey = AnalyticsCache.generateKey('user_analytics', { ...filters, userId });
@@ -283,7 +312,16 @@ export class AnalyticsOptimizer {
   }
 
   /**
-   * Get platform-specific analytics with optimized joins
+   * Get platform-specific analytics with optimized joins.
+   *
+   * This function retrieves analytics data for a specified platform, utilizing caching to improve performance.
+   * It constructs a dynamic where clause based on provided filters, including user ID and date range,
+   * and executes multiple optimized database queries in parallel to gather platform statistics, user breakdown,
+   * and time series data. The results are cached for future requests.
+   *
+   * @param platform - The name of the platform for which analytics are being retrieved.
+   * @param filters - An optional object containing filters such as userId, dateRange, and isAdmin.
+   * @returns An object containing platform analytics, including stats, top users, and time series data.
    */
   static async getPlatformAnalytics(platform: string, filters: AnalyticsFilters = {}) {
     const cacheKey = AnalyticsCache.generateKey('platform_analytics', { ...filters, platform });
@@ -358,7 +396,13 @@ export class AnalyticsOptimizer {
   }
 
   /**
-   * Get revenue analytics with optimized joins
+   * Get revenue analytics with optimized joins.
+   *
+   * This function retrieves comprehensive revenue analytics based on the provided filters. It first checks the cache for existing results and throws an error if the user is not an admin. It constructs conditions based on the date range and performs multiple database queries in parallel to gather overall revenue statistics, monthly revenue breakdown, product revenue, and customer statistics. Finally, it caches the result for future requests.
+   *
+   * @param filters - An object containing filters for the analytics, including dateRange and isAdmin.
+   * @returns An object containing revenue statistics, monthly breakdown, product breakdown, and customer statistics.
+   * @throws Error If the user does not have admin access.
    */
   static async getRevenueAnalytics(filters: AnalyticsFilters = {}) {
     const cacheKey = AnalyticsCache.generateKey('revenue_analytics', filters);
@@ -457,7 +501,12 @@ export class AnalyticsOptimizer {
   }
 
   /**
-   * Get blog analytics with optimized queries
+   * Get blog analytics with optimized queries.
+   *
+   * This function retrieves blog analytics by first checking the cache for existing data. If not found, it constructs conditions based on the provided filters, including userId and dateRange. It then performs three concurrent database queries to gather post statistics, comment statistics, and top-performing posts, before caching and returning the results.
+   *
+   * @param filters - An object containing filters for userId and dateRange to refine the analytics.
+   * @returns An object containing the statistics of posts, comments, and top posts.
    */
   static async getBlogAnalytics(filters: AnalyticsFilters = {}) {
     const cacheKey = AnalyticsCache.generateKey('blog_analytics', filters);
@@ -533,14 +582,14 @@ export class AnalyticsOptimizer {
   }
 
   /**
-   * Clear analytics cache
+   * Clears the analytics cache based on the provided pattern.
    */
   static clearCache(pattern?: string) {
     AnalyticsCache.clear(pattern);
   }
 
   /**
-   * Get cache statistics
+   * Retrieves statistics about the cache.
    */
   static getCacheStats() {
     return {
@@ -555,7 +604,7 @@ export class AnalyticsOptimizer {
  */
 export class MaterializedViews {
   /**
-   * Create materialized view for daily analytics
+   * Create a materialized view for daily analytics and an index on it.
    */
   static async createDailyAnalyticsView() {
     await sqlConnection`
@@ -580,7 +629,7 @@ export class MaterializedViews {
   }
 
   /**
-   * Create materialized view for user analytics
+   * Creates a materialized view for user analytics.
    */
   static async createUserAnalyticsView() {
     await sqlConnection`
@@ -609,7 +658,7 @@ export class MaterializedViews {
   }
 
   /**
-   * Refresh all materialized views
+   * Refresh all materialized views.
    */
   static async refreshAllViews() {
     await Promise.all([
@@ -619,7 +668,7 @@ export class MaterializedViews {
   }
 
   /**
-   * Drop all materialized views
+   * Drops all materialized views.
    */
   static async dropAllViews() {
     await Promise.all([
