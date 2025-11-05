@@ -53,14 +53,16 @@ export function TwoFactorAuthSettings() {
 
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [passwordAction, setPasswordAction] = useState<'enable' | 'disable'>('enable');
+  const [passwordAction, setPasswordAction] = useState<"enable" | "disable">(
+    "enable",
+  );
   const [password, setPassword] = useState<string>("");
 
   /**
    * Handles enabling 2FA by setting password action and showing dialog.
    */
   const handleEnable2FA = async () => {
-    setPasswordAction('enable');
+    setPasswordAction("enable");
     setShowPasswordDialog(true);
   };
 
@@ -82,50 +84,54 @@ export function TwoFactorAuthSettings() {
       });
       return;
     }
-    
+
     try {
       setIsEnabling(true);
       setShowPasswordDialog(false);
-      
-      console.log('Attempting to enable 2FA with password length:', password.length);
-      
+
+      console.log(
+        "Attempting to enable 2FA with password length:",
+        password.length,
+      );
+
       const response = await authClient.twoFactor.enable({
         password: password,
       });
-      
-      console.log('2FA enable response:', response);
-      
-      if (response && 'data' in response && response.data) {
+
+      console.log("2FA enable response:", response);
+
+      if (response && "data" in response && response.data) {
         setTotpUri(response.data.totpURI);
         setBackupCodes(response.data.backupCodes ?? []);
         setShowSetupDialog(true);
       } else {
-        console.error('Unexpected response format:', response);
+        console.error("Unexpected response format:", response);
         toast.error("Unexpected response format", {
           description: "The server returned an unexpected response.",
         });
       }
     } catch (error) {
-      console.error('2FA enable error details:', {
+      console.error("2FA enable error details:", {
         error,
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
         response: (error as any)?.response,
         status: (error as any)?.status,
         statusText: (error as any)?.statusText,
-        data: (error as any)?.data
+        data: (error as any)?.data,
       });
-      
+
       let errorMessage = "Please check your password and try again.";
-      
+
       if ((error as any)?.status === 400) {
-        errorMessage = "Bad request - please check your password and ensure you're logged in.";
+        errorMessage =
+          "Bad request - please check your password and ensure you're logged in.";
       } else if ((error as any)?.status === 401) {
         errorMessage = "Invalid password or session expired.";
       } else if ((error as any)?.status === 403) {
         errorMessage = "Access denied - insufficient permissions.";
       }
-      
+
       toast.error("Failed to enable 2FA", {
         description: errorMessage,
       });
@@ -157,16 +163,20 @@ export function TwoFactorAuthSettings() {
         code: verificationCode,
       });
 
-      if (response && 'data' in response && response.data) {
+      if (response && "data" in response && response.data) {
         toast.success("2FA enabled successfully!", {
-          description: "Your account is now protected with two-factor authentication.",
+          description:
+            "Your account is now protected with two-factor authentication.",
         });
         setShowSetupDialog(false);
         setShowBackupCodes(true);
         await refetch();
       }
     } catch (error) {
-      console.error('2FA verify error:', error instanceof Error ? error.message : String(error));
+      console.error(
+        "2FA verify error:",
+        error instanceof Error ? error.message : String(error),
+      );
       toast.error("Invalid verification code", {
         description: "Please check your authenticator app and try again.",
       });
@@ -177,7 +187,7 @@ export function TwoFactorAuthSettings() {
    * Sets password action to 'disable' and shows the password dialog.
    */
   const handleDisable2FA = async () => {
-    setPasswordAction('disable');
+    setPasswordAction("disable");
     setShowPasswordDialog(true);
   };
 
@@ -195,19 +205,23 @@ export function TwoFactorAuthSettings() {
       });
       return;
     }
-    
+
     try {
       setIsDisabling(true);
       setShowPasswordDialog(false);
       await authClient.twoFactor.disable({
-        password: password
+        password: password,
       });
       toast.success("2FA disabled", {
-        description: "Two-factor authentication has been disabled for your account.",
+        description:
+          "Two-factor authentication has been disabled for your account.",
       });
       await refetch();
     } catch (error) {
-      console.error('2FA disable error:', error instanceof Error ? error.message : String(error));
+      console.error(
+        "2FA disable error:",
+        error instanceof Error ? error.message : String(error),
+      );
       toast.error("Failed to disable 2FA", {
         description: "Please check your password and try again.",
       });
@@ -232,7 +246,10 @@ export function TwoFactorAuthSettings() {
       void setTimeout(() => setCopiedCode(null), 2000);
       toast.success("Copied to clipboard!");
     } catch (error) {
-      console.error('Clipboard error:', error instanceof Error ? error.message : String(error));
+      console.error(
+        "Clipboard error:",
+        error instanceof Error ? error.message : String(error),
+      );
       toast.error("Failed to copy to clipboard");
     }
   };
@@ -246,14 +263,14 @@ export function TwoFactorAuthSettings() {
         width: 192,
         margin: 2,
         color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
+          dark: "#000000",
+          light: "#FFFFFF",
+        },
       })
-        .then(url => setQrCodeDataUrl(url))
-        .catch(err => {
-          console.error('Error generating QR code:', err);
-          setQrCodeDataUrl('');
+        .then((url) => setQrCodeDataUrl(url))
+        .catch((err) => {
+          console.error("Error generating QR code:", err);
+          setQrCodeDataUrl("");
         });
     }
   }, [totpUri]);
@@ -284,8 +301,10 @@ export function TwoFactorAuthSettings() {
         <CardContent className="space-y-4">
           {user?.twoFactorEnabled ? (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Two-factor authentication is currently enabled for your account. You&apos;ll need to enter a code from your authenticator app when signing in.
+              <p className="text-muted-foreground text-sm">
+                Two-factor authentication is currently enabled for your account.
+                You&apos;ll need to enter a code from your authenticator app
+                when signing in.
               </p>
               <Button
                 variant="destructive"
@@ -297,8 +316,10 @@ export function TwoFactorAuthSettings() {
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Two-factor authentication adds an extra layer of security to your account by requiring a code from your authenticator app in addition to your password.
+              <p className="text-muted-foreground text-sm">
+                Two-factor authentication adds an extra layer of security to
+                your account by requiring a code from your authenticator app in
+                addition to your password.
               </p>
               <Button
                 onClick={handleEnable2FA}
@@ -321,35 +342,37 @@ export function TwoFactorAuthSettings() {
               Set up Two-Factor Authentication
             </DialogTitle>
             <DialogDescription>
-              Scan the QR code with your authenticator app or enter the secret manually.
+              Scan the QR code with your authenticator app or enter the secret
+              manually.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6">
             {/* QR Code */}
             {totpUri && (
               <div className="flex flex-col items-center space-y-4">
-                <div className="border rounded-lg p-4 bg-white">
+                <div className="rounded-lg border bg-white p-4">
                   {qrCodeDataUrl ? (
                     <Image
                       src={qrCodeDataUrl}
                       alt="2FA QR Code"
                       width={192}
                       height={192}
-                      className="w-48 h-48"
+                      className="h-48 w-48"
                     />
                   ) : (
-                    <div className="w-48 h-48 flex items-center justify-center bg-gray-100 rounded">
-                      <span className="text-gray-500">Generating QR code...</span>
+                    <div className="flex h-48 w-48 items-center justify-center rounded bg-gray-100">
+                      <span className="text-gray-500">
+                        Generating QR code...
+                      </span>
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-center text-muted-foreground">
-                  Scan this QR code with Google Authenticator, Authy, or any compatible TOTP app.
+                <p className="text-muted-foreground text-center text-xs">
+                  Scan this QR code with Google Authenticator, Authy, or any
+                  compatible TOTP app.
                 </p>
               </div>
             )}
-
-
 
             {/* Verification */}
             <div className="space-y-2">
@@ -359,7 +382,11 @@ export function TwoFactorAuthSettings() {
               <Input
                 id="verification-code"
                 value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onChange={(e) =>
+                  setVerificationCode(
+                    e.target.value.replace(/\D/g, "").slice(0, 6),
+                  )
+                }
                 placeholder="123456"
                 className="text-center font-mono text-lg tracking-widest"
                 maxLength={6}
@@ -383,11 +410,12 @@ export function TwoFactorAuthSettings() {
           <DialogHeader>
             <DialogTitle>Save Your Backup Codes</DialogTitle>
             <DialogDescription>
-              Store these backup codes in a safe place. You can use them to access your account if you lose your authenticator device.
+              Store these backup codes in a safe place. You can use them to
+              access your account if you lose your authenticator device.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="bg-muted p-4 rounded-lg space-y-2">
+            <div className="bg-muted space-y-2 rounded-lg p-4">
               {backupCodes.map((code, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <code className="font-mono text-sm">{code}</code>
@@ -405,8 +433,9 @@ export function TwoFactorAuthSettings() {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Each backup code can only be used once. Make sure to save them securely.
+            <p className="text-muted-foreground text-xs">
+              Each backup code can only be used once. Make sure to save them
+              securely.
             </p>
             <Button
               onClick={() => setShowBackupCodes(false)}
@@ -423,10 +452,13 @@ export function TwoFactorAuthSettings() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {passwordAction === 'enable' ? 'Enable' : 'Disable'} Two-Factor Authentication
+              {passwordAction === "enable" ? "Enable" : "Disable"} Two-Factor
+              Authentication
             </DialogTitle>
             <DialogDescription>
-              Please enter your password to {passwordAction === 'enable' ? 'enable' : 'disable'} two-factor authentication.
+              Please enter your password to{" "}
+              {passwordAction === "enable" ? "enable" : "disable"} two-factor
+              authentication.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -439,8 +471,8 @@ export function TwoFactorAuthSettings() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 onKeyDown={async (e) => {
-                  if (e.key === 'Enter') {
-                    if (passwordAction === 'enable') {
+                  if (e.key === "Enter") {
+                    if (passwordAction === "enable") {
                       await handleConfirmEnable2FA();
                     } else {
                       await handleConfirmDisable2FA();
@@ -461,14 +493,24 @@ export function TwoFactorAuthSettings() {
                 Cancel
               </Button>
               <Button
-                onClick={passwordAction === 'enable' ? handleConfirmEnable2FA : handleConfirmDisable2FA}
-                disabled={!password || (passwordAction === 'enable' ? isEnabling : isDisabling)}
+                onClick={
+                  passwordAction === "enable"
+                    ? handleConfirmEnable2FA
+                    : handleConfirmDisable2FA
+                }
+                disabled={
+                  !password ||
+                  (passwordAction === "enable" ? isEnabling : isDisabling)
+                }
                 className="flex-1"
               >
-                {passwordAction === 'enable' 
-                  ? (isEnabling ? 'Enabling...' : 'Enable 2FA')
-                  : (isDisabling ? 'Disabling...' : 'Disable 2FA')
-                }
+                {passwordAction === "enable"
+                  ? isEnabling
+                    ? "Enabling..."
+                    : "Enable 2FA"
+                  : isDisabling
+                    ? "Disabling..."
+                    : "Disable 2FA"}
               </Button>
             </div>
           </div>

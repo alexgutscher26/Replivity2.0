@@ -17,7 +17,10 @@ import { user } from "./schema/auth-schema";
 
 // Simple in-memory cache for frequently accessed data
 class QueryCache {
-  private cache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
+  private cache = new Map<
+    string,
+    { data: unknown; timestamp: number; ttl: number }
+  >();
   private defaultTTL = 5 * 60 * 1000; // 5 minutes
 
   set(key: string, data: unknown, ttl = this.defaultTTL): void {
@@ -69,7 +72,7 @@ export const queryCache = new QueryCache();
 export async function cachedQuery<T>(
   key: string,
   queryFn: () => Promise<T>,
-  ttl?: number
+  ttl?: number,
 ): Promise<T> {
   const cached = queryCache.get(key);
   if (cached) {
@@ -117,7 +120,7 @@ type QueryWithExecute<T> = {
 export async function paginatedQuery<T>(
   baseQuery: QueryWithExecute<T[]>,
   countQuery: QueryWithExecute<Array<{ count: number }>>,
-  options: PaginationOptions = {}
+  options: PaginationOptions = {},
 ): Promise<PaginationResult<T>> {
   const page = Math.max(1, options.page ?? 1);
   const limit = Math.min(options.limit ?? 20, options.maxLimit ?? 100);
@@ -157,17 +160,21 @@ export interface DateRangeOptions {
   column: DrizzleColumn;
 }
 
-export function buildDateRangeCondition({ from, to, column }: DateRangeOptions) {
+export function buildDateRangeCondition({
+  from,
+  to,
+  column,
+}: DateRangeOptions) {
   const conditions = [];
-  
+
   if (from) {
     conditions.push(gte(column, from));
   }
-  
+
   if (to) {
     conditions.push(lte(column, to));
   }
-  
+
   return conditions.length > 0 ? and(...conditions) : undefined;
 }
 
@@ -188,7 +195,7 @@ export class UserQueryOptimizer {
             billings: {
               where: or(
                 eq(billing.status, "active"),
-                eq(billing.status, "APPROVED")
+                eq(billing.status, "APPROVED"),
               ),
               with: {
                 product: true,
@@ -199,7 +206,7 @@ export class UserQueryOptimizer {
         });
         return result;
       },
-      2 * 60 * 1000 // 2 minutes cache
+      2 * 60 * 1000, // 2 minutes cache
     );
   }
 
@@ -211,14 +218,11 @@ export class UserQueryOptimizer {
       `user_usage_${userId}_${productId}`,
       async () => {
         const result = await pooledDb.query.usage.findFirst({
-          where: and(
-            eq(usage.userId, userId),
-            eq(usage.productId, productId)
-          ),
+          where: and(eq(usage.userId, userId), eq(usage.productId, productId)),
         });
         return result;
       },
-      1 * 60 * 1000 // 1 minute cache
+      1 * 60 * 1000, // 1 minute cache
     );
   }
 }
@@ -233,29 +237,29 @@ export class GenerationQueryOptimizer {
   static async getPlatformStats(
     platform: string,
     userId?: string,
-    dateRange?: { from?: Date; to?: Date }
+    dateRange?: { from?: Date; to?: Date },
   ) {
-    const cacheKey = `platform_stats_${platform}_${userId ?? 'all'}_${dateRange?.from?.getTime() ?? 'no_from'}_${dateRange?.to?.getTime() ?? 'no_to'}`;
-    
+    const cacheKey = `platform_stats_${platform}_${userId ?? "all"}_${dateRange?.from?.getTime() ?? "no_from"}_${dateRange?.to?.getTime() ?? "no_to"}`;
+
     return cachedQuery(
       cacheKey,
       async () => {
         const conditions = [eq(generations.source, platform)];
-        
+
         if (userId) {
           conditions.push(eq(generations.userId, userId));
         }
-        
+
         const dateCondition = buildDateRangeCondition({
           from: dateRange?.from,
           to: dateRange?.to,
           column: generations.createdAt,
         });
-        
+
         if (dateCondition) {
           conditions.push(dateCondition);
         }
-        
+
         // Use optimized count query
         const [totalResult, recentResult] = await Promise.all([
           pooledDb
@@ -270,30 +274,30 @@ export class GenerationQueryOptimizer {
                 ...conditions,
                 gte(
                   generations.createdAt,
-                  new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // 30 days ago
-                )
-              )
+                  new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+                ),
+              ),
             ),
         ]);
-        
+
         const total = totalResult[0]?.count ?? 0;
         const recent = recentResult[0]?.count ?? 0;
         const previousTotal = total - recent;
-        
+
         const percentageChange =
           total === 0 && previousTotal === 0
             ? 0
             : previousTotal === 0
-            ? 100
-            : ((recent - previousTotal) / previousTotal) * 100;
-        
+              ? 100
+              : ((recent - previousTotal) / previousTotal) * 100;
+
         return {
           total,
           recent,
           percentageChange,
         };
       },
-      5 * 60 * 1000 // 5 minutes cache
+      5 * 60 * 1000, // 5 minutes cache
     );
   }
 
@@ -302,40 +306,42 @@ export class GenerationQueryOptimizer {
    */
   static async getUserGenerations(
     userId: string,
-    options: PaginationOptions & { source?: string }
+    options: PaginationOptions & { source?: string },
   ) {
     const conditions = [eq(generations.userId, userId)];
-    
+
     if (options.source) {
       conditions.push(eq(generations.source, options.source));
     }
-    
+
     const baseQuery = pooledDb
       .select()
       .from(generations)
       .where(and(...conditions))
       .orderBy(desc(generations.createdAt));
-    
+
     const countQuery = pooledDb
       .select({ count: count() })
       .from(generations)
       .where(and(...conditions));
-    
+
     return paginatedQuery(
-      baseQuery as unknown as QueryWithExecute<Array<{
-        id: string;
-        createdAt: Date | null;
-        updatedAt: Date | null;
-        userId: string;
-        productId: string;
-        link: string | null;
-        source: string;
-        post: string;
-        reply: string;
-        author: string | null;
-      }>>,
+      baseQuery as unknown as QueryWithExecute<
+        Array<{
+          id: string;
+          createdAt: Date | null;
+          updatedAt: Date | null;
+          userId: string;
+          productId: string;
+          link: string | null;
+          source: string;
+          post: string;
+          reply: string;
+          author: string | null;
+        }>
+      >,
       countQuery as unknown as QueryWithExecute<Array<{ count: number }>>,
-      options
+      options,
     );
   }
 }
@@ -348,22 +354,19 @@ export class BillingQueryOptimizer {
    * Get active subscriptions with caching
    */
   static async getActiveSubscriptions(userId?: string) {
-    const cacheKey = `active_subs_${userId ?? 'all'}`;
-    
+    const cacheKey = `active_subs_${userId ?? "all"}`;
+
     return cachedQuery(
       cacheKey,
       async () => {
         const conditions = [
-          or(
-            eq(billing.status, "active"),
-            eq(billing.status, "APPROVED")
-          ),
+          or(eq(billing.status, "active"), eq(billing.status, "APPROVED")),
         ];
-        
+
         if (userId) {
           conditions.push(eq(billing.userId, userId));
         }
-        
+
         return pooledDb.query.billing.findMany({
           where: and(...conditions),
           with: {
@@ -379,7 +382,7 @@ export class BillingQueryOptimizer {
           orderBy: desc(billing.createdAt),
         });
       },
-      3 * 60 * 1000 // 3 minutes cache
+      3 * 60 * 1000, // 3 minutes cache
     );
   }
 
@@ -389,11 +392,11 @@ export class BillingQueryOptimizer {
   static async getSubscriptionRenewals(daysAhead = 7) {
     const renewalDate = new Date();
     renewalDate.setDate(renewalDate.getDate() + daysAhead);
-    
+
     return pooledDb.query.billing.findMany({
       where: and(
         eq(billing.status, "active"),
-        lte(billing.currentPeriodEnd, renewalDate)
+        lte(billing.currentPeriodEnd, renewalDate),
       ),
       with: {
         user: {
@@ -419,7 +422,7 @@ export class QueryAnalyzer {
   static getSlowQueries(threshold = 1000) {
     const stats = queryMonitor.getAllStats();
     const slowQueries = [];
-    
+
     for (const [queryId, stat] of Object.entries(stats)) {
       if (stat && stat.avg > threshold) {
         slowQueries.push({
@@ -428,7 +431,7 @@ export class QueryAnalyzer {
         });
       }
     }
-    
+
     return slowQueries.sort((a, b) => b.avg - a.avg);
   }
 
@@ -438,7 +441,7 @@ export class QueryAnalyzer {
   static getPerformanceSummary() {
     const stats = queryMonitor.getAllStats();
     const cacheStats = queryCache.getStats();
-    
+
     return {
       totalQueries: Object.keys(stats).length,
       slowQueries: this.getSlowQueries().length,
@@ -469,7 +472,7 @@ export class CacheManager {
     if (platform) {
       queryCache.invalidate(`platform_stats_${platform}`);
     } else {
-      queryCache.invalidate('platform_stats');
+      queryCache.invalidate("platform_stats");
     }
   }
 
@@ -480,7 +483,7 @@ export class CacheManager {
     if (userId) {
       queryCache.invalidate(`active_subs_${userId}`);
     } else {
-      queryCache.invalidate('active_subs');
+      queryCache.invalidate("active_subs");
     }
   }
 

@@ -1,9 +1,9 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 const videoSchema = z.object({
   poster: z.string().optional(),
   url: z.string(),
-})
+});
 
 const quotedPostSchema = z.object({
   handle: z.string(),
@@ -11,7 +11,7 @@ const quotedPostSchema = z.object({
   text: z.string(),
   username: z.string(),
   video: videoSchema.optional(),
-})
+});
 
 export const postSchema = z.object({
   handle: z.string().optional(),
@@ -21,6 +21,6 @@ export const postSchema = z.object({
   url: z.string().optional(),
   username: z.string().optional(),
   video: videoSchema.optional(),
-})
+});
 
-export type PostData = z.infer<typeof postSchema>
+export type PostData = z.infer<typeof postSchema>;

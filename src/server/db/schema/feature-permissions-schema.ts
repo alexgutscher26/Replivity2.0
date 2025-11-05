@@ -1,30 +1,24 @@
 import { createTable } from "@/server/db/config";
 import { relations } from "drizzle-orm";
-import {
-  boolean,
-  index,
-  text,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { boolean, index, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { products } from "./products-schema";
 
 // Define available features/tools in the system
 export const AVAILABLE_FEATURES = {
   // Core AI Tools
   AI_CAPTION_GENERATOR: "ai_caption_generator",
-  TWEET_GENERATOR: "tweet_generator", 
+  TWEET_GENERATOR: "tweet_generator",
   BIO_OPTIMIZER: "bio_optimizer",
-  
+
   // Browser Extension
   BROWSER_EXTENSION: "browser_extension",
-  
+
   // Future Tools (commented out in sidebar)
   LINK_IN_BIO_CREATOR: "link_in_bio_creator",
   PROFILE_AUDIT: "profile_audit",
   AB_TESTING: "ab_testing",
   HASHTAG_GENERATOR: "hashtag_generator",
-  
+
   // Admin Features
   BLOG_MANAGEMENT: "blog_management",
   COMMENT_MODERATION: "comment_moderation",
@@ -34,7 +28,8 @@ export const AVAILABLE_FEATURES = {
   USERS_MANAGEMENT: "users_management",
 } as const;
 
-export type FeatureKey = typeof AVAILABLE_FEATURES[keyof typeof AVAILABLE_FEATURES];
+export type FeatureKey =
+  (typeof AVAILABLE_FEATURES)[keyof typeof AVAILABLE_FEATURES];
 
 // Feature permissions table - links products to features they can access
 export const featurePermissions = createTable(
@@ -99,28 +94,42 @@ export const getFeatureDisplayName = (featureKey: FeatureKey): string => {
     [AVAILABLE_FEATURES.PRODUCTS_MANAGEMENT]: "Products Management",
     [AVAILABLE_FEATURES.USERS_MANAGEMENT]: "Users Management",
   };
-  
+
   return displayNames[featureKey] ?? featureKey;
 };
 
 // Helper function to get feature descriptions
 export const getFeatureDescription = (featureKey: FeatureKey): string => {
   const descriptions: Record<FeatureKey, string> = {
-    [AVAILABLE_FEATURES.AI_CAPTION_GENERATOR]: "Generate engaging social media captions from images using AI",
-    [AVAILABLE_FEATURES.TWEET_GENERATOR]: "Create human-like tweets that pass AI detection",
-    [AVAILABLE_FEATURES.BIO_OPTIMIZER]: "Optimize social media bios and profiles for better engagement",
-    [AVAILABLE_FEATURES.BROWSER_EXTENSION]: "Real-time social media response generation via browser extension",
-    [AVAILABLE_FEATURES.LINK_IN_BIO_CREATOR]: "Create custom link-in-bio pages for social media profiles",
-    [AVAILABLE_FEATURES.PROFILE_AUDIT]: "Comprehensive analysis and suggestions for social media profiles",
-    [AVAILABLE_FEATURES.AB_TESTING]: "Test different profile variations to optimize performance",
-    [AVAILABLE_FEATURES.HASHTAG_GENERATOR]: "Generate relevant hashtags for social media posts",
-    [AVAILABLE_FEATURES.BLOG_MANAGEMENT]: "Manage and publish blog content (Admin only)",
-    [AVAILABLE_FEATURES.COMMENT_MODERATION]: "Moderate and manage user comments (Admin only)",
-    [AVAILABLE_FEATURES.REPORTS]: "Access detailed reports and insights (Admin only)",
-    [AVAILABLE_FEATURES.ANALYTICS]: "View comprehensive analytics dashboard (Admin only)",
-    [AVAILABLE_FEATURES.PRODUCTS_MANAGEMENT]: "Manage products and pricing plans (Admin only)",
-    [AVAILABLE_FEATURES.USERS_MANAGEMENT]: "Manage user accounts and permissions (Admin only)",
+    [AVAILABLE_FEATURES.AI_CAPTION_GENERATOR]:
+      "Generate engaging social media captions from images using AI",
+    [AVAILABLE_FEATURES.TWEET_GENERATOR]:
+      "Create human-like tweets that pass AI detection",
+    [AVAILABLE_FEATURES.BIO_OPTIMIZER]:
+      "Optimize social media bios and profiles for better engagement",
+    [AVAILABLE_FEATURES.BROWSER_EXTENSION]:
+      "Real-time social media response generation via browser extension",
+    [AVAILABLE_FEATURES.LINK_IN_BIO_CREATOR]:
+      "Create custom link-in-bio pages for social media profiles",
+    [AVAILABLE_FEATURES.PROFILE_AUDIT]:
+      "Comprehensive analysis and suggestions for social media profiles",
+    [AVAILABLE_FEATURES.AB_TESTING]:
+      "Test different profile variations to optimize performance",
+    [AVAILABLE_FEATURES.HASHTAG_GENERATOR]:
+      "Generate relevant hashtags for social media posts",
+    [AVAILABLE_FEATURES.BLOG_MANAGEMENT]:
+      "Manage and publish blog content (Admin only)",
+    [AVAILABLE_FEATURES.COMMENT_MODERATION]:
+      "Moderate and manage user comments (Admin only)",
+    [AVAILABLE_FEATURES.REPORTS]:
+      "Access detailed reports and insights (Admin only)",
+    [AVAILABLE_FEATURES.ANALYTICS]:
+      "View comprehensive analytics dashboard (Admin only)",
+    [AVAILABLE_FEATURES.PRODUCTS_MANAGEMENT]:
+      "Manage products and pricing plans (Admin only)",
+    [AVAILABLE_FEATURES.USERS_MANAGEMENT]:
+      "Manage user accounts and permissions (Admin only)",
   };
-  
+
   return descriptions[featureKey] ?? "Feature description not available";
 };

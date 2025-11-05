@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Hash } from "lucide-react";
 import { toast } from "sonner";
@@ -18,28 +24,28 @@ const popularHashtags: HashtagSuggestion[] = [
   { hashtag: "#fyp", category: "General", popularity: "high" },
   { hashtag: "#explore", category: "General", popularity: "medium" },
   { hashtag: "#reels", category: "General", popularity: "high" },
-  
+
   // Business/Marketing
   { hashtag: "#entrepreneur", category: "Business", popularity: "high" },
   { hashtag: "#marketing", category: "Business", popularity: "high" },
   { hashtag: "#business", category: "Business", popularity: "high" },
   { hashtag: "#startup", category: "Business", popularity: "medium" },
   { hashtag: "#leadership", category: "Business", popularity: "medium" },
-  
+
   // Technology
   { hashtag: "#tech", category: "Technology", popularity: "high" },
   { hashtag: "#ai", category: "Technology", popularity: "high" },
   { hashtag: "#innovation", category: "Technology", popularity: "medium" },
   { hashtag: "#coding", category: "Technology", popularity: "medium" },
   { hashtag: "#programming", category: "Technology", popularity: "medium" },
-  
+
   // Lifestyle
   { hashtag: "#lifestyle", category: "Lifestyle", popularity: "high" },
   { hashtag: "#wellness", category: "Lifestyle", popularity: "medium" },
   { hashtag: "#motivation", category: "Lifestyle", popularity: "high" },
   { hashtag: "#inspiration", category: "Lifestyle", popularity: "medium" },
   { hashtag: "#selfcare", category: "Lifestyle", popularity: "medium" },
-  
+
   // Content Creation
   { hashtag: "#content", category: "Content", popularity: "high" },
   { hashtag: "#creator", category: "Content", popularity: "medium" },
@@ -58,9 +64,21 @@ const getPlatformSpecificHashtags = (platform: string): HashtagSuggestion[] => {
       ];
     case "facebook":
       return [
-        { hashtag: "#FacebookPost", category: "Platform", popularity: "medium" },
-        { hashtag: "#SocialConnection", category: "Platform", popularity: "medium" },
-        { hashtag: "#CommunityFirst", category: "Platform", popularity: "medium" },
+        {
+          hashtag: "#FacebookPost",
+          category: "Platform",
+          popularity: "medium",
+        },
+        {
+          hashtag: "#SocialConnection",
+          category: "Platform",
+          popularity: "medium",
+        },
+        {
+          hashtag: "#CommunityFirst",
+          category: "Platform",
+          popularity: "medium",
+        },
       ];
     case "linkedin":
       return [
@@ -74,7 +92,11 @@ const getPlatformSpecificHashtags = (platform: string): HashtagSuggestion[] => {
         { hashtag: "#Instagram", category: "Platform", popularity: "high" },
         { hashtag: "#Insta", category: "Platform", popularity: "high" },
         { hashtag: "#IGPost", category: "Platform", popularity: "medium" },
-        { hashtag: "#PhotoOfTheDay", category: "Platform", popularity: "medium" },
+        {
+          hashtag: "#PhotoOfTheDay",
+          category: "Platform",
+          popularity: "medium",
+        },
       ];
     default:
       return [];
@@ -86,7 +108,10 @@ interface HashtagSuggestionsProps {
   onHashtagSelect?: (hashtag: string) => void;
 }
 
-export default function HashtagSuggestions({ platform = "twitter", onHashtagSelect }: HashtagSuggestionsProps) {
+export default function HashtagSuggestions({
+  platform = "twitter",
+  onHashtagSelect,
+}: HashtagSuggestionsProps) {
   const platformHashtags = getPlatformSpecificHashtags(platform);
   const allSuggestions = [...platformHashtags, ...popularHashtags];
 
@@ -116,13 +141,16 @@ export default function HashtagSuggestions({ platform = "twitter", onHashtagSele
     }
   };
 
-  const groupedSuggestions = allSuggestions.reduce((acc, suggestion) => {
-    if (!acc[suggestion.category]) {
-      acc[suggestion.category] = [];
-    }
-    acc[suggestion.category]?.push(suggestion);
-    return acc;
-  }, {} as Record<string, HashtagSuggestion[]>);
+  const groupedSuggestions = allSuggestions.reduce(
+    (acc, suggestion) => {
+      if (!acc[suggestion.category]) {
+        acc[suggestion.category] = [];
+      }
+      acc[suggestion.category]?.push(suggestion);
+      return acc;
+    },
+    {} as Record<string, HashtagSuggestion[]>,
+  );
 
   return (
     <Card>
@@ -139,13 +167,15 @@ export default function HashtagSuggestions({ platform = "twitter", onHashtagSele
         <div className="space-y-4">
           {Object.entries(groupedSuggestions).map(([category, hashtags]) => (
             <div key={category} className="space-y-2">
-              <h4 className="text-sm font-medium text-muted-foreground">{category}</h4>
+              <h4 className="text-muted-foreground text-sm font-medium">
+                {category}
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {hashtags.map((suggestion, index) => (
                   <Badge
                     key={index}
                     variant="outline"
-                    className={`cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors ${getPriorityColor(suggestion.popularity)}`}
+                    className={`hover:bg-primary hover:text-primary-foreground cursor-pointer transition-colors ${getPriorityColor(suggestion.popularity)}`}
                     onClick={() => handleHashtagClick(suggestion.hashtag)}
                   >
                     {suggestion.hashtag}
@@ -155,9 +185,9 @@ export default function HashtagSuggestions({ platform = "twitter", onHashtagSele
             </div>
           ))}
         </div>
-        
-        <div className="mt-4 pt-4 border-t">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+
+        <div className="mt-4 border-t pt-4">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
             <Hash className="h-4 w-4" />
             <span>Click any hashtag to copy it to your clipboard</span>
           </div>

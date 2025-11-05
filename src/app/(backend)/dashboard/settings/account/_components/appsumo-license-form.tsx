@@ -60,7 +60,8 @@ export default function AppSumoLicenseForm() {
     },
     onError: (error) => {
       toast.error("Failed to link license", {
-        description: error.message || "Please check your license key and try again.",
+        description:
+          error.message || "Please check your license key and try again.",
       });
     },
   });
@@ -83,14 +84,14 @@ export default function AppSumoLicenseForm() {
       case "active":
         return (
           <Badge variant="default" className="bg-green-100 text-green-800">
-            <Check className="w-3 h-3 mr-1" />
+            <Check className="mr-1 h-3 w-3" />
             Active
           </Badge>
         );
       case "deactivated":
         return (
           <Badge variant="secondary" className="bg-red-100 text-red-800">
-            <X className="w-3 h-3 mr-1" />
+            <X className="mr-1 h-3 w-3" />
             Deactivated
           </Badge>
         );
@@ -101,11 +102,7 @@ export default function AppSumoLicenseForm() {
           </Badge>
         );
       default:
-        return (
-          <Badge variant="outline">
-            {status}
-          </Badge>
-        );
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
@@ -118,17 +115,18 @@ export default function AppSumoLicenseForm() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Key className="w-5 h-5" />
+          <Key className="h-5 w-5" />
           AppSumo Licenses
         </CardTitle>
         <CardDescription>
-          Manage your AppSumo lifetime deal licenses. Link your license key to activate premium features.
+          Manage your AppSumo lifetime deal licenses. Link your license key to
+          activate premium features.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {isLoadingLicenses ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin" />
+            <Loader2 className="h-6 w-6 animate-spin" />
             <span className="ml-2">Loading licenses...</span>
           </div>
         ) : userLicenses && userLicenses.length > 0 ? (
@@ -136,19 +134,21 @@ export default function AppSumoLicenseForm() {
             {userLicenses.map((license) => (
               <div
                 key={license.id}
-                className="flex items-center justify-between p-4 border rounded-lg"
+                className="flex items-center justify-between rounded-lg border p-4"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">
-                      {(license.product as { name?: string })?.name ?? "AppSumo License"}
+                      {(license.product as { name?: string })?.name ??
+                        "AppSumo License"}
                     </span>
                     {getStatusBadge(license.status)}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    License Key: {license.licenseKey.slice(0, 8)}...{license.licenseKey.slice(-4)}
+                  <p className="text-muted-foreground text-sm">
+                    License Key: {license.licenseKey.slice(0, 8)}...
+                    {license.licenseKey.slice(-4)}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     Activated: {formatDate(license.activatedAt)}
                     {license.lastUsedAt && (
                       <> • Last Used: {formatDate(license.lastUsedAt)}</>
@@ -166,18 +166,19 @@ export default function AppSumoLicenseForm() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8">
-            <Key className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No AppSumo Licenses</h3>
+          <div className="py-8 text-center">
+            <Key className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-lg font-medium">No AppSumo Licenses</h3>
             <p className="text-muted-foreground mb-4">
-              You haven&apos;t linked any AppSumo licenses yet. Purchase a lifetime deal from AppSumo and link your license key here.
+              You haven&apos;t linked any AppSumo licenses yet. Purchase a
+              lifetime deal from AppSumo and link your license key here.
             </p>
             <Button
               variant="outline"
               onClick={() => window.open("https://appsumo.com", "_blank")}
               className="mb-4"
             >
-              <ExternalLink className="w-4 h-4 mr-2" />
+              <ExternalLink className="mr-2 h-4 w-4" />
               Visit AppSumo
             </Button>
           </div>
@@ -186,7 +187,7 @@ export default function AppSumoLicenseForm() {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-full">
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="mr-2 h-4 w-4" />
               Link AppSumo License
             </Button>
           </DialogTrigger>
@@ -194,11 +195,16 @@ export default function AppSumoLicenseForm() {
             <DialogHeader>
               <DialogTitle>Link AppSumo License</DialogTitle>
               <DialogDescription>
-                Enter your AppSumo license key to activate premium features. You can find this in your AppSumo account or purchase confirmation email.
+                Enter your AppSumo license key to activate premium features. You
+                can find this in your AppSumo account or purchase confirmation
+                email.
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="licenseKey"
@@ -213,7 +219,8 @@ export default function AppSumoLicenseForm() {
                         />
                       </FormControl>
                       <FormDescription>
-                        Your license key should be a long string of characters provided by AppSumo.
+                        Your license key should be a long string of characters
+                        provided by AppSumo.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -234,12 +241,12 @@ export default function AppSumoLicenseForm() {
                   >
                     {linkLicense.isPending ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Linking...
                       </>
                     ) : (
                       <>
-                        <Key className="w-4 h-4 mr-2" />
+                        <Key className="mr-2 h-4 w-4" />
                         Link License
                       </>
                     )}
@@ -250,9 +257,11 @@ export default function AppSumoLicenseForm() {
           </DialogContent>
         </Dialog>
 
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h4 className="font-medium text-blue-900 mb-2">About AppSumo Licenses</h4>
-          <ul className="text-sm text-blue-800 space-y-1">
+        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <h4 className="mb-2 font-medium text-blue-900">
+            About AppSumo Licenses
+          </h4>
+          <ul className="space-y-1 text-sm text-blue-800">
             <li>• Lifetime access to premium features</li>
             <li>• No recurring subscription fees</li>
             <li>• Transferable between accounts</li>

@@ -27,11 +27,18 @@ export function RecentSales() {
           {sales.map((sale) => (
             <div key={sale.id} className="flex items-center">
               <Avatar className="size-9">
-                <AvatarImage src={sale.image ?? ""} alt={sale.name ?? "Anonymous"} />
-                <AvatarFallback>{avatarFallback(sale.name ?? "Anonymous")}</AvatarFallback>
+                <AvatarImage
+                  src={sale.image ?? ""}
+                  alt={sale.name ?? "Anonymous"}
+                />
+                <AvatarFallback>
+                  {avatarFallback(sale.name ?? "Anonymous")}
+                </AvatarFallback>
               </Avatar>
               <div className="ml-4 space-y-1">
-                <p className="text-sm leading-none font-medium">{sale.name ?? "Anonymous"}</p>
+                <p className="text-sm leading-none font-medium">
+                  {sale.name ?? "Anonymous"}
+                </p>
                 <p className="text-muted-foreground text-sm">{sale.email}</p>
               </div>
               <div className="ml-auto font-medium">

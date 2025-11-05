@@ -39,11 +39,11 @@ export function UpdateAuthSocialProviderCardForm() {
     },
     onError: (error) => {
       console.error("Social auth update error:", error);
-      
+
       // Handle specific error cases
       let errorMessage = "Failed to update settings. Please try again.";
       let errorTitle = "Update Failed";
-      
+
       if (error.message.includes("Missing credentials")) {
         errorTitle = "Missing Credentials";
         errorMessage = error.message;
@@ -52,9 +52,10 @@ export function UpdateAuthSocialProviderCardForm() {
         errorMessage = error.message;
       } else if (error.message.includes("database")) {
         errorTitle = "Database Error";
-        errorMessage = "Unable to save settings. Please check your connection and try again.";
+        errorMessage =
+          "Unable to save settings. Please check your connection and try again.";
       }
-      
+
       toast.error(errorTitle, {
         description: errorMessage,
         action: {
@@ -80,26 +81,29 @@ export function UpdateAuthSocialProviderCardForm() {
 
   const onSubmit = (data: AuthSettings) => {
     // Validate that enabled providers have credentials
-    const enabledWithoutCredentials = data.enabledProviders.filter((provider) => {
-      const credentials = data.providerCredentials[provider];
-      return !credentials?.clientId || !credentials?.clientSecret;
-    });
-    
+    const enabledWithoutCredentials = data.enabledProviders.filter(
+      (provider) => {
+        const credentials = data.providerCredentials[provider];
+        return !credentials?.clientId || !credentials?.clientSecret;
+      },
+    );
+
     if (enabledWithoutCredentials.length > 0) {
       toast.error("Missing Credentials", {
-        description: `Please provide both Client ID and Client Secret for: ${enabledWithoutCredentials.join(", ")}`
+        description: `Please provide both Client ID and Client Secret for: ${enabledWithoutCredentials.join(", ")}`,
       });
       return;
     }
-    
+
     // Validate auth secret
     if (!data.secret || data.secret.length < 32) {
       toast.error("Invalid Auth Secret", {
-        description: "Auth secret must be at least 32 characters long for security."
+        description:
+          "Auth secret must be at least 32 characters long for security.",
       });
       return;
     }
-    
+
     update.mutate(data);
   };
 

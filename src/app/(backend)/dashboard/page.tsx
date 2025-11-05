@@ -9,7 +9,8 @@ import { type Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Dashboard - Usage Analytics",
-  description: "Monitor your AI social media reply usage across platforms. Track Facebook, Twitter, LinkedIn engagement and hashtag performance with detailed analytics.",
+  description:
+    "Monitor your AI social media reply usage across platforms. Track Facebook, Twitter, LinkedIn engagement and hashtag performance with detailed analytics.",
   keywords: [
     "social media analytics",
     "usage dashboard",
@@ -20,7 +21,8 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: "Dashboard - Usage Analytics | Replivity",
-    description: "Monitor your AI social media reply usage and engagement across all platforms.",
+    description:
+      "Monitor your AI social media reply usage and engagement across all platforms.",
     type: "website",
   },
 };
@@ -29,22 +31,23 @@ export const metadata: Metadata = {
 const dashboardStructuredData = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Replivity Analytics Dashboard",
-  "description": "Comprehensive analytics dashboard for monitoring AI social media reply usage, engagement metrics, and performance across multiple platforms including Facebook, Twitter, LinkedIn, and Instagram.",
-  "url": "https://replivity.com/dashboard",
-  "applicationCategory": "BusinessApplication",
-  "applicationSubCategory": "Analytics",
-  "operatingSystem": "Web Browser",
-  "isPartOf": {
+  name: "Replivity Analytics Dashboard",
+  description:
+    "Comprehensive analytics dashboard for monitoring AI social media reply usage, engagement metrics, and performance across multiple platforms including Facebook, Twitter, LinkedIn, and Instagram.",
+  url: "https://replivity.com/dashboard",
+  applicationCategory: "BusinessApplication",
+  applicationSubCategory: "Analytics",
+  operatingSystem: "Web Browser",
+  isPartOf: {
     "@type": "WebSite",
-    "name": "Replivity",
-    "url": "https://replivity.com"
+    name: "Replivity",
+    url: "https://replivity.com",
   },
-  "creator": {
+  creator: {
     "@type": "Organization",
-    "name": "Replivity"
+    name: "Replivity",
   },
-  "featureList": [
+  featureList: [
     "Real-time usage analytics",
     "Multi-platform tracking",
     "Engagement metrics",
@@ -52,17 +55,18 @@ const dashboardStructuredData = {
     "Response generation statistics",
     "Platform-specific insights",
     "Usage trend visualization",
-    "Performance optimization recommendations"
+    "Performance optimization recommendations",
   ],
-  "audience": {
+  audience: {
     "@type": "Audience",
-    "audienceType": "Social Media Managers, Content Creators, Businesses"
+    audienceType: "Social Media Managers, Content Creators, Businesses",
   },
-  "potentialAction": {
+  potentialAction: {
     "@type": "ViewAction",
-    "name": "View Analytics",
-    "description": "Monitor and analyze social media engagement and AI usage statistics"
-  }
+    name: "View Analytics",
+    description:
+      "Monitor and analyze social media engagement and AI usage statistics",
+  },
 };
 
 /**
@@ -75,10 +79,10 @@ export default async function DashboardPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(dashboardStructuredData)
+          __html: JSON.stringify(dashboardStructuredData),
         }}
       />
-      
+
       <div className="flex-1 space-y-6 p-10 pb-16">
         <div className="space-y-0.5">
           <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>

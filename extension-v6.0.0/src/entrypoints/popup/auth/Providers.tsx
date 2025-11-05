@@ -1,22 +1,20 @@
-import { authClient } from '@/auth/client'
-import { AuthUIProvider } from '@daveyplate/better-auth-ui'
-import { NavLink, Outlet, useNavigate } from 'react-router'
+import { authClient } from "@/auth/client";
+import { AuthUIProvider } from "@daveyplate/better-auth-ui";
+import { NavLink, Outlet, useNavigate } from "react-router";
 
 export function Providers() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <AuthUIProvider
       authClient={authClient}
       basePath="/"
       forgotPassword={false}
-      LinkComponent={({ href, ...props }) => (
-        <NavLink {...props} to={href} />
-      )}
+      LinkComponent={({ href, ...props }) => <NavLink {...props} to={href} />}
       nameRequired
       navigate={navigate}
     >
       <Outlet />
     </AuthUIProvider>
-  )
+  );
 }

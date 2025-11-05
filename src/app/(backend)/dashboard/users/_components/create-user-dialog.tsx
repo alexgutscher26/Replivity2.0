@@ -56,7 +56,7 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
       {
         label: "No sequential characters",
         met: !/(?:abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|012|123|234|345|456|567|678|789)/.test(
-          password.toLowerCase()
+          password.toLowerCase(),
         ),
       },
       {
@@ -105,13 +105,13 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
             key={i}
             className={cn(
               "flex items-center gap-1",
-              req.met ? "text-green-500" : "text-muted-foreground"
+              req.met ? "text-green-500" : "text-muted-foreground",
             )}
           >
             <div
               className={cn(
                 "h-1.5 w-1.5 rounded-full",
-                req.met ? "bg-green-500" : "bg-muted"
+                req.met ? "bg-green-500" : "bg-muted",
               )}
             />
             {req.label}
@@ -224,7 +224,7 @@ export default function CreateUserDialog() {
             </div>
 
             <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="password" className="text-right pt-2">
+              <Label htmlFor="password" className="pt-2 text-right">
                 Password
               </Label>
               <div className="col-span-3 space-y-1">

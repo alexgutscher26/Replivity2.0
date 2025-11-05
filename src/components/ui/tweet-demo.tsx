@@ -6,7 +6,7 @@ share your thoughts
 @snacksforcode`;
 
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-8 dark:bg-gray-900">
       <TweetEmbed
         username="Developer"
         handle="@snacksforcode"

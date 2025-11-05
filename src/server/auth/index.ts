@@ -44,20 +44,17 @@ const validProviders = enabledProviders.filter((provider) => {
   const credentials = configStore.getProviderCredentials(provider);
   const isValid = credentials.clientId && credentials.clientSecret;
   if (!isValid) {
-    console.warn(`Skipping social provider '${provider}' due to missing credentials`);
+    console.warn(
+      `Skipping social provider '${provider}' due to missing credentials`,
+    );
   }
   return isValid;
 });
 
 // Create social providers config object dynamically
 const socialProvidersConfig = Object.fromEntries(
-  validProviders.map((provider) => [
-    provider,
-    createProviderConfig(provider),
-  ]),
+  validProviders.map((provider) => [provider, createProviderConfig(provider)]),
 );
-
-
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {

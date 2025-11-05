@@ -7,26 +7,51 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Eye, EyeOff, Shield, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Shield,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { usePasswordResetStatus } from "@/components/auth/password-reset-guard";
 
-const passwordResetSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"),
-  confirmPassword: z.string(),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const passwordResetSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type PasswordResetForm = z.infer<typeof passwordResetSchema>;
 
@@ -43,16 +68,23 @@ type PasswordResetForm = z.infer<typeof passwordResetSchema>;
 function PasswordStrengthIndicator({ password }: { password: string }) {
   const checks = [
     { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
-    { label: "Contains uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
-    { label: "Contains lowercase letter", test: (p: string) => /[a-z]/.test(p) },
+    {
+      label: "Contains uppercase letter",
+      test: (p: string) => /[A-Z]/.test(p),
+    },
+    {
+      label: "Contains lowercase letter",
+      test: (p: string) => /[a-z]/.test(p),
+    },
     { label: "Contains number", test: (p: string) => /\d/.test(p) },
-    { label: "Contains special character", test: (p: string) => /[@$!%*?&]/.test(p) },
+    {
+      label: "Contains special character",
+      test: (p: string) => /[@$!%*?&]/.test(p),
+    },
   ];
 
-  const passedChecks = checks.filter(check => check.test(password)).length;
+  const passedChecks = checks.filter((check) => check.test(password)).length;
   const strength = (passedChecks / checks.length) * 100;
-
-
 
   /**
    * Determines the strength text based on the strength value.
@@ -72,10 +104,15 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
     <div className="space-y-2">
       <div className="flex items-center justify-between text-sm">
         <span>Password Strength</span>
-        <span className={`font-medium ${
-          strength < 40 ? "text-red-500" : 
-          strength < 80 ? "text-yellow-500" : "text-green-500"
-        }`}>
+        <span
+          className={`font-medium ${
+            strength < 40
+              ? "text-red-500"
+              : strength < 80
+                ? "text-yellow-500"
+                : "text-green-500"
+          }`}
+        >
           {getStrengthText()}
         </span>
       </div>
@@ -114,14 +151,14 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isForced = searchParams.get("forced") === "true";
-  
+
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { resetReason, resetExpiresAt } = usePasswordResetStatus();
-  
+
   const form = useForm<PasswordResetForm>({
     resolver: zodResolver(passwordResetSchema),
     defaultValues: {
@@ -153,13 +190,12 @@ export default function ResetPasswordPage() {
     try {
       // Here you would typically call your auth provider's password change method
       // For this example, we'll simulate the password change
-      
+
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // After successful password change, mark reset as completed
       await completeResetMutation.mutateAsync();
-      
     } catch {
       toast.error("Failed to reset password. Please try again.");
     } finally {
@@ -168,21 +204,22 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="bg-background flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Shield className="h-5 w-5 text-amber-600" />
-            <span>{isForced ? "Required Password Reset" : "Reset Password"}</span>
+            <span>
+              {isForced ? "Required Password Reset" : "Reset Password"}
+            </span>
           </CardTitle>
           <CardDescription>
-            {isForced 
+            {isForced
               ? "For your security, you must reset your password to continue."
-              : "Create a new password for your account."
-            }
+              : "Create a new password for your account."}
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {isForced && resetReason && (
             <Alert variant="destructive">
@@ -193,10 +230,11 @@ export default function ResetPasswordPage() {
           )}
 
           {resetExpiresAt && (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               <p>
                 <strong>Password expires:</strong>{" "}
-                {resetExpiresAt.toLocaleDateString()} at {resetExpiresAt.toLocaleTimeString()}
+                {resetExpiresAt.toLocaleDateString()} at{" "}
+                {resetExpiresAt.toLocaleTimeString()}
               </p>
             </div>
           )}
@@ -221,8 +259,10 @@ export default function ResetPasswordPage() {
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() =>
+                            setShowCurrentPassword(!showCurrentPassword)
+                          }
                           disabled={isSubmitting}
                         >
                           {showCurrentPassword ? (
@@ -256,7 +296,7 @@ export default function ResetPasswordPage() {
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
                           onClick={() => setShowNewPassword(!showNewPassword)}
                           disabled={isSubmitting}
                         >
@@ -295,8 +335,10 @@ export default function ResetPasswordPage() {
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                           disabled={isSubmitting}
                         >
                           {showConfirmPassword ? (
@@ -330,10 +372,12 @@ export default function ResetPasswordPage() {
             </div>
           )}
 
-          <div className="text-xs text-muted-foreground text-center space-y-1">
-            <p>Your new password must be different from your current password.</p>
+          <div className="text-muted-foreground space-y-1 text-center text-xs">
+            <p>
+              Your new password must be different from your current password.
+            </p>
             {isForced && (
-              <p className="text-amber-600 font-medium">
+              <p className="font-medium text-amber-600">
                 You cannot access the application until your password is reset.
               </p>
             )}

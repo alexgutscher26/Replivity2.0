@@ -29,7 +29,11 @@ const updatePostSchema = z.object({
   slug: z.string().min(1, "Slug is required").max(200, "Slug too long"),
   excerpt: z.string().max(500, "Excerpt too long").optional(),
   content: z.string().min(1, "Content is required"),
-  featuredImage: z.string().url("Invalid image URL").optional().or(z.literal("")),
+  featuredImage: z
+    .string()
+    .url("Invalid image URL")
+    .optional()
+    .or(z.literal("")),
   status: z.enum(["draft", "published", "archived"]),
   publishedAt: z.date().optional(),
   seoTitle: z.string().max(60, "SEO title too long").optional(),
@@ -76,7 +80,7 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
   // Queries
   const { data: post, isLoading: postLoading } = api.blog.getPost.useQuery(
     { id: postId! },
-    { enabled: postId !== null }
+    { enabled: postId !== null },
   );
   const { data: categories = [] } = api.blog.getCategories.useQuery();
   const { data: tags = [] } = api.blog.getTags.useQuery();
@@ -128,8 +132,8 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
         publishedAt: post.publishedAt ? new Date(post.publishedAt) : undefined,
         seoTitle: post.seoTitle ?? "",
         seoDescription: post.seoDescription ?? "",
-        categoryIds: post.categories.map(pc => pc.category.id as number),
-        tagIds: post.tags.map(pt => pt.tag.id as number),
+        categoryIds: post.categories.map((pc) => pc.category.id as number),
+        tagIds: post.tags.map((pt) => pt.tag.id as number),
       });
     }
   }, [post]);
@@ -155,11 +159,15 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
    */
   const handleTitleChange = (title: string) => {
     if (!formData) return;
-    setFormData(prev => prev ? {
-      ...prev,
-      title,
-      slug: autoSlug ? generateSlug(title) : prev.slug,
-    } : null);
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            title,
+            slug: autoSlug ? generateSlug(title) : prev.slug,
+          }
+        : null,
+    );
   };
 
   /**
@@ -177,7 +185,10 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
       const dataToSubmit = {
         ...formData,
         status: status ?? formData.status,
-        publishedAt: (status === "published" && !formData.publishedAt) ? new Date() : formData.publishedAt,
+        publishedAt:
+          status === "published" && !formData.publishedAt
+            ? new Date()
+            : formData.publishedAt,
         featuredImage: formData.featuredImage ?? undefined,
         excerpt: formData.excerpt ?? undefined,
         seoTitle: formData.seoTitle ?? undefined,
@@ -209,7 +220,11 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
    */
   const handleDelete = async () => {
     if (postId === null) return;
-    if (confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
+    if (
+      confirm(
+        "Are you sure you want to delete this post? This action cannot be undone.",
+      )
+    ) {
       await deletePost.mutateAsync({ id: postId });
     }
   };
@@ -221,7 +236,7 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
     if (!newCategory.trim()) return;
     await createCategory.mutateAsync({
       name: newCategory.trim(),
-      slug: generateSlug(newCategory.trim())
+      slug: generateSlug(newCategory.trim()),
     });
   };
 
@@ -232,7 +247,7 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
     if (!newTag.trim()) return;
     await createTag.mutateAsync({
       name: newTag.trim(),
-      slug: generateSlug(newTag.trim())
+      slug: generateSlug(newTag.trim()),
     });
   };
 
@@ -245,12 +260,16 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
    */
   const toggleCategory = (categoryId: number) => {
     if (!formData) return;
-    setFormData(prev => prev ? {
-      ...prev,
-      categoryIds: prev.categoryIds.includes(categoryId)
-        ? prev.categoryIds.filter(id => id !== categoryId)
-        : [...prev.categoryIds, categoryId],
-    } : null);
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            categoryIds: prev.categoryIds.includes(categoryId)
+              ? prev.categoryIds.filter((id) => id !== categoryId)
+              : [...prev.categoryIds, categoryId],
+          }
+        : null,
+    );
   };
 
   /**
@@ -263,17 +282,21 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
    */
   const toggleTag = (tagId: number) => {
     if (!formData) return;
-    setFormData(prev => prev ? {
-      ...prev,
-      tagIds: prev.tagIds.includes(tagId)
-        ? prev.tagIds.filter(id => id !== tagId)
-        : [...prev.tagIds, tagId],
-    } : null);
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            tagIds: prev.tagIds.includes(tagId)
+              ? prev.tagIds.filter((id) => id !== tagId)
+              : [...prev.tagIds, tagId],
+          }
+        : null,
+    );
   };
 
   if (postLoading || !formData) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-muted-foreground">Loading post...</div>
       </div>
     );
@@ -281,7 +304,7 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
 
   if (!post) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] flex-col items-center justify-center">
         <div className="text-muted-foreground mb-4">Post not found</div>
         <Link href="/dashboard/blog">
           <Button variant="outline">Back to Blog</Button>
@@ -304,7 +327,11 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Edit Post</h1>
             <p className="text-muted-foreground">
-              Last updated {formatDistanceToNow(new Date(post.updatedAt ?? post.createdAt ?? new Date()), { addSuffix: true })}
+              Last updated{" "}
+              {formatDistanceToNow(
+                new Date(post.updatedAt ?? post.createdAt ?? new Date()),
+                { addSuffix: true },
+              )}
             </p>
           </div>
         </div>
@@ -345,7 +372,7 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Post Status */}
           <Card>
             <CardHeader>
@@ -354,7 +381,11 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
             <CardContent>
               <Select
                 value={formData.status}
-                onValueChange={(value) => setFormData(prev => prev ? { ...prev, status: value as any } : null)}
+                onValueChange={(value) =>
+                  setFormData((prev) =>
+                    prev ? { ...prev, status: value as any } : null,
+                  )
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -366,8 +397,12 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                 </SelectContent>
               </Select>
               {post.publishedAt && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  Published {formatDistanceToNow(new Date(post.publishedAt ?? new Date()), { addSuffix: true })}
+                <p className="text-muted-foreground mt-2 text-sm">
+                  Published{" "}
+                  {formatDistanceToNow(
+                    new Date(post.publishedAt ?? new Date()),
+                    { addSuffix: true },
+                  )}
                 </p>
               )}
             </CardContent>
@@ -388,14 +423,18 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                   placeholder="Enter post title..."
                   className={errors.title ? "border-red-500" : ""}
                 />
-                {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
+                {errors.title && (
+                  <p className="text-sm text-red-500">{errors.title}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="slug">URL Slug *</Label>
                   <div className="flex items-center space-x-2">
-                    <Label htmlFor="auto-slug" className="text-sm">Auto-generate</Label>
+                    <Label htmlFor="auto-slug" className="text-sm">
+                      Auto-generate
+                    </Label>
                     <Switch
                       id="auto-slug"
                       checked={autoSlug}
@@ -406,13 +445,19 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                 <Input
                   id="slug"
                   value={formData.slug}
-                  onChange={(e) => setFormData(prev => prev ? { ...prev, slug: e.target.value } : null)}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, slug: e.target.value } : null,
+                    )
+                  }
                   placeholder="post-url-slug"
                   disabled={autoSlug}
                   className={errors.slug ? "border-red-500" : ""}
                 />
-                {errors.slug && <p className="text-sm text-red-500">{errors.slug}</p>}
-                <p className="text-sm text-muted-foreground">
+                {errors.slug && (
+                  <p className="text-sm text-red-500">{errors.slug}</p>
+                )}
+                <p className="text-muted-foreground text-sm">
                   URL: /blog/{formData.slug || "post-url-slug"}
                 </p>
               </div>
@@ -422,13 +467,19 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                 <Textarea
                   id="excerpt"
                   value={formData.excerpt}
-                  onChange={(e) => setFormData(prev => prev ? { ...prev, excerpt: e.target.value } : null)}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, excerpt: e.target.value } : null,
+                    )
+                  }
                   placeholder="Brief description of the post..."
                   rows={3}
                   className={errors.excerpt ? "border-red-500" : ""}
                 />
-                {errors.excerpt && <p className="text-sm text-red-500">{errors.excerpt}</p>}
-                <p className="text-sm text-muted-foreground">
+                {errors.excerpt && (
+                  <p className="text-sm text-red-500">{errors.excerpt}</p>
+                )}
+                <p className="text-muted-foreground text-sm">
                   {formData.excerpt?.length ?? 0}/500 characters
                 </p>
               </div>
@@ -438,12 +489,18 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                 <Textarea
                   id="content"
                   value={formData.content}
-                  onChange={(e) => setFormData(prev => prev ? { ...prev, content: e.target.value } : null)}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, content: e.target.value } : null,
+                    )
+                  }
                   placeholder="Write your blog post content here..."
                   rows={15}
                   className={errors.content ? "border-red-500" : ""}
                 />
-                {errors.content && <p className="text-sm text-red-500">{errors.content}</p>}
+                {errors.content && (
+                  <p className="text-sm text-red-500">{errors.content}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -452,11 +509,17 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                   id="featuredImage"
                   type="url"
                   value={formData.featuredImage}
-                  onChange={(e) => setFormData(prev => prev ? { ...prev, featuredImage: e.target.value } : null)}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, featuredImage: e.target.value } : null,
+                    )
+                  }
                   placeholder="https://example.com/image.jpg"
                   className={errors.featuredImage ? "border-red-500" : ""}
                 />
-                {errors.featuredImage && <p className="text-sm text-red-500">{errors.featuredImage}</p>}
+                {errors.featuredImage && (
+                  <p className="text-sm text-red-500">{errors.featuredImage}</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -472,12 +535,18 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                 <Input
                   id="seoTitle"
                   value={formData.seoTitle}
-                  onChange={(e) => setFormData(prev => prev ? { ...prev, seoTitle: e.target.value } : null)}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, seoTitle: e.target.value } : null,
+                    )
+                  }
                   placeholder="SEO-optimized title"
                   className={errors.seoTitle ? "border-red-500" : ""}
                 />
-                {errors.seoTitle && <p className="text-sm text-red-500">{errors.seoTitle}</p>}
-                <p className="text-xs text-muted-foreground">
+                {errors.seoTitle && (
+                  <p className="text-sm text-red-500">{errors.seoTitle}</p>
+                )}
+                <p className="text-muted-foreground text-xs">
                   {formData.seoTitle?.length ?? 0}/60 characters
                 </p>
               </div>
@@ -487,13 +556,21 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                 <Textarea
                   id="seoDescription"
                   value={formData.seoDescription}
-                  onChange={(e) => setFormData(prev => prev ? { ...prev, seoDescription: e.target.value } : null)}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, seoDescription: e.target.value } : null,
+                    )
+                  }
                   placeholder="Brief description for search engines"
                   rows={3}
                   className={errors.seoDescription ? "border-red-500" : ""}
                 />
-                {errors.seoDescription && <p className="text-sm text-red-500">{errors.seoDescription}</p>}
-                <p className="text-xs text-muted-foreground">
+                {errors.seoDescription && (
+                  <p className="text-sm text-red-500">
+                    {errors.seoDescription}
+                  </p>
+                )}
+                <p className="text-muted-foreground text-xs">
                   {formData.seoDescription?.length ?? 0}/160 characters
                 </p>
               </div>
@@ -509,11 +586,15 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <div className="text-2xl font-bold">{post.viewCount}</div>
-                  <div className="text-sm text-muted-foreground">Total Views</div>
+                  <div className="text-muted-foreground text-sm">
+                    Total Views
+                  </div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold">{post.readingTime}</div>
-                  <div className="text-sm text-muted-foreground">Reading Time (min)</div>
+                  <div className="text-muted-foreground text-sm">
+                    Reading Time (min)
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -533,7 +614,9 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                   placeholder="New category..."
-                  onKeyPress={(e) => e.key === "Enter" && handleCreateCategory()}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && handleCreateCategory()
+                  }
                 />
                 <Button
                   size="sm"
@@ -544,9 +627,12 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                 </Button>
               </div>
               <Separator />
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+              <div className="max-h-48 space-y-2 overflow-y-auto">
                 {categories.map((category) => (
-                  <div key={category.id} className="flex items-center space-x-2">
+                  <div
+                    key={category.id}
+                    className="flex items-center space-x-2"
+                  >
                     <input
                       type="checkbox"
                       id={`category-${category.id}`}
@@ -554,10 +640,12 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                       onChange={() => toggleCategory(category.id)}
                       className="rounded"
                     />
-                    <Label htmlFor={`category-${category.id}`} className="flex-1">
+                    <Label
+                      htmlFor={`category-${category.id}`}
+                      className="flex-1"
+                    >
                       {category.name}
                     </Label>
-
                   </div>
                 ))}
               </div>
@@ -586,7 +674,7 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                 </Button>
               </div>
               <Separator />
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+              <div className="max-h-48 space-y-2 overflow-y-auto">
                 {tags.map((tag) => (
                   <div key={tag.id} className="flex items-center space-x-2">
                     <input
@@ -599,7 +687,6 @@ export default function EditBlogPost({ params }: EditBlogPostProps) {
                     <Label htmlFor={`tag-${tag.id}`} className="flex-1">
                       {tag.name}
                     </Label>
-
                   </div>
                 ))}
               </div>

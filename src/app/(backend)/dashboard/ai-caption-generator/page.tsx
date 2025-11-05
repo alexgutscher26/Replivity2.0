@@ -6,18 +6,20 @@ import { type Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "AI Caption Generator - Create Engaging Social Media Captions",
-  description: "Generate compelling social media captions with AI. Upload images and create platform-specific captions for Instagram, Facebook, Twitter, and more using advanced AI models.",
+  description:
+    "Generate compelling social media captions with AI. Upload images and create platform-specific captions for Instagram, Facebook, Twitter, and more using advanced AI models.",
   keywords: [
     "AI caption generator",
     "social media captions",
     "Instagram captions",
     "AI content creation",
     "image to caption",
-    "social media automation"
+    "social media automation",
   ],
   openGraph: {
     title: "AI Caption Generator | Replivity",
-    description: "Generate compelling social media captions with AI. Upload images and create platform-specific captions instantly.",
+    description:
+      "Generate compelling social media captions with AI. Upload images and create platform-specific captions instantly.",
   },
 };
 
@@ -25,22 +27,23 @@ export const metadata: Metadata = {
 const captionGeneratorStructuredData = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "AI Caption Generator",
-  "description": "Advanced AI-powered tool for generating engaging social media captions from images across multiple platforms including Instagram, Twitter, Facebook, and LinkedIn.",
-  "url": "https://replivity.com/dashboard/ai-caption-generator",
-  "applicationCategory": "BusinessApplication",
-  "applicationSubCategory": "Content Creation",
-  "operatingSystem": "Web Browser",
-  "isPartOf": {
+  name: "AI Caption Generator",
+  description:
+    "Advanced AI-powered tool for generating engaging social media captions from images across multiple platforms including Instagram, Twitter, Facebook, and LinkedIn.",
+  url: "https://replivity.com/dashboard/ai-caption-generator",
+  applicationCategory: "BusinessApplication",
+  applicationSubCategory: "Content Creation",
+  operatingSystem: "Web Browser",
+  isPartOf: {
     "@type": "WebSite",
-    "name": "Replivity",
-    "url": "https://replivity.com"
+    name: "Replivity",
+    url: "https://replivity.com",
   },
-  "creator": {
+  creator: {
     "@type": "Organization",
-    "name": "Replivity"
+    name: "Replivity",
   },
-  "featureList": [
+  featureList: [
     "AI-powered caption generation",
     "Image-to-caption conversion",
     "Multi-platform optimization",
@@ -48,17 +51,17 @@ const captionGeneratorStructuredData = {
     "Tone customization",
     "Length optimization",
     "Emoji integration",
-    "Brand voice consistency"
+    "Brand voice consistency",
   ],
-  "audience": {
+  audience: {
     "@type": "Audience",
-    "audienceType": "Content Creators, Social Media Managers, Businesses"
+    audienceType: "Content Creators, Social Media Managers, Businesses",
   },
-  "potentialAction": {
+  potentialAction: {
     "@type": "CreateAction",
-    "name": "Generate Caption",
-    "description": "Create engaging social media captions from images using AI"
-  }
+    name: "Generate Caption",
+    description: "Create engaging social media captions from images using AI",
+  },
 };
 
 /**
@@ -71,16 +74,21 @@ export default function AiCaptionGeneratorPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(captionGeneratorStructuredData)
+          __html: JSON.stringify(captionGeneratorStructuredData),
         }}
       />
-      
-      <ServerFeatureAccessGuard featureKey={AVAILABLE_FEATURES.AI_CAPTION_GENERATOR}>
+
+      <ServerFeatureAccessGuard
+        featureKey={AVAILABLE_FEATURES.AI_CAPTION_GENERATOR}
+      >
         <div className="flex-1 space-y-6 p-10 pb-16">
           <div className="space-y-0.5">
-            <h2 className="text-2xl font-bold tracking-tight">AI Caption Generator</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              AI Caption Generator
+            </h2>
             <p className="text-muted-foreground">
-              Upload an image and generate engaging captions for your social media posts using AI.
+              Upload an image and generate engaging captions for your social
+              media posts using AI.
             </p>
           </div>
           <Separator />

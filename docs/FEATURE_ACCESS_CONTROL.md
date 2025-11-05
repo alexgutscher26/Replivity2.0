@@ -143,7 +143,7 @@ const hasAccess = await isFeatureAvailable(userId, 'AI_CAPTION_GENERATOR');
 ### 1. Run Database Migration
 
 ```bash
-npm run db:migrate
+bun run db:migrate
 ```
 
 This will create the `feature_permissions` table.
@@ -151,7 +151,7 @@ This will create the `feature_permissions` table.
 ### 2. Seed Feature Permissions
 
 ```bash
-npm run seed:features
+bun run seed:features
 # or
 node -r ts-node/register src/scripts/seed-feature-permissions.ts
 ```

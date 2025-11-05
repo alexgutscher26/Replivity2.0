@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-import 'better-auth';
+import "better-auth";
 
-declare module 'better-auth' {
+declare module "better-auth" {
   export interface AuthOptions {
     emailAndPassword?: {
       password?: {
@@ -11,4 +11,3 @@ declare module 'better-auth' {
     } & EmailAndPasswordOptions;
   }
 }
-

@@ -49,7 +49,7 @@ export default function FrontendLayout({
       <header>
         <nav
           data-state={menuState && "active"}
-          className="fixed z-20 w-full border-b border-dashed border-gray-800 bg-black backdrop-blur md:relative text-white"
+          className="fixed z-20 w-full border-b border-dashed border-gray-800 bg-black text-white backdrop-blur md:relative"
         >
           <div className="m-auto max-w-5xl px-6">
             <div className="flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
@@ -84,14 +84,14 @@ export default function FrontendLayout({
                 </button>
               </div>
 
-              <div className="bg-gray-900/50 mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border border-gray-700 p-6 shadow-2xl shadow-black/20 in-data-[state=active]:block md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none lg:in-data-[state=active]:flex">
+              <div className="mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border border-gray-700 bg-gray-900/50 p-6 shadow-2xl shadow-black/20 in-data-[state=active]:block md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none lg:in-data-[state=active]:flex">
                 <div className="lg:pr-4">
                   <ul className="space-y-6 text-base lg:flex lg:gap-8 lg:space-y-0 lg:text-sm">
                     {menuItems.map((item, index) => (
                       <li key={index}>
                         <Link
                           href={item.href}
-                          className="text-gray-300 hover:text-emerald-400 block duration-150"
+                          className="block text-gray-300 duration-150 hover:text-emerald-400"
                         >
                           <span>{item.name}</span>
                         </Link>
@@ -102,12 +102,21 @@ export default function FrontendLayout({
 
                 <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit lg:border-l lg:border-gray-700 lg:pl-6">
                   <SignedIn>
-                    <Button asChild size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-black">
+                    <Button
+                      asChild
+                      size="sm"
+                      className="bg-emerald-500 text-black hover:bg-emerald-600"
+                    >
                       <Link href="/dashboard">
                         <span>Dashboard</span>
                       </Link>
                     </Button>
-                    <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
+                    >
                       <Link href="/auth/sign-out">
                         <span>Sign Out</span>
                       </Link>
@@ -115,12 +124,21 @@ export default function FrontendLayout({
                   </SignedIn>
 
                   <SignedOut>
-                    <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
+                    >
                       <Link href="/auth/sign-in">
                         <span>Sign In</span>
                       </Link>
                     </Button>
-                    <Button asChild size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-black">
+                    <Button
+                      asChild
+                      size="sm"
+                      className="bg-emerald-500 text-black hover:bg-emerald-600"
+                    >
                       <Link href="/auth/sign-up">
                         <span>Sign Up</span>
                       </Link>

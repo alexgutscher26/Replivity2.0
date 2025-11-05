@@ -1,25 +1,25 @@
-import type { AppRouter } from '@/entrypoints/background'
+import type { AppRouter } from "@/entrypoints/background";
 
-import { AuthLoading, SignedIn, SignedOut } from '@daveyplate/better-auth-ui'
-import { createTRPCReact } from '@trpc/react-query'
+import { AuthLoading, SignedIn, SignedOut } from "@daveyplate/better-auth-ui";
+import { createTRPCReact } from "@trpc/react-query";
 
-import { Dashboard } from './dashboard/Dashboard'
-import { DashboardSkeleton } from './dashboard/DashboardSkeleton'
-import Home from './Home'
+import { Dashboard } from "./dashboard/Dashboard";
+import { DashboardSkeleton } from "./dashboard/DashboardSkeleton";
+import Home from "./Home";
 
-const trpcReact = createTRPCReact<AppRouter>()
+const trpcReact = createTRPCReact<AppRouter>();
 
 function App() {
-  const { data: hello } = trpcReact.greeting.useQuery({ name: 'tRPC' })
+  const { data: hello } = trpcReact.greeting.useQuery({ name: "tRPC" });
   trpcReact.onGreeting.useSubscription(undefined, {
     onData: (hello) => {
       // eslint-disable-next-line no-console
-      console.log(hello)
+      console.log(hello);
     },
-  })
+  });
 
   if (!hello) {
-    return null
+    return null;
   }
 
   return (
@@ -36,7 +36,7 @@ function App() {
         <Dashboard />
       </SignedIn>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

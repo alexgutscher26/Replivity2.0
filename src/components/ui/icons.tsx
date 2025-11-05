@@ -1,8 +1,4 @@
-import {
-  Command,
-  Twitter,
-  type LucideIcon,
-} from "lucide-react";
+import { Command, Twitter, type LucideIcon } from "lucide-react";
 
 export type Icon = LucideIcon;
 

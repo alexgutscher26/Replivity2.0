@@ -1,84 +1,92 @@
-'use client'
+"use client";
 
-import type { ChartConfig } from '@/components/ui/chart'
+import type { ChartConfig } from "@/components/ui/chart";
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { AlertTriangle, TrendingUp } from 'lucide-react'
-import * as React from 'react'
-import { Link } from 'react-router'
-import { Label, Pie, PieChart } from 'recharts'
-import { z } from 'zod'
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { AlertTriangle, TrendingUp } from "lucide-react";
+import * as React from "react";
+import { Link } from "react-router";
+import { Label, Pie, PieChart } from "recharts";
+import { z } from "zod";
 
-import { trpcReact } from '../../background'
+import { trpcReact } from "../../background";
 
 export const chartConfig = {
   facebook: {
-    color: 'var(--chart-1)',
-    label: 'Facebook',
+    color: "var(--chart-1)",
+    label: "Facebook",
   },
   linkedin: {
-    color: 'var(--chart-3)',
-    label: 'LinkedIn',
+    color: "var(--chart-3)",
+    label: "LinkedIn",
   },
   total: {
-    color: 'var(--chart-0)',
-    label: 'Generations',
+    color: "var(--chart-0)",
+    label: "Generations",
   },
   twitter: {
-    color: 'var(--chart-2)',
-    label: 'Twitter',
+    color: "var(--chart-2)",
+    label: "Twitter",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 export const result = z.object({
   currentMonth: z.string(),
   currentMonthTotal: z.number(),
   planLimit: z.number(),
-  sources: z.array(z.object({
-    source: z.string(),
-    total: z.number(),
-  })),
-})
+  sources: z.array(
+    z.object({
+      source: z.string(),
+      total: z.number(),
+    }),
+  ),
+});
 
 export function Dashboard() {
-  const [usage] = trpcReact.usage.useSuspenseQuery<z.infer<typeof result>>()
+  const [usage] = trpcReact.usage.useSuspenseQuery<z.infer<typeof result>>();
 
   const totalGenerations = React.useMemo(() => {
-    if (!usage?.sources || !Array.isArray(usage.sources))
-      return 0
+    if (!usage?.sources || !Array.isArray(usage.sources)) return 0;
 
     return usage.sources.reduce<number>(
       (acc, curr) => acc + (curr.total ?? 0),
       0,
-    )
-  }, [usage])
+    );
+  }, [usage]);
 
   const chartData = React.useMemo(() => {
-    if (!usage?.sources || !Array.isArray(usage.sources))
-      return []
+    if (!usage?.sources || !Array.isArray(usage.sources)) return [];
 
-    return usage.sources.map(item => ({
+    return usage.sources.map((item) => ({
       fill:
-                chartConfig[item.source as keyof typeof chartConfig]?.color
-                ?? 'var(--chart-1)',
-      source: item.source ?? 'facebook | twitter | linkedin',
+        chartConfig[item.source as keyof typeof chartConfig]?.color ??
+        "var(--chart-1)",
+      source: item.source ?? "facebook | twitter | linkedin",
       total: item.total ?? 0,
-    }))
-  }, [usage])
+    }));
+  }, [usage]);
 
   // Calculate usage percentage
   const usagePercentage = React.useMemo(() => {
-    if (!usage?.planLimit || usage.planLimit === 0)
-      return 0
-    return Math.round(
-      (usage.currentMonthTotal / usage.planLimit) * 100,
-    )
-  }, [usage])
+    if (!usage?.planLimit || usage.planLimit === 0) return 0;
+    return Math.round((usage.currentMonthTotal / usage.planLimit) * 100);
+  }, [usage]);
 
   // Check if usage is high (80% or more)
-  const isHighUsage = usagePercentage >= 80
+  const isHighUsage = usagePercentage >= 80;
 
   return (
     <Card className="flex flex-col">
@@ -107,7 +115,7 @@ export function Dashboard() {
             >
               <Label
                 content={({ viewBox }) => {
-                  if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
                     return (
                       <text
                         dominantBaseline="middle"
@@ -130,7 +138,7 @@ export function Dashboard() {
                           Generations
                         </tspan>
                       </text>
-                    )
+                    );
                   }
                 }}
               />
@@ -140,29 +148,24 @@ export function Dashboard() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 leading-none font-medium">
-          {usage?.currentMonthTotal ?? 0}
-          /
-          {usage?.planLimit ?? 0}
-          {' '}
-          used this month (
-          {usagePercentage}
+          {usage?.currentMonthTotal ?? 0}/{usage?.planLimit ?? 0} used this
+          month ({usagePercentage}
           %)
-          {isHighUsage
-            ? (
-                <AlertTriangle className="text-warning h-4 w-4" />
-              )
-            : (
-                <TrendingUp className="h-4 w-4" />
-              )}
+          {isHighUsage ? (
+            <AlertTriangle className="text-warning h-4 w-4" />
+          ) : (
+            <TrendingUp className="h-4 w-4" />
+          )}
         </div>
         <div className="text-muted-foreground leading-none">
-          {usage?.currentMonth ?? 'Current'}
-          {' '}
-          usage across platforms
+          {usage?.currentMonth ?? "Current"} usage across platforms
         </div>
 
         {isHighUsage && (
-          <Link target="_blank" to={new URL('/', import.meta.env.WXT_SITE_URL).href}>
+          <Link
+            target="_blank"
+            to={new URL("/", import.meta.env.WXT_SITE_URL).href}
+          >
             <Button className="mt-2" size="sm" variant="outline">
               Upgrade Plan for More Generations
             </Button>
@@ -170,5 +173,5 @@ export function Dashboard() {
         )}
       </CardFooter>
     </Card>
-  )
+  );
 }

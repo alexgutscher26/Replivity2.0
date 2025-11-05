@@ -9,7 +9,9 @@ export default function HashtagGeneratorPage() {
   return (
     <div className="flex-1 space-y-6 p-10 pb-16">
       <div className="space-y-0.5">
-        <h2 className="text-2xl font-bold tracking-tight">AI Hashtag Generator</h2>
+        <h2 className="text-2xl font-bold tracking-tight">
+          AI Hashtag Generator
+        </h2>
         <p className="text-muted-foreground">
           Generate trending hashtags for your social media content using AI.
         </p>
@@ -26,8 +28,9 @@ export default function HashtagGeneratorPage() {
       <div className="grid gap-6">
         <div className="space-y-0.5">
           <h3 className="text-lg font-medium">Hashtag Performance Analytics</h3>
-          <p className="text-sm text-muted-foreground">
-            Track the performance of your generated hashtags across different platforms.
+          <p className="text-muted-foreground text-sm">
+            Track the performance of your generated hashtags across different
+            platforms.
           </p>
         </div>
         <HashtagPerformanceAnalytics />
@@ -36,7 +39,7 @@ export default function HashtagGeneratorPage() {
       <div className="grid gap-6">
         <div className="space-y-0.5">
           <h3 className="text-lg font-medium">Custom Hashtag Sets</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Create and manage custom hashtag sets for recurring content themes.
           </p>
         </div>
@@ -46,7 +49,7 @@ export default function HashtagGeneratorPage() {
       <div className="grid gap-6">
         <div className="space-y-0.5">
           <h3 className="text-lg font-medium">Competition Analysis</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Analyze hashtag competition and discover optimization opportunities.
           </p>
         </div>

@@ -27,7 +27,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MoreHorizontal, Search, Check, X, Trash2, MessageSquare, AlertTriangle } from "lucide-react";
+import {
+  MoreHorizontal,
+  Search,
+  Check,
+  X,
+  Trash2,
+  MessageSquare,
+  AlertTriangle,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 
@@ -72,7 +80,11 @@ export default function CommentModerationDashboard() {
   const utils = api.useUtils();
 
   // Queries
-  const { data: commentsData, isLoading, refetch: refetchComments } = api.blog.getComments.useQuery({
+  const {
+    data: commentsData,
+    isLoading,
+    refetch: refetchComments,
+  } = api.blog.getComments.useQuery({
     postId: undefined, // Get comments from all posts
     limit,
     offset: page * limit,
@@ -82,18 +94,23 @@ export default function CommentModerationDashboard() {
   });
 
   // Query for all comments to get accurate counts
-  const { data: allCommentsData, refetch: refetchAllComments } = api.blog.getComments.useQuery({
-    postId: undefined,
-    limit: 1000, // Large limit to get all comments for counting
-    offset: 0,
-    status: undefined, // No status filter to get all comments
-  });
+  const { data: allCommentsData, refetch: refetchAllComments } =
+    api.blog.getComments.useQuery({
+      postId: undefined,
+      limit: 1000, // Large limit to get all comments for counting
+      offset: 0,
+      status: undefined, // No status filter to get all comments
+    });
 
   // Mutations
   const moderateComment = api.blog.moderateComment.useMutation({
     onSuccess: async (_, variables) => {
-      const statusText = variables.status === "approved" ? "approved" : 
-                        variables.status === "rejected" ? "rejected" : "marked as spam";
+      const statusText =
+        variables.status === "approved"
+          ? "approved"
+          : variables.status === "rejected"
+            ? "rejected"
+            : "marked as spam";
       toast.success(`Comment ${statusText} successfully`);
       // Invalidate all getComments queries to refresh both filtered and unfiltered data
       await utils.blog.getComments.invalidate();
@@ -122,7 +139,10 @@ export default function CommentModerationDashboard() {
   /**
    * Updates the moderation status of a comment.
    */
-  const handleModerate = async (id: number, newStatus: "approved" | "rejected" | "spam") => {
+  const handleModerate = async (
+    id: number,
+    newStatus: "approved" | "rejected" | "spam",
+  ) => {
     await moderateComment.mutateAsync({ id, status: newStatus });
   };
 
@@ -148,24 +168,36 @@ export default function CommentModerationDashboard() {
   const getStatusBadge = (status: string) => {
     const StatusIcon = statusIcons[status as CommentStatus] || MessageSquare;
     return (
-      <Badge className={statusColors[status as CommentStatus] || "bg-gray-100 text-gray-800"}>
+      <Badge
+        className={
+          statusColors[status as CommentStatus] || "bg-gray-100 text-gray-800"
+        }
+      >
         <StatusIcon className="mr-1 h-3 w-3" />
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </Badge>
     );
   };
 
-  const pendingCount = allCommentsData?.comments.filter(c => c.status === "pending").length ?? 0;
-  const approvedCount = allCommentsData?.comments.filter(c => c.status === "approved").length ?? 0;
-  const rejectedCount = allCommentsData?.comments.filter(c => c.status === "rejected").length ?? 0;
-  const spamCount = allCommentsData?.comments.filter(c => c.status === "spam").length ?? 0;
+  const pendingCount =
+    allCommentsData?.comments.filter((c) => c.status === "pending").length ?? 0;
+  const approvedCount =
+    allCommentsData?.comments.filter((c) => c.status === "approved").length ??
+    0;
+  const rejectedCount =
+    allCommentsData?.comments.filter((c) => c.status === "rejected").length ??
+    0;
+  const spamCount =
+    allCommentsData?.comments.filter((c) => c.status === "spam").length ?? 0;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Comment Moderation</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Comment Moderation
+          </h1>
           <p className="text-muted-foreground">
             Review and moderate user comments across all blog posts.
           </p>
@@ -176,11 +208,15 @@ export default function CommentModerationDashboard() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pending Review
+            </CardTitle>
             <MessageSquare className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{pendingCount}</div>
+            <div className="text-2xl font-bold text-yellow-600">
+              {pendingCount}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -189,7 +225,9 @@ export default function CommentModerationDashboard() {
             <Check className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{approvedCount}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {approvedCount}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -198,7 +236,9 @@ export default function CommentModerationDashboard() {
             <X className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{rejectedCount}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {rejectedCount}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -207,7 +247,9 @@ export default function CommentModerationDashboard() {
             <AlertTriangle className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{spamCount}</div>
+            <div className="text-2xl font-bold text-orange-600">
+              {spamCount}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -215,7 +257,7 @@ export default function CommentModerationDashboard() {
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Search comments..."
             value={search}
@@ -223,7 +265,10 @@ export default function CommentModerationDashboard() {
             className="pl-10"
           />
         </div>
-        <Select value={status} onValueChange={(value) => setStatus(value as CommentStatus | "all")}>
+        <Select
+          value={status}
+          onValueChange={(value) => setStatus(value as CommentStatus | "all")}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -235,11 +280,17 @@ export default function CommentModerationDashboard() {
             <SelectItem value="spam">Spam</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={`${sortBy}-${sortOrder}`} onValueChange={(value) => {
-          const [newSortBy, newSortOrder] = value.split('-') as [SortBy, SortOrder];
-          setSortBy(newSortBy);
-          setSortOrder(newSortOrder);
-        }}>
+        <Select
+          value={`${sortBy}-${sortOrder}`}
+          onValueChange={(value) => {
+            const [newSortBy, newSortOrder] = value.split("-") as [
+              SortBy,
+              SortOrder,
+            ];
+            setSortBy(newSortBy);
+            setSortOrder(newSortOrder);
+          }}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -261,8 +312,12 @@ export default function CommentModerationDashboard() {
             </div>
           ) : commentsData?.comments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8">
-              <div className="text-muted-foreground mb-2">No comments found</div>
-              <p className="text-sm text-muted-foreground">Comments will appear here when users submit them.</p>
+              <div className="text-muted-foreground mb-2">
+                No comments found
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Comments will appear here when users submit them.
+              </p>
             </div>
           ) : (
             <Table>
@@ -283,9 +338,11 @@ export default function CommentModerationDashboard() {
                     <TableCell>
                       <div>
                         <div className="font-medium">{comment.authorName}</div>
-                        <div className="text-sm text-muted-foreground">{comment.authorEmail}</div>
+                        <div className="text-muted-foreground text-sm">
+                          {comment.authorEmail}
+                        </div>
                         {comment.authorWebsite && (
-                          <div className="text-xs text-blue-600 truncate max-w-[150px]">
+                          <div className="max-w-[150px] truncate text-xs text-blue-600">
                             {comment.authorWebsite}
                           </div>
                         )}
@@ -293,23 +350,27 @@ export default function CommentModerationDashboard() {
                     </TableCell>
                     <TableCell>
                       <div className="max-w-[300px]">
-                        <p className="text-sm line-clamp-3">{comment.content}</p>
+                        <p className="line-clamp-3 text-sm">
+                          {comment.content}
+                        </p>
                         {comment.isEdited && (
-                          <Badge variant="outline" className="text-xs mt-1">
+                          <Badge variant="outline" className="mt-1 text-xs">
                             Edited
                           </Badge>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-muted-foreground text-sm">
                         Post #{comment.postId}
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(comment.status)}</TableCell>
                     <TableCell>{comment.likeCount}</TableCell>
                     <TableCell>
-                      {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(comment.createdAt), {
+                        addSuffix: true,
+                      })}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -321,7 +382,9 @@ export default function CommentModerationDashboard() {
                         <DropdownMenuContent align="end">
                           {comment.status !== "approved" && (
                             <DropdownMenuItem
-                              onClick={() => handleModerate(comment.id, "approved")}
+                              onClick={() =>
+                                handleModerate(comment.id, "approved")
+                              }
                               className="text-green-600"
                             >
                               <Check className="mr-2 h-4 w-4" />
@@ -330,7 +393,9 @@ export default function CommentModerationDashboard() {
                           )}
                           {comment.status !== "rejected" && (
                             <DropdownMenuItem
-                              onClick={() => handleModerate(comment.id, "rejected")}
+                              onClick={() =>
+                                handleModerate(comment.id, "rejected")
+                              }
                               className="text-red-600"
                             >
                               <X className="mr-2 h-4 w-4" />
@@ -367,8 +432,9 @@ export default function CommentModerationDashboard() {
       {/* Pagination */}
       {commentsData && commentsData.totalCount > limit && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {page * limit + 1} to {Math.min((page + 1) * limit, commentsData.totalCount)} of{" "}
+          <div className="text-muted-foreground text-sm">
+            Showing {page * limit + 1} to{" "}
+            {Math.min((page + 1) * limit, commentsData.totalCount)} of{" "}
             {commentsData.totalCount} comments
           </div>
           <div className="flex items-center space-x-2">

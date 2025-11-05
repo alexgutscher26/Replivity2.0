@@ -1,6 +1,9 @@
 import { db } from "@/server/db";
 import { products } from "@/server/db/schema/products-schema";
-import { featurePermissions, AVAILABLE_FEATURES } from "@/server/db/schema/feature-permissions-schema";
+import {
+  featurePermissions,
+  AVAILABLE_FEATURES,
+} from "@/server/db/schema/feature-permissions-schema";
 import { nanoid } from "nanoid";
 
 /**
@@ -44,7 +47,10 @@ async function seedFeaturePermissions() {
       if (product.isFree || priceValue === 0) {
         features = featureSets.free;
         console.log(`📱 Assigning FREE features to: ${product.name}`);
-      } else if (product.name.toLowerCase().includes('basic') || priceValue < 20) {
+      } else if (
+        product.name.toLowerCase().includes("basic") ||
+        priceValue < 20
+      ) {
         features = featureSets.basic;
         console.log(`📊 Assigning BASIC features to: ${product.name}`);
       } else {
@@ -65,11 +71,12 @@ async function seedFeaturePermissions() {
     }
 
     console.log("🎉 Feature permissions seeding completed successfully!");
-    
+
     // Display summary
     const totalPermissions = await db.select().from(featurePermissions);
-    console.log(`📊 Total feature permissions created: ${totalPermissions.length}`);
-    
+    console.log(
+      `📊 Total feature permissions created: ${totalPermissions.length}`,
+    );
   } catch (error) {
     console.error("❌ Error seeding feature permissions:", error);
     throw error;

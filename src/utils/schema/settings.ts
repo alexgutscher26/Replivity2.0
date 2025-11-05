@@ -375,33 +375,57 @@ export const UpdateUserPasswordSettingsSchema = z
       .refine((password) => /\d/.test(password), {
         message: "Password must contain at least one number",
       })
-      .refine((password) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password), {
-        message: "Password must contain at least one special character",
-      })
+      .refine(
+        (password) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+        {
+          message: "Password must contain at least one special character",
+        },
+      )
       .refine(
         (password) =>
           !/(?:abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|123|234|345|456|567|678|789)/i.test(
-            password
+            password,
           ),
         {
-          message: "Password must not contain sequential characters (e.g., 'abc', '123')",
-        }
+          message:
+            "Password must not contain sequential characters (e.g., 'abc', '123')",
+        },
       )
       .refine((password) => !/(.)\1{2,}/.test(password), {
-        message: "Password must not contain repeated characters (e.g., 'aaa', '111')",
+        message:
+          "Password must not contain repeated characters (e.g., 'aaa', '111')",
       })
       .refine(
         (password) => {
           const commonPasswords = [
-            "password", "123456", "123456789", "12345678", "12345", "1234567", "password123",
-            "admin", "qwerty", "abc123", "Password1", "welcome", "login", "passw0rd",
-            "master", "hello", "guest", "root", "test", "user", "default", "changeme"
+            "password",
+            "123456",
+            "123456789",
+            "12345678",
+            "12345",
+            "1234567",
+            "password123",
+            "admin",
+            "qwerty",
+            "abc123",
+            "Password1",
+            "welcome",
+            "login",
+            "passw0rd",
+            "master",
+            "hello",
+            "guest",
+            "root",
+            "test",
+            "user",
+            "default",
+            "changeme",
           ];
           return !commonPasswords.includes(password.toLowerCase());
         },
         {
           message: "Password cannot be a commonly used password",
-        }
+        },
       ),
     confirmNewPassword: z.string().min(8).max(64).trim(),
     revokeOtherSessions: z.boolean(),
@@ -454,7 +478,17 @@ export type CustomPromptFormValues = z.infer<typeof customPromptSchema>;
 export const brandVoiceSchema = z.object({
   brandName: z.string().default(""),
   brandPersonality: z.string().default(""),
-  brandTone: z.enum(["professional", "casual", "friendly", "authoritative", "playful", "inspirational", "custom"]).default("professional"),
+  brandTone: z
+    .enum([
+      "professional",
+      "casual",
+      "friendly",
+      "authoritative",
+      "playful",
+      "inspirational",
+      "custom",
+    ])
+    .default("professional"),
   customTone: z.string().default(""),
   brandValues: z.string().default(""),
   targetAudience: z.string().default(""),
@@ -467,7 +501,17 @@ export const accountSettingsSchema = z.object({
   customPrompt: z.string().default(""),
   brandName: z.string().default(""),
   brandPersonality: z.string().default(""),
-  brandTone: z.enum(["professional", "casual", "friendly", "authoritative", "playful", "inspirational", "custom"]).default("professional"),
+  brandTone: z
+    .enum([
+      "professional",
+      "casual",
+      "friendly",
+      "authoritative",
+      "playful",
+      "inspirational",
+      "custom",
+    ])
+    .default("professional"),
   customTone: z.string().default(""),
   brandValues: z.string().default(""),
   targetAudience: z.string().default(""),

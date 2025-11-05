@@ -14,34 +14,34 @@ const config = {
   compress: true,
   poweredByHeader: false,
   generateEtags: true,
-  
+
   // Experimental features for performance
   experimental: {
     optimizePackageImports: [
-      'lucide-react',
-      '@radix-ui/react-avatar',
-      '@radix-ui/react-checkbox',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-label',
-      '@radix-ui/react-popover',
-      '@radix-ui/react-select',
-      '@radix-ui/react-separator',
-      '@radix-ui/react-switch',
-      '@radix-ui/react-tabs',
-      '@radix-ui/react-tooltip',
-      'recharts',
+      "lucide-react",
+      "@radix-ui/react-avatar",
+      "@radix-ui/react-checkbox",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-label",
+      "@radix-ui/react-popover",
+      "@radix-ui/react-select",
+      "@radix-ui/react-separator",
+      "@radix-ui/react-switch",
+      "@radix-ui/react-tabs",
+      "@radix-ui/react-tooltip",
+      "recharts",
     ],
     turbo: {
       rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
+        "*.svg": {
+          loaders: ["@svgr/webpack"],
+          as: "*.js",
         },
       },
     },
   },
-  
+
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
@@ -54,15 +54,15 @@ const config = {
     // your project has ESLint errors.
     ignoreDuringBuilds: false,
   },
-  
+
   // Enhanced webpack configuration for performance
   webpack: (config, { dev, isServer }) => {
     // Exclude extension directory from compilation
     config.watchOptions = {
       ...config.watchOptions,
-      ignored: ['**/extension-v6.0.0/**', '**/node_modules/**'],
+      ignored: ["**/extension-v6.0.0/**", "**/node_modules/**"],
     };
-    
+
     // Production optimizations
     if (!dev) {
       // Enable tree shaking
@@ -71,7 +71,7 @@ const config = {
         usedExports: true,
         sideEffects: false,
       };
-      
+
       // Bundle analyzer (optional - uncomment to analyze bundle)
       // config.plugins.push(
       //   new (require('@next/bundle-analyzer')({
@@ -79,16 +79,16 @@ const config = {
       //   }))()
       // );
     }
-    
+
     // Optimize module resolution - Next.js already handles @ alias
-     // config.resolve.alias is handled by tsconfig.json paths
-    
+    // config.resolve.alias is handled by tsconfig.json paths
+
     return config;
   },
-  
+
   // Enhanced image optimization
   images: {
-    formats: ['image/avif', 'image/webp'],
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 31536000, // 1 year
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -120,51 +120,51 @@ const config = {
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  
+
   // Headers for caching and security
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload'
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
           },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff'
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
         ],
       },
       {
-        source: '/static/(.*)',
+        source: "/static/(.*)",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
       {
-        source: '/_next/static/(.*)',
+        source: "/_next/static/(.*)",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
       {
-        source: '/favicon.ico',
+        source: "/favicon.ico",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400'
+            key: "Cache-Control",
+            value: "public, max-age=86400",
           },
         ],
       },

@@ -119,7 +119,7 @@ export const settingsRouter = createTRPCRouter({
     try {
       const settings = await ctx.db.query.settings.findFirst();
       const auth = authSettingsSchema.parse(settings?.general?.auth ?? {});
-      
+
       // Validate provider configurations
       const validatedAuth = {
         ...auth,
@@ -128,7 +128,7 @@ export const settingsRouter = createTRPCRouter({
           return credentials?.clientId && credentials?.clientSecret;
         }),
       };
-      
+
       return validatedAuth;
     } catch (error) {
       throw new TRPCError({
@@ -147,22 +147,23 @@ export const settingsRouter = createTRPCRouter({
           const credentials = input.providerCredentials[provider];
           return !credentials?.clientId || !credentials?.clientSecret;
         });
-        
+
         if (invalidProviders.length > 0) {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: `Missing credentials for providers: ${invalidProviders.join(", ")}. Please provide both clientId and clientSecret for all enabled providers.`,
           });
         }
-        
+
         // Validate secret is provided
         if (!input.secret || input.secret.length < 32) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Auth secret must be at least 32 characters long for security.",
+            message:
+              "Auth secret must be at least 32 characters long for security.",
           });
         }
-        
+
         const existingSettings =
           (await ctx.db.query.settings.findFirst()) ??
           (await ctx.db.insert(settings).values({}).returning())[0];
@@ -190,9 +191,9 @@ export const settingsRouter = createTRPCRouter({
           message: `Failed to update social auth settings: ${error instanceof Error ? error.message : String(error)}`,
           cause: error,
         });
-       }
-     }),
-   aiModel: adminProcedure.query(async ({ ctx }) => {
+      }
+    }),
+  aiModel: adminProcedure.query(async ({ ctx }) => {
     const settings = await ctx.db.query.settings.findFirst();
 
     return aiModelProviderSettingsSchema.parse(settings?.general?.ai ?? {});

@@ -55,10 +55,12 @@ export default function CurrentPlanForm() {
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
                 <FormLabel className="text-base">
-                  {(currentBilling?.product as { name?: string })?.name ?? "No plan"}
+                  {(currentBilling?.product as { name?: string })?.name ??
+                    "No plan"}
                 </FormLabel>
                 <FormDescription>
-                  {(currentBilling?.product as { description?: string })?.description ??
+                  {(currentBilling?.product as { description?: string })
+                    ?.description ??
                     "Subscribe to a plan to access more features."}
                 </FormDescription>
               </div>

@@ -74,11 +74,11 @@ cp .env.example .env.local
 # Add your API keys and database URL
 
 # Setup database
-npm run db:push
-npm run db:migrate
+bun run db:push
+bun run db:migrate
 
 # Start development server
-npm run dev
+bun run dev
 # Open http://localhost:3000
 ```
 
@@ -89,7 +89,7 @@ cd extension-v6.0.0
 npm install
 
 # Build for Chrome
-npm run build
+bun run build
 
 # Load in Chrome:
 # 1. Go to chrome://extensions/
@@ -104,30 +104,30 @@ npm run build
 ### Web Platform
 ```bash
 # Development
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
+bun run dev          # Start development server
+bun run build        # Build for production
+bun run start        # Start production server
 
 # Database
-npm run db:push      # Push schema to database
-npm run db:migrate   # Run migrations
-npm run db:studio    # Open database GUI
+bun run db:push      # Push schema to database
+bun run db:migrate   # Run migrations
+bun run db:studio    # Open database GUI
 
 # Code Quality
-npm run lint         # Run ESLint
-npm run typecheck    # TypeScript checking
+bun run lint         # Run ESLint
+bun run typecheck    # TypeScript checking
 ```
 
 ### Browser Extension
 ```bash
 # Development
-npm run dev                # Chrome development
-npm run dev:firefox        # Firefox development
+bun run dev                # Chrome development
+bun run dev:firefox        # Firefox development
 
 # Production
-npm run build              # Build for Chrome
-npm run build:firefox      # Build for Firefox
-npm run zip                # Package for distribution
+bun run build              # Build for Chrome
+bun run build:firefox      # Build for Firefox
+bun run zip                # Package for distribution
 ```
 
 ### Project Structure
@@ -187,17 +187,17 @@ npm run zip                # Package for distribution
 ### Web Platform
 ```bash
 # Build for production
-npm run build
+bun run build
 
 # Deploy to Vercel/Netlify
-npm run deploy
+bun run deploy
 ```
 
 ### Browser Extension
 ```bash
 # Build and package
-npm run build
-npm run zip
+bun run build
+bun run zip
 
 # Submit to stores:
 # - Chrome Web Store: Upload .zip file
@@ -216,7 +216,7 @@ npm run zip
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Make your changes following TypeScript best practices
-4. Run tests: `npm run test && npm run lint`
+4. Run tests: `bun run test && bun run lint`
 5. Commit changes: `git commit -m 'Add amazing feature'`
 6. Push to branch: `git push origin feature/amazing-feature`
 7. Open a Pull Request

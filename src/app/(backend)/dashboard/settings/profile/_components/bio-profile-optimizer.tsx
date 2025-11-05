@@ -46,11 +46,22 @@ import { useForm } from "react-hook-form";
 
 const bioOptimizerSchema = z.object({
   currentBio: z.string().default(""),
-  platform: z.enum(["twitter", "linkedin", "instagram", "facebook", "tiktok", "general"]).default("general"),
+  platform: z
+    .enum(["twitter", "linkedin", "instagram", "facebook", "tiktok", "general"])
+    .default("general"),
   industry: z.string().default(""),
   targetAudience: z.string().default(""),
   goals: z.array(z.string()).default([]),
-  tone: z.enum(["professional", "casual", "friendly", "authoritative", "creative", "humorous"]).default("professional"),
+  tone: z
+    .enum([
+      "professional",
+      "casual",
+      "friendly",
+      "authoritative",
+      "creative",
+      "humorous",
+    ])
+    .default("professional"),
 });
 
 type BioOptimizerFormValues = z.infer<typeof bioOptimizerSchema>;
@@ -112,7 +123,7 @@ export function BioProfileOptimizer() {
 
   const toggleGoal = (goal: string) => {
     const newGoals = selectedGoals.includes(goal)
-      ? selectedGoals.filter(g => g !== goal)
+      ? selectedGoals.filter((g) => g !== goal)
       : [...selectedGoals, goal];
     setSelectedGoals(newGoals);
     form.setValue("goals", newGoals);
@@ -127,7 +138,8 @@ export function BioProfileOptimizer() {
       suggestions.push({
         type: "warning",
         title: "Empty Bio",
-        description: "Your bio is empty. Add a compelling description to attract your target audience.",
+        description:
+          "Your bio is empty. Add a compelling description to attract your target audience.",
       });
     } else if (bio.length > limit) {
       suggestions.push({
@@ -144,14 +156,19 @@ export function BioProfileOptimizer() {
     }
 
     // Content analysis
-    const hasEmoji = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(bio);
-    const hasCallToAction = /\b(follow|contact|visit|check out|dm|message)\b/i.test(bio);
+    const hasEmoji =
+      /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+        bio,
+      );
+    const hasCallToAction =
+      /\b(follow|contact|visit|check out|dm|message)\b/i.test(bio);
 
     if (!hasEmoji && platform !== "linkedin") {
       suggestions.push({
         type: "improvement",
         title: "Add Personality",
-        description: "Consider adding relevant emojis to make your bio more engaging and visually appealing.",
+        description:
+          "Consider adding relevant emojis to make your bio more engaging and visually appealing.",
         example: "🚀 for innovation, 💡 for ideas, 📈 for growth",
       });
     }
@@ -160,7 +177,8 @@ export function BioProfileOptimizer() {
       suggestions.push({
         type: "improvement",
         title: "Add Call-to-Action",
-        description: "Include a clear call-to-action to guide visitors on what to do next.",
+        description:
+          "Include a clear call-to-action to guide visitors on what to do next.",
         example: "Follow for daily tips | DM for collaborations",
       });
     }
@@ -169,7 +187,8 @@ export function BioProfileOptimizer() {
       suggestions.push({
         type: "success",
         title: "Good Length",
-        description: "Your bio has a good length that provides sufficient information.",
+        description:
+          "Your bio has a good length that provides sufficient information.",
       });
     }
 
@@ -178,24 +197,32 @@ export function BioProfileOptimizer() {
 
   const generateOptimizedBios = async (data: BioOptimizerFormValues) => {
     setIsOptimizing(true);
-    
+
     try {
       // Simulate AI optimization (in real implementation, this would call an AI service)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const limit = platformLimits[data.platform];
       const baseContent = data.currentBio || (user?.name ?? "Professional");
-      
+
       const optimizedVersions: OptimizedBio[] = [
         {
           content: `${baseContent} | ${data.industry} Expert | Helping ${data.targetAudience} achieve their goals 🚀`,
-          improvements: ["Added industry expertise", "Included target audience", "Added engaging emoji"],
+          improvements: [
+            "Added industry expertise",
+            "Included target audience",
+            "Added engaging emoji",
+          ],
           score: 85,
           keywords: [data.industry, "expert", "goals"],
         },
         {
           content: `🎯 ${data.industry} Professional | ${selectedGoals[0] ?? "Building connections"} | Follow for insights`,
-          improvements: ["Clear value proposition", "Call-to-action included", "Professional tone"],
+          improvements: [
+            "Clear value proposition",
+            "Call-to-action included",
+            "Professional tone",
+          ],
           score: 78,
           keywords: [data.industry, "professional", "insights"],
         },
@@ -208,14 +235,17 @@ export function BioProfileOptimizer() {
       ];
 
       // Ensure bios fit platform limits
-      const fittedBios = optimizedVersions.map(bio => ({
+      const fittedBios = optimizedVersions.map((bio) => ({
         ...bio,
-        content: bio.content.length > limit ? bio.content.substring(0, limit - 3) + "..." : bio.content,
+        content:
+          bio.content.length > limit
+            ? bio.content.substring(0, limit - 3) + "..."
+            : bio.content,
       }));
 
       setOptimizedBios(fittedBios);
       setSuggestions(analyzeBio(data.currentBio, data.platform));
-      
+
       toast.success("Bio optimization complete!", {
         description: "Generated 3 optimized versions of your bio.",
       });
@@ -252,7 +282,7 @@ export function BioProfileOptimizer() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="currentBio"
@@ -267,7 +297,8 @@ export function BioProfileOptimizer() {
                         />
                       </FormControl>
                       <FormDescription>
-                        Paste your existing bio or leave empty to create a new one.
+                        Paste your existing bio or leave empty to create a new
+                        one.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -280,7 +311,10 @@ export function BioProfileOptimizer() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Platform</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select platform" />
@@ -296,7 +330,8 @@ export function BioProfileOptimizer() {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Character limit: {platformLimits[form.watch("platform")]}
+                        Character limit:{" "}
+                        {platformLimits[form.watch("platform")]}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -309,17 +344,24 @@ export function BioProfileOptimizer() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tone</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select tone" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="professional">Professional</SelectItem>
+                          <SelectItem value="professional">
+                            Professional
+                          </SelectItem>
                           <SelectItem value="casual">Casual</SelectItem>
                           <SelectItem value="friendly">Friendly</SelectItem>
-                          <SelectItem value="authoritative">Authoritative</SelectItem>
+                          <SelectItem value="authoritative">
+                            Authoritative
+                          </SelectItem>
                           <SelectItem value="creative">Creative</SelectItem>
                           <SelectItem value="humorous">Humorous</SelectItem>
                         </SelectContent>
@@ -336,7 +378,10 @@ export function BioProfileOptimizer() {
                     <FormItem>
                       <FormLabel>Industry/Field</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Marketing, Tech, Design" {...field} />
+                        <Input
+                          placeholder="e.g., Marketing, Tech, Design"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         Your area of expertise or industry.
@@ -353,7 +398,10 @@ export function BioProfileOptimizer() {
                     <FormItem>
                       <FormLabel>Target Audience</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., entrepreneurs, students, professionals" {...field} />
+                        <Input
+                          placeholder="e.g., entrepreneurs, students, professionals"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         Who do you want to reach?
@@ -373,8 +421,10 @@ export function BioProfileOptimizer() {
                   {availableGoals.map((goal) => (
                     <Badge
                       key={goal}
-                      variant={selectedGoals.includes(goal) ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-primary/80"
+                      variant={
+                        selectedGoals.includes(goal) ? "default" : "outline"
+                      }
+                      className="hover:bg-primary/80 cursor-pointer"
                       onClick={() => toggleGoal(goal)}
                     >
                       {goal}
@@ -413,21 +463,28 @@ export function BioProfileOptimizer() {
           <CardContent>
             <div className="space-y-3">
               {suggestions.map((suggestion, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg border">
+                <div
+                  key={index}
+                  className="flex items-start gap-3 rounded-lg border p-3"
+                >
                   {suggestion.type === "success" && (
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                    <CheckCircle className="mt-0.5 h-5 w-5 text-green-500" />
                   )}
                   {suggestion.type === "warning" && (
-                    <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                    <AlertCircle className="mt-0.5 h-5 w-5 text-yellow-500" />
                   )}
                   {suggestion.type === "improvement" && (
-                    <TrendingUp className="h-5 w-5 text-blue-500 mt-0.5" />
+                    <TrendingUp className="mt-0.5 h-5 w-5 text-blue-500" />
                   )}
                   <div className="flex-1">
                     <h4 className="font-medium">{suggestion.title}</h4>
-                    <p className="text-sm text-muted-foreground">{suggestion.description}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {suggestion.description}
+                    </p>
                     {suggestion.example && (
-                      <p className="text-sm text-blue-600 mt-1 italic">Example: {suggestion.example}</p>
+                      <p className="mt-1 text-sm text-blue-600 italic">
+                        Example: {suggestion.example}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -445,7 +502,9 @@ export function BioProfileOptimizer() {
             <Card key={index}>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Version {index + 1}</CardTitle>
+                  <CardTitle className="text-base">
+                    Version {index + 1}
+                  </CardTitle>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary">Score: {bio.score}/100</Badge>
                     <Button
@@ -460,16 +519,16 @@ export function BioProfileOptimizer() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="p-3 bg-muted rounded-lg">
+                  <div className="bg-muted rounded-lg p-3">
                     <p className="font-medium">{bio.content}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-sm">
                       {bio.content.length} characters
                     </p>
                   </div>
-                  
+
                   <div>
-                    <h5 className="font-medium mb-2">Improvements:</h5>
-                    <ul className="text-sm text-muted-foreground space-y-1">
+                    <h5 className="mb-2 font-medium">Improvements:</h5>
+                    <ul className="text-muted-foreground space-y-1 text-sm">
                       {bio.improvements.map((improvement, i) => (
                         <li key={i} className="flex items-center gap-2">
                           <CheckCircle className="h-3 w-3 text-green-500" />
@@ -478,9 +537,9 @@ export function BioProfileOptimizer() {
                       ))}
                     </ul>
                   </div>
-                  
+
                   <div>
-                    <h5 className="font-medium mb-2">Keywords:</h5>
+                    <h5 className="mb-2 font-medium">Keywords:</h5>
                     <div className="flex flex-wrap gap-1">
                       {bio.keywords.map((keyword, i) => (
                         <Badge key={i} variant="outline" className="text-xs">

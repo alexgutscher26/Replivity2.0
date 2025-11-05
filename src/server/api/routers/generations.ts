@@ -42,7 +42,8 @@ export const generationRouter = createTRPCRouter({
       });
 
       const usageCount = currentUsage?.used ?? 0;
-      const usageLimit = (activeBilling.product as { limit?: number })?.limit ?? 0;
+      const usageLimit =
+        (activeBilling.product as { limit?: number })?.limit ?? 0;
 
       // Check if user has exceeded their limit (skip for admins)
       if (ctx.session.user.role !== "admin" && usageCount >= usageLimit) {
@@ -79,8 +80,11 @@ export const generationRouter = createTRPCRouter({
 
       // Increment usage (skip for tweet generation from web form only)
       // Extension calls don't have author parameter, so they should still count
-      const isTweetGenerationFromWebForm = input.source === "twitter" && input.type === "status" && input.author === "Tweet Generator";
-      
+      const isTweetGenerationFromWebForm =
+        input.source === "twitter" &&
+        input.type === "status" &&
+        input.author === "Tweet Generator";
+
       if (!isTweetGenerationFromWebForm) {
         if (currentUsage) {
           await ctx.db
@@ -453,7 +457,9 @@ export const generationRouter = createTRPCRouter({
           source: result.source,
           total: Number(result.total ?? 0),
         })),
-        planLimit: (activeBilling?.product as { limit?: number } | undefined)?.limit ?? 0,
+        planLimit:
+          (activeBilling?.product as { limit?: number } | undefined)?.limit ??
+          0,
         currentMonthTotal,
         currentMonth: now.toLocaleString("default", { month: "long" }),
       };
@@ -532,10 +538,10 @@ export const generationRouter = createTRPCRouter({
   //       feedback: input.feedback,
   //       createdAt: new Date(),
   //     });
-  //     
+  //
   //     return { success: true };
   //   }),
-    
+
   // getQualityMetrics: protectedProcedure
   //   .query(async ({ ctx }) => {
   //     // Return quality metrics for admin dashboard
@@ -548,7 +554,7 @@ export const generationRouter = createTRPCRouter({
   //       .from(responseRatings)
   //       .innerJoin(generations, eq(responseRatings.generationId, generations.id))
   //       .groupBy(generations.source);
-  //       
+  //
   //     return metrics;
   //   }),
 });
@@ -666,7 +672,7 @@ async function generateContextualResponse({
 }) {
   const platformGuidelines = getPlatformGuidelines(input.source);
   const toneInstructions = getToneInstructions(input.tone, contextAnalysis);
-  
+
   const enhancedSystemPrompt = `You are an expert social media manager with deep understanding of human psychology, cultural nuances, and platform-specific best practices.
 
 ${platformGuidelines}
@@ -710,14 +716,14 @@ function getPlatformGuidelines(platform: string): string {
 - Encourage retweets and replies
 - Use threading for longer thoughts
 - Leverage trending topics when relevant`,
-    
+
     facebook: `Facebook Guidelines:
 - Moderate length posts (1-3 paragraphs)
 - Use emojis to enhance emotional connection
 - Ask questions to encourage comments
 - Share personal insights or experiences
 - Use line breaks for readability`,
-    
+
     linkedin: `LinkedIn Guidelines:
 - Professional yet personable tone
 - Longer-form content (3-5 paragraphs)
@@ -726,27 +732,33 @@ function getPlatformGuidelines(platform: string): string {
 - Encourage meaningful professional discussions
 - Share expertise and thought leadership`,
   };
-  
+
   return guidelines[platform as keyof typeof guidelines] || guidelines.x;
 }
 
 // Tone-specific instructions
 function getToneInstructions(tone: string, contextAnalysis: any): string {
   const baseInstructions = {
-    professional: "Maintain a polished, authoritative voice while being approachable",
-    casual: "Use conversational language, contractions, and relatable expressions",
-    humorous: "Incorporate wit, wordplay, or light humor appropriate to the context",
-    inspirational: "Use uplifting language that motivates and encourages action",
-    educational: "Provide valuable insights while maintaining an accessible teaching tone",
-    empathetic: "Show understanding and emotional intelligence in your response",
+    professional:
+      "Maintain a polished, authoritative voice while being approachable",
+    casual:
+      "Use conversational language, contractions, and relatable expressions",
+    humorous:
+      "Incorporate wit, wordplay, or light humor appropriate to the context",
+    inspirational:
+      "Use uplifting language that motivates and encourages action",
+    educational:
+      "Provide valuable insights while maintaining an accessible teaching tone",
+    empathetic:
+      "Show understanding and emotional intelligence in your response",
   };
-  
+
   const sentimentAdjustment = {
     positive: "Match and amplify the positive energy",
     negative: "Acknowledge concerns while offering constructive perspective",
     neutral: "Bring appropriate energy based on the desired tone",
   };
-  
+
   return `Tone: ${tone}
 ${baseInstructions[tone as keyof typeof baseInstructions] || baseInstructions.casual}
 ${sentimentAdjustment[contextAnalysis.sentiment as keyof typeof sentimentAdjustment]}`;
@@ -755,7 +767,7 @@ ${sentimentAdjustment[contextAnalysis.sentiment as keyof typeof sentimentAdjustm
 // Enhanced user prompt builder
 function buildEnhancedUserPrompt(input: any, _contextAnalysis: any): string {
   let prompt = `Generate a ${input.type} for ${input.source}:\n\n`;
-  
+
   if (input.type === "reply") {
     prompt += `Original Post: ${input.post}\n`;
     if (input.author) prompt += `Author: ${input.author}\n`;
@@ -765,20 +777,20 @@ function buildEnhancedUserPrompt(input: any, _contextAnalysis: any): string {
     prompt += `Topic/Keywords: ${input.post}\n`;
     prompt += `\nCreate an original post about this topic.`;
   }
-  
+
   // Add media context if available
   if (input.images?.length > 0) {
     prompt += `\n\nImages attached: ${input.images.length} image(s)`;
   }
-  
+
   if (input.video) {
     prompt += `\n\nVideo content included`;
   }
-  
+
   if (input.quotedPost) {
     prompt += `\n\nQuoted content: @${input.quotedPost.handle}: ${input.quotedPost.text}`;
   }
-  
+
   return prompt;
 }
 

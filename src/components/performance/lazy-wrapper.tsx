@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { Suspense, lazy, ComponentType } from 'react';
-import { LoadingSpinner, LoadingSkeleton } from '@/components/ui/loading';
+import React, { Suspense, lazy, ComponentType } from "react";
+import { LoadingSpinner, LoadingSkeleton } from "@/components/ui/loading";
 
 interface LazyWrapperProps {
   fallback?: React.ReactNode;
@@ -9,24 +9,20 @@ interface LazyWrapperProps {
 }
 
 // Generic lazy wrapper component
-export const LazyWrapper: React.FC<LazyWrapperProps> = ({ 
-  fallback = <LoadingSpinner />, 
-  children 
+export const LazyWrapper: React.FC<LazyWrapperProps> = ({
+  fallback = <LoadingSpinner />,
+  children,
 }) => {
-  return (
-    <Suspense fallback={fallback}>
-      {children}
-    </Suspense>
-  );
+  return <Suspense fallback={fallback}>{children}</Suspense>;
 };
 
 // Higher-order component for lazy loading
 export function withLazyLoading<P = {}>(
   Component: React.ComponentType<P>,
-  fallback?: React.ReactNode
+  fallback?: React.ReactNode,
 ) {
   const LazyComponent = lazy(() => Promise.resolve({ default: Component }));
-  
+
   return (props: P) => {
     return (
       <Suspense fallback={fallback || <LoadingSpinner />}>
@@ -48,9 +44,9 @@ interface IntersectionLazyProps {
 export const IntersectionLazy: React.FC<IntersectionLazyProps> = ({
   children,
   fallback = <LoadingSkeleton />,
-  rootMargin = '50px',
+  rootMargin = "50px",
   threshold = 0.1,
-  className
+  className,
 }) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const [hasLoaded, setHasLoaded] = React.useState(false);
@@ -68,7 +64,7 @@ export const IntersectionLazy: React.FC<IntersectionLazyProps> = ({
       {
         rootMargin,
         threshold,
-      }
+      },
     );
 
     if (ref.current) {
@@ -85,9 +81,7 @@ export const IntersectionLazy: React.FC<IntersectionLazyProps> = ({
   return (
     <div ref={ref} className={className}>
       {isVisible ? (
-        <Suspense fallback={fallback}>
-          {children}
-        </Suspense>
+        <Suspense fallback={fallback}>{children}</Suspense>
       ) : (
         fallback
       )}
@@ -109,9 +103,9 @@ export const LazyImage: React.FC<LazyImageProps> = ({
   src,
   alt,
   className,
-  placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TG9hZGluZy4uLjwvdGV4dD48L3N2Zz4=',
+  placeholder = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TG9hZGluZy4uLjwvdGV4dD48L3N2Zz4=",
   onLoad,
-  onError
+  onError,
 }) => {
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [isInView, setIsInView] = React.useState(false);
@@ -127,7 +121,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (imgRef.current) {
@@ -154,7 +148,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
         src={isInView ? src : placeholder}
         alt={alt}
         className={`transition-opacity duration-300 ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
+          isLoaded ? "opacity-100" : "opacity-0"
         }`}
         onLoad={handleLoad}
         onError={handleError}
@@ -162,11 +156,11 @@ export const LazyImage: React.FC<LazyImageProps> = ({
         decoding="async"
       />
       {!isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        <div className="absolute inset-0 animate-pulse bg-gray-200" />
       )}
       {hasError && (
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-          <span className="text-gray-500 text-sm">Failed to load image</span>
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <span className="text-sm text-gray-500">Failed to load image</span>
         </div>
       )}
     </div>
@@ -177,15 +171,15 @@ export const LazyImage: React.FC<LazyImageProps> = ({
 interface InteractionLazyProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
-  trigger?: 'hover' | 'click' | 'focus';
+  trigger?: "hover" | "click" | "focus";
   className?: string;
 }
 
 export const InteractionLazy: React.FC<InteractionLazyProps> = ({
   children,
   fallback = <LoadingSkeleton />,
-  trigger = 'hover',
-  className
+  trigger = "hover",
+  className,
 }) => {
   const [shouldLoad, setShouldLoad] = React.useState(false);
 
@@ -196,15 +190,17 @@ export const InteractionLazy: React.FC<InteractionLazyProps> = ({
   };
 
   const eventProps = {
-    [trigger === 'hover' ? 'onMouseEnter' : trigger === 'click' ? 'onClick' : 'onFocus']: handleInteraction
+    [trigger === "hover"
+      ? "onMouseEnter"
+      : trigger === "click"
+        ? "onClick"
+        : "onFocus"]: handleInteraction,
   };
 
   return (
     <div className={className} {...eventProps}>
       {shouldLoad ? (
-        <Suspense fallback={fallback}>
-          {children}
-        </Suspense>
+        <Suspense fallback={fallback}>{children}</Suspense>
       ) : (
         fallback
       )}
@@ -215,22 +211,27 @@ export const InteractionLazy: React.FC<InteractionLazyProps> = ({
 // Preload component for critical resources
 interface PreloadProps {
   href: string;
-  as: 'script' | 'style' | 'font' | 'image';
-  crossOrigin?: 'anonymous' | 'use-credentials';
+  as: "script" | "style" | "font" | "image";
+  crossOrigin?: "anonymous" | "use-credentials";
   type?: string;
 }
 
-export const Preload: React.FC<PreloadProps> = ({ href, as, crossOrigin, type }) => {
+export const Preload: React.FC<PreloadProps> = ({
+  href,
+  as,
+  crossOrigin,
+  type,
+}) => {
   React.useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
+    const link = document.createElement("link");
+    link.rel = "preload";
     link.href = href;
     link.as = as;
     if (crossOrigin) link.crossOrigin = crossOrigin;
     if (type) link.type = type;
-    
+
     document.head.appendChild(link);
-    
+
     return () => {
       if (document.head.contains(link)) {
         document.head.removeChild(link);

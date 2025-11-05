@@ -4,7 +4,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -21,7 +27,14 @@ import {
   type ContactFormValues,
 } from "@/utils/schema/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle, Loader2, Mail, MessageSquare, Send, User } from "lucide-react";
+import {
+  CheckCircle,
+  Loader2,
+  Mail,
+  MessageSquare,
+  Send,
+  User,
+} from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -56,24 +69,26 @@ export default function ContactSection() {
   const sendContactMail = api.settings.sendContactMail.useMutation({
     onSuccess: () => {
       toast.success("Message sent successfully!", {
-        description: "Thank you for reaching out. We'll get back to you within 24 hours.",
+        description:
+          "Thank you for reaching out. We'll get back to you within 24 hours.",
         icon: <CheckCircle className="h-4 w-4" />,
         duration: 5000,
       });
 
       form.reset();
-      
+
       // Focus management for accessibility
       setTimeout(() => {
-        const firstInput = formRef.current?.querySelector('input');
+        const firstInput = formRef.current?.querySelector("input");
         firstInput?.focus();
       }, 100);
     },
     onError: (error) => {
       console.error("Contact form submission error:", error);
-      
+
       toast.error("Failed to send message", {
-        description: error.message || "Please check your connection and try again.",
+        description:
+          error.message || "Please check your connection and try again.",
         action: {
           label: "Retry",
           onClick: () => {
@@ -85,39 +100,42 @@ export default function ContactSection() {
         },
         duration: 7000,
       });
-      
+
       // Focus back to submit button for retry
       submitButtonRef.current?.focus();
     },
   });
 
   // Memoized submit handler for performance
-  const onSubmit = useCallback(async (data: ContactFormValues) => {
-    // Basic client-side validation
-    if (!data.name.trim() || !data.email.trim() || !data.message.trim()) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
+  const onSubmit = useCallback(
+    async (data: ContactFormValues) => {
+      // Basic client-side validation
+      if (!data.name.trim() || !data.email.trim() || !data.message.trim()) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
 
-    sendContactMail.mutate(data);
-  }, [sendContactMail]);
+      sendContactMail.mutate(data);
+    },
+    [sendContactMail],
+  );
 
   // Auto-save draft to localStorage (optional enhancement)
   useEffect(() => {
     const subscription = form.watch((value) => {
       if (value.name || value.email || value.subject || value.message) {
-        localStorage.setItem('contact-form-draft', JSON.stringify(value));
+        localStorage.setItem("contact-form-draft", JSON.stringify(value));
       }
     });
 
     // Load draft on mount
-    const savedDraft = localStorage.getItem('contact-form-draft');
+    const savedDraft = localStorage.getItem("contact-form-draft");
     if (savedDraft) {
       try {
         const draft = JSON.parse(savedDraft);
         form.reset(draft);
       } catch (error) {
-        console.warn('Failed to load contact form draft:', error);
+        console.warn("Failed to load contact form draft:", error);
       }
     }
 
@@ -125,41 +143,51 @@ export default function ContactSection() {
       subscription.unsubscribe();
       // Clear draft on successful submission
       if (!sendContactMail.isPending) {
-        localStorage.removeItem('contact-form-draft');
+        localStorage.removeItem("contact-form-draft");
       }
     };
   }, [form, sendContactMail.isPending]);
 
   return (
-    <section className="py-16 sm:py-24 lg:py-32" aria-labelledby="contact-heading">
+    <section
+      className="py-16 sm:py-24 lg:py-32"
+      aria-labelledby="contact-heading"
+    >
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-            <MessageSquare className="h-8 w-8 text-primary" aria-hidden="true" />
+          <div className="bg-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+            <MessageSquare
+              className="text-primary h-8 w-8"
+              aria-hidden="true"
+            />
           </div>
-          <h1 id="contact-heading" className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+          <h1
+            id="contact-heading"
+            className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
+          >
             Contact Our Sales Team
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Ready to transform your social media strategy? Let's discuss the perfect plan for your business needs.
+          <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-lg">
+            Ready to transform your social media strategy? Let's discuss the
+            perfect plan for your business needs.
           </p>
         </div>
 
         {/* Contact Form Card */}
-        <Card className="mx-auto mt-12 max-w-2xl shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+        <Card className="bg-card/50 mx-auto mt-12 max-w-2xl border-0 shadow-lg backdrop-blur-sm">
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-2 text-xl">
-              <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
+              <Mail className="text-primary h-5 w-5" aria-hidden="true" />
               Get Started Today
             </CardTitle>
             <CardDescription className="text-base">
-              Tell us about your goals and we'll help you find the right solution. 
-              Our team typically responds within 2-4 hours during business days.
+              Tell us about your goals and we'll help you find the right
+              solution. Our team typically responds within 2-4 hours during
+              business days.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-
             <Form {...form}>
               <form
                 ref={formRef}
@@ -185,8 +213,12 @@ export default function ContactSection() {
                             autoComplete="name"
                             {...field}
                             disabled={sendContactMail.isPending}
-                            aria-describedby={form.formState.errors.name ? "name-error" : undefined}
-                            className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                            aria-describedby={
+                              form.formState.errors.name
+                                ? "name-error"
+                                : undefined
+                            }
+                            className="focus:ring-primary/20 transition-all duration-200 focus:ring-2"
                           />
                         </FormControl>
                         <FormMessage id="name-error" />
@@ -210,8 +242,12 @@ export default function ContactSection() {
                             autoComplete="email"
                             {...field}
                             disabled={sendContactMail.isPending}
-                            aria-describedby={form.formState.errors.email ? "email-error" : undefined}
-                            className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                            aria-describedby={
+                              form.formState.errors.email
+                                ? "email-error"
+                                : undefined
+                            }
+                            className="focus:ring-primary/20 transition-all duration-200 focus:ring-2"
                           />
                         </FormControl>
                         <FormMessage id="email-error" />
@@ -234,8 +270,12 @@ export default function ContactSection() {
                           placeholder="How can we help you?"
                           {...field}
                           disabled={sendContactMail.isPending}
-                          aria-describedby={form.formState.errors.subject ? "subject-error" : undefined}
-                          className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                          aria-describedby={
+                            form.formState.errors.subject
+                              ? "subject-error"
+                              : undefined
+                          }
+                          className="focus:ring-primary/20 transition-all duration-200 focus:ring-2"
                         />
                       </FormControl>
                       <FormMessage id="subject-error" />
@@ -258,14 +298,18 @@ export default function ContactSection() {
                           rows={4}
                           {...field}
                           disabled={sendContactMail.isPending}
-                          aria-describedby={form.formState.errors.message ? "message-error" : undefined}
-                          className="resize-none transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                          aria-describedby={
+                            form.formState.errors.message
+                              ? "message-error"
+                              : undefined
+                          }
+                          className="focus:ring-primary/20 resize-none transition-all duration-200 focus:ring-2"
                           maxLength={1000}
                         />
                       </FormControl>
                       <div className="flex justify-between">
                         <FormMessage id="message-error" />
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-muted-foreground text-xs">
                           {field.value?.length || 0}/1000 characters
                         </span>
                       </div>
@@ -275,16 +319,21 @@ export default function ContactSection() {
 
                 {/* Submit Button */}
                 <div className="flex flex-col gap-4">
-                  <Button 
+                  <Button
                     ref={submitButtonRef}
-                    type="submit" 
-                    disabled={sendContactMail.isPending || !form.formState.isValid}
-                    className="w-full sm:w-auto sm:self-start transition-all duration-200 hover:scale-105"
+                    type="submit"
+                    disabled={
+                      sendContactMail.isPending || !form.formState.isValid
+                    }
+                    className="w-full transition-all duration-200 hover:scale-105 sm:w-auto sm:self-start"
                     size="lg"
                   >
                     {sendContactMail.isPending ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                        <Loader2
+                          className="mr-2 h-4 w-4 animate-spin"
+                          aria-hidden="true"
+                        />
                         <span>Sending Message...</span>
                       </>
                     ) : (
@@ -294,10 +343,11 @@ export default function ContactSection() {
                       </>
                     )}
                   </Button>
-                  
-                  <p className="text-xs text-muted-foreground">
-                    By submitting this form, you agree to our privacy policy and terms of service.
-                    We'll only use your information to respond to your inquiry.
+
+                  <p className="text-muted-foreground text-xs">
+                    By submitting this form, you agree to our privacy policy and
+                    terms of service. We'll only use your information to respond
+                    to your inquiry.
                   </p>
                 </div>
               </form>
@@ -307,11 +357,11 @@ export default function ContactSection() {
 
         {/* Additional Contact Information */}
         <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Need immediate assistance? Email us directly at{" "}
-            <a 
-              href="mailto:sales@replivity.com" 
-              className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary/20 rounded"
+            <a
+              href="mailto:sales@replivity.com"
+              className="text-primary focus:ring-primary/20 rounded font-medium hover:underline focus:ring-2 focus:outline-none"
             >
               sales@replivity.com
             </a>

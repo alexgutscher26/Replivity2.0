@@ -46,7 +46,10 @@ export const billingsRouter = createTRPCRouter({
           },
         });
 
-        if (existingFreePlan && (existingFreePlan.product as { isFree?: boolean })?.isFree) {
+        if (
+          existingFreePlan &&
+          (existingFreePlan.product as { isFree?: boolean })?.isFree
+        ) {
           await ctx.db
             .update(billing)
             .set({

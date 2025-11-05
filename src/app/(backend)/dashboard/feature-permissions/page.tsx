@@ -2,7 +2,13 @@
 
 import React, { useState } from "react";
 import { useFeaturePermissionsAdmin } from "@/hooks/use-feature-access";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -27,8 +33,13 @@ interface ProductFeatureDialogProps {
   onClose: () => void;
 }
 
-function ProductFeatureDialog({ productId, productName, onClose }: ProductFeatureDialogProps) {
-  const { getProductFeatures, updateProductFeatures, availableFeatures } = useFeaturePermissionsAdmin();
+function ProductFeatureDialog({
+  productId,
+  productName,
+  onClose,
+}: ProductFeatureDialogProps) {
+  const { getProductFeatures, updateProductFeatures, availableFeatures } =
+    useFeaturePermissionsAdmin();
   const productFeaturesQuery = getProductFeatures(productId);
   const [features, setFeatures] = useState<Record<string, boolean>>({});
   const [hasChanges, setHasChanges] = useState(false);
@@ -45,16 +56,18 @@ function ProductFeatureDialog({ productId, productName, onClose }: ProductFeatur
   }, [productFeaturesQuery.data]);
 
   const handleFeatureToggle = (featureKey: string, enabled: boolean) => {
-    setFeatures(prev => ({ ...prev, [featureKey]: enabled }));
+    setFeatures((prev) => ({ ...prev, [featureKey]: enabled }));
     setHasChanges(true);
   };
 
   const handleSave = async () => {
     try {
-      const featureArray = Object.entries(features).map(([featureKey, enabled]) => ({
-        featureKey,
-        enabled,
-      }));
+      const featureArray = Object.entries(features).map(
+        ([featureKey, enabled]) => ({
+          featureKey,
+          enabled,
+        }),
+      );
 
       await updateProductFeatures.mutateAsync({
         productId,
@@ -80,7 +93,7 @@ function ProductFeatureDialog({ productId, productName, onClose }: ProductFeatur
   }
 
   return (
-    <DialogContent className="max-w-2xl max-h-[80vh]">
+    <DialogContent className="max-h-[80vh] max-w-2xl">
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
@@ -96,17 +109,25 @@ function ProductFeatureDialog({ productId, productName, onClose }: ProductFeatur
           {availableFeatures.map((feature) => {
             const isEnabled = features[feature.key] ?? false;
             return (
-              <div key={feature.key} className="flex items-start space-x-3 p-3 border rounded-lg">
+              <div
+                key={feature.key}
+                className="flex items-start space-x-3 rounded-lg border p-3"
+              >
                 <Switch
                   id={feature.key}
                   checked={isEnabled}
-                  onCheckedChange={(checked) => handleFeatureToggle(feature.key, checked)}
+                  onCheckedChange={(checked) =>
+                    handleFeatureToggle(feature.key, checked)
+                  }
                 />
                 <div className="flex-1 space-y-1">
-                  <Label htmlFor={feature.key} className="text-sm font-medium cursor-pointer">
+                  <Label
+                    htmlFor={feature.key}
+                    className="cursor-pointer text-sm font-medium"
+                  >
                     {feature.displayName}
                   </Label>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {feature.description}
                   </p>
                 </div>
@@ -118,19 +139,22 @@ function ProductFeatureDialog({ productId, productName, onClose }: ProductFeatur
 
       <Separator />
 
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-          {Object.values(features).filter(Boolean).length} of {availableFeatures.length} features enabled
+      <div className="flex items-center justify-between">
+        <div className="text-muted-foreground text-sm">
+          {Object.values(features).filter(Boolean).length} of{" "}
+          {availableFeatures.length} features enabled
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={!hasChanges || updateProductFeatures.isPending}
           >
-            {updateProductFeatures.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            {updateProductFeatures.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             Save Changes
           </Button>
         </div>
@@ -141,25 +165,29 @@ function ProductFeatureDialog({ productId, productName, onClose }: ProductFeatur
 
 function getPlanIcon(planName: string) {
   const plan = planName.toLowerCase();
-  
-  if (plan.includes('pro') || plan.includes('premium')) {
+
+  if (plan.includes("pro") || plan.includes("premium")) {
     return <Crown className="h-4 w-4" />;
   }
-  
-  if (plan.includes('enterprise') || plan.includes('business')) {
+
+  if (plan.includes("enterprise") || plan.includes("business")) {
     return <Sparkles className="h-4 w-4" />;
   }
-  
+
   return null;
 }
 
 export default function FeaturePermissionsPage() {
-  const { productsWithFeatures, isLoading, error } = useFeaturePermissionsAdmin();
-  const [selectedProduct, setSelectedProduct] = useState<{ id: string; name: string } | null>(null);
+  const { productsWithFeatures, isLoading, error } =
+    useFeaturePermissionsAdmin();
+  const [selectedProduct, setSelectedProduct] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
         <span className="ml-2">Loading feature permissions...</span>
       </div>
@@ -191,7 +219,7 @@ export default function FeaturePermissionsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {productsWithFeatures.map((product) => {
           const featurePercentage = Math.round(
-            (product.enabledFeatureCount / product.totalFeatureCount) * 100
+            (product.enabledFeatureCount / product.totalFeatureCount) * 100,
           );
 
           return (
@@ -212,24 +240,26 @@ export default function FeaturePermissionsPage() {
                   {product.description ?? "No description available"}
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Features enabled:</span>
+                  <span className="text-muted-foreground">
+                    Features enabled:
+                  </span>
                   <span className="font-medium">
                     {product.enabledFeatureCount} / {product.totalFeatureCount}
                   </span>
                 </div>
-                
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-300" 
+
+                <div className="h-2 w-full rounded-full bg-gray-200">
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
                     style={{ width: `${featurePercentage}%` }}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-muted-foreground text-sm">
                     {featurePercentage}% coverage
                   </span>
                   {!product.isFree && (
@@ -238,15 +268,20 @@ export default function FeaturePermissionsPage() {
                     </span>
                   )}
                 </div>
-                
+
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full"
-                      onClick={() => setSelectedProduct({ id: product.id, name: product.name })}
+                      onClick={() =>
+                        setSelectedProduct({
+                          id: product.id,
+                          name: product.name,
+                        })
+                      }
                     >
-                      <Settings className="h-4 w-4 mr-2" />
+                      <Settings className="mr-2 h-4 w-4" />
                       Configure Features
                     </Button>
                   </DialogTrigger>
@@ -267,9 +302,9 @@ export default function FeaturePermissionsPage() {
       {productsWithFeatures.length === 0 && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Shield className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No Products Found</h3>
-            <p className="text-muted-foreground text-center max-w-md">
+            <Shield className="text-muted-foreground mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-lg font-medium">No Products Found</h3>
+            <p className="text-muted-foreground max-w-md text-center">
               Create some products first to configure their feature permissions.
             </p>
             <Button className="mt-4" asChild>

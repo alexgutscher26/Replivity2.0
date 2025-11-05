@@ -11,7 +11,7 @@ export default function SettingsAccountPage() {
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-medium">Account</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Manage your account, billing, and download browser extensions.
         </p>
       </div>

@@ -22,7 +22,11 @@ const createPostSchema = z.object({
   slug: z.string().min(1, "Slug is required").max(200, "Slug too long"),
   excerpt: z.string().max(500, "Excerpt too long").optional(),
   content: z.string().min(1, "Content is required"),
-  featuredImage: z.string().url("Invalid image URL").optional().or(z.literal("")),
+  featuredImage: z
+    .string()
+    .url("Invalid image URL")
+    .optional()
+    .or(z.literal("")),
   status: z.enum(["draft", "published", "archived"]),
   publishedAt: z.date().optional(),
   seoTitle: z.string().max(60, "SEO title too long").optional(),
@@ -54,7 +58,7 @@ export default function NewBlogPost() {
     featuredImage: "",
     status: "draft",
     seoTitle: "",
-  seoDescription: "",
+    seoDescription: "",
     categoryIds: [],
     tagIds: [],
   });
@@ -108,7 +112,7 @@ export default function NewBlogPost() {
    * Updates form data with a new title and optionally generates a new slug.
    */
   const handleTitleChange = (title: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       title,
       slug: autoSlug ? generateSlug(title) : prev.slug,
@@ -133,7 +137,7 @@ export default function NewBlogPost() {
         featuredImage: formData.featuredImage ?? undefined,
         excerpt: formData.excerpt ?? undefined,
         seoTitle: formData.seoTitle ?? undefined,
-    seoDescription: formData.seoDescription ?? undefined,
+        seoDescription: formData.seoDescription ?? undefined,
       };
 
       const validatedData = createPostSchema.parse(dataToSubmit);
@@ -159,7 +163,7 @@ export default function NewBlogPost() {
     if (!newCategory.trim()) return;
     await createCategory.mutateAsync({
       name: newCategory.trim(),
-      slug: generateSlug(newCategory.trim())
+      slug: generateSlug(newCategory.trim()),
     });
   };
 
@@ -170,7 +174,7 @@ export default function NewBlogPost() {
     if (!newTag.trim()) return;
     await createTag.mutateAsync({
       name: newTag.trim(),
-      slug: generateSlug(newTag.trim())
+      slug: generateSlug(newTag.trim()),
     });
   };
 
@@ -178,10 +182,10 @@ export default function NewBlogPost() {
    * Toggles the inclusion of a category ID in the form data.
    */
   const toggleCategory = (categoryId: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       categoryIds: prev.categoryIds.includes(categoryId)
-        ? prev.categoryIds.filter(id => id !== categoryId)
+        ? prev.categoryIds.filter((id) => id !== categoryId)
         : [...prev.categoryIds, categoryId],
     }));
   };
@@ -190,10 +194,10 @@ export default function NewBlogPost() {
    * Toggles a tag by its ID in the form data.
    */
   const toggleTag = (tagId: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       tagIds: prev.tagIds.includes(tagId)
-        ? prev.tagIds.filter(id => id !== tagId)
+        ? prev.tagIds.filter((id) => id !== tagId)
         : [...prev.tagIds, tagId],
     }));
   };
@@ -210,8 +214,12 @@ export default function NewBlogPost() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Create New Post</h1>
-            <p className="text-muted-foreground">Write and publish a new blog post.</p>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Create New Post
+            </h1>
+            <p className="text-muted-foreground">
+              Write and publish a new blog post.
+            </p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -235,7 +243,7 @@ export default function NewBlogPost() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Basic Info */}
           <Card>
             <CardHeader>
@@ -251,14 +259,18 @@ export default function NewBlogPost() {
                   placeholder="Enter post title..."
                   className={errors.title ? "border-red-500" : ""}
                 />
-                {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
+                {errors.title && (
+                  <p className="text-sm text-red-500">{errors.title}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="slug">URL Slug *</Label>
                   <div className="flex items-center space-x-2">
-                    <Label htmlFor="auto-slug" className="text-sm">Auto-generate</Label>
+                    <Label htmlFor="auto-slug" className="text-sm">
+                      Auto-generate
+                    </Label>
                     <Switch
                       id="auto-slug"
                       checked={autoSlug}
@@ -269,13 +281,17 @@ export default function NewBlogPost() {
                 <Input
                   id="slug"
                   value={formData.slug}
-                  onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, slug: e.target.value }))
+                  }
                   placeholder="post-url-slug"
                   disabled={autoSlug}
                   className={errors.slug ? "border-red-500" : ""}
                 />
-                {errors.slug && <p className="text-sm text-red-500">{errors.slug}</p>}
-                <p className="text-sm text-muted-foreground">
+                {errors.slug && (
+                  <p className="text-sm text-red-500">{errors.slug}</p>
+                )}
+                <p className="text-muted-foreground text-sm">
                   URL: /blog/{formData.slug || "post-url-slug"}
                 </p>
               </div>
@@ -285,13 +301,20 @@ export default function NewBlogPost() {
                 <Textarea
                   id="excerpt"
                   value={formData.excerpt}
-                  onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      excerpt: e.target.value,
+                    }))
+                  }
                   placeholder="Brief description of the post..."
                   rows={3}
                   className={errors.excerpt ? "border-red-500" : ""}
                 />
-                {errors.excerpt && <p className="text-sm text-red-500">{errors.excerpt}</p>}
-                <p className="text-sm text-muted-foreground">
+                {errors.excerpt && (
+                  <p className="text-sm text-red-500">{errors.excerpt}</p>
+                )}
+                <p className="text-muted-foreground text-sm">
                   {formData.excerpt?.length ?? 0}/500 characters
                 </p>
               </div>
@@ -301,12 +324,19 @@ export default function NewBlogPost() {
                 <Textarea
                   id="content"
                   value={formData.content}
-                  onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: e.target.value,
+                    }))
+                  }
                   placeholder="Write your blog post content here..."
                   rows={15}
                   className={errors.content ? "border-red-500" : ""}
                 />
-                {errors.content && <p className="text-sm text-red-500">{errors.content}</p>}
+                {errors.content && (
+                  <p className="text-sm text-red-500">{errors.content}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -315,11 +345,18 @@ export default function NewBlogPost() {
                   id="featuredImage"
                   type="url"
                   value={formData.featuredImage}
-                  onChange={(e) => setFormData(prev => ({ ...prev, featuredImage: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      featuredImage: e.target.value,
+                    }))
+                  }
                   placeholder="https://example.com/image.jpg"
                   className={errors.featuredImage ? "border-red-500" : ""}
                 />
-                {errors.featuredImage && <p className="text-sm text-red-500">{errors.featuredImage}</p>}
+                {errors.featuredImage && (
+                  <p className="text-sm text-red-500">{errors.featuredImage}</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -335,12 +372,19 @@ export default function NewBlogPost() {
                 <Input
                   id="seoTitle"
                   value={formData.seoTitle}
-                  onChange={(e) => setFormData(prev => ({ ...prev, seoTitle: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      seoTitle: e.target.value,
+                    }))
+                  }
                   placeholder="SEO-optimized title"
                   className={errors.seoTitle ? "border-red-500" : ""}
                 />
-                {errors.seoTitle && <p className="text-sm text-red-500">{errors.seoTitle}</p>}
-                <p className="text-xs text-muted-foreground">
+                {errors.seoTitle && (
+                  <p className="text-sm text-red-500">{errors.seoTitle}</p>
+                )}
+                <p className="text-muted-foreground text-xs">
                   {formData.seoTitle?.length ?? 0}/60 characters
                 </p>
               </div>
@@ -350,13 +394,22 @@ export default function NewBlogPost() {
                 <Textarea
                   id="seoDescription"
                   value={formData.seoDescription}
-                  onChange={(e) => setFormData(prev => ({ ...prev, seoDescription: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      seoDescription: e.target.value,
+                    }))
+                  }
                   placeholder="Brief description for search engines"
                   rows={3}
                   className={errors.seoDescription ? "border-red-500" : ""}
                 />
-                {errors.seoDescription && <p className="text-sm text-red-500">{errors.seoDescription}</p>}
-                <p className="text-xs text-muted-foreground">
+                {errors.seoDescription && (
+                  <p className="text-sm text-red-500">
+                    {errors.seoDescription}
+                  </p>
+                )}
+                <p className="text-muted-foreground text-xs">
                   {formData.seoDescription?.length ?? 0}/160 characters
                 </p>
               </div>
@@ -377,7 +430,9 @@ export default function NewBlogPost() {
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                   placeholder="New category..."
-                  onKeyPress={(e) => e.key === "Enter" && handleCreateCategory()}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && handleCreateCategory()
+                  }
                 />
                 <Button
                   size="sm"
@@ -388,9 +443,12 @@ export default function NewBlogPost() {
                 </Button>
               </div>
               <Separator />
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+              <div className="max-h-48 space-y-2 overflow-y-auto">
                 {categories.map((category) => (
-                  <div key={category.id} className="flex items-center space-x-2">
+                  <div
+                    key={category.id}
+                    className="flex items-center space-x-2"
+                  >
                     <input
                       type="checkbox"
                       id={`category-${category.id}`}
@@ -398,10 +456,12 @@ export default function NewBlogPost() {
                       onChange={() => toggleCategory(category.id)}
                       className="rounded"
                     />
-                    <Label htmlFor={`category-${category.id}`} className="flex-1">
+                    <Label
+                      htmlFor={`category-${category.id}`}
+                      className="flex-1"
+                    >
                       {category.name}
                     </Label>
-
                   </div>
                 ))}
               </div>
@@ -430,7 +490,7 @@ export default function NewBlogPost() {
                 </Button>
               </div>
               <Separator />
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+              <div className="max-h-48 space-y-2 overflow-y-auto">
                 {tags.map((tag) => (
                   <div key={tag.id} className="flex items-center space-x-2">
                     <input
@@ -443,7 +503,6 @@ export default function NewBlogPost() {
                     <Label htmlFor={`tag-${tag.id}`} className="flex-1">
                       {tag.name}
                     </Label>
-
                   </div>
                 ))}
               </div>

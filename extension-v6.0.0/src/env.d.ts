@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv
+  readonly env: ImportMetaEnv;
 }
 
 interface ImportMetaEnv {
-  readonly WXT_SITE_URL: string
+  readonly WXT_SITE_URL: string;
   // Add other environment variables here as needed
 }

@@ -1,29 +1,29 @@
-import type { PostData } from '@/schemas/post'
+import type { PostData } from "@/schemas/post";
 
-import type { ContentParser } from './content-parser'
+import type { ContentParser } from "./content-parser";
 
 export abstract class BaseParser implements ContentParser {
-  [x: string]: any
-  abstract getContent(): null | PostData
+  [x: string]: any;
+  abstract getContent(): null | PostData;
 
-  abstract setText(text: string): Promise<void>
+  abstract setText(text: string): Promise<void>;
 
   /**
    * Enhanced content extraction with context analysis
    */
   protected extractEnhancedContext(container: Element): {
     contentMetrics: {
-      hashtagCount: number
-      linkCount: number
-      mentionCount: number
-      wordCount: number
-    }
-    engagement: { comments: number, likes: number, shares: number }
-    followerCount: null | string
-    timestamp: Date | null
-    verified: boolean
+      hashtagCount: number;
+      linkCount: number;
+      mentionCount: number;
+      wordCount: number;
+    };
+    engagement: { comments: number; likes: number; shares: number };
+    followerCount: null | string;
+    timestamp: Date | null;
+    verified: boolean;
   } {
-    const text = container.textContent || ''
+    const text = container.textContent || "";
 
     return {
       contentMetrics: {
@@ -36,23 +36,23 @@ export abstract class BaseParser implements ContentParser {
       followerCount: this.extractFollowerCount(container),
       timestamp: this.extractTimestamp(container),
       verified: this.isVerifiedAccount(container),
-    }
+    };
   }
 
   protected simulateTyping(editor: HTMLElement, text: string): void {
-    editor.focus()
-    let index = 0
+    editor.focus();
+    let index = 0;
 
     const typeNextChar = () => {
       if (index < text.length) {
-        const char = text.charAt(index)
-        document.execCommand('insertText', false, char)
-        index++
-        setTimeout(typeNextChar, 0.01)
+        const char = text.charAt(index);
+        document.execCommand("insertText", false, char);
+        index++;
+        setTimeout(typeNextChar, 0.01);
       }
-    }
+    };
 
-    typeNextChar()
+    typeNextChar();
   }
 
   private extractEngagementMetrics(container: Element) {
@@ -61,16 +61,15 @@ export abstract class BaseParser implements ContentParser {
       comments: this.extractNumber(container, '[data-testid="reply"]') || 0,
       likes: this.extractNumber(container, '[data-testid="like"]') || 0,
       shares: this.extractNumber(container, '[data-testid="retweet"]') || 0,
-    }
+    };
   }
 
   private extractNumber(container: Element, selector: string): number {
-    const element = container.querySelector(selector)
-    if (!element)
-      return 0
+    const element = container.querySelector(selector);
+    if (!element) return 0;
 
-    const text = element.textContent || '0'
-    const match = text.match(/([\d,]+)/)
-    return match ? Number.parseInt(match[1].replace(/,/g, ''), 10) : 0
+    const text = element.textContent || "0";
+    const match = text.match(/([\d,]+)/);
+    return match ? Number.parseInt(match[1].replace(/,/g, ""), 10) : 0;
   }
 }

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import Image, { ImageProps } from 'next/image';
-import { useState, forwardRef } from 'react';
-import { cn } from '@/lib/utils';
+import Image, { ImageProps } from "next/image";
+import { useState, forwardRef } from "react";
+import { cn } from "@/lib/utils";
 
-interface OptimizedImageProps extends Omit<ImageProps, 'onLoad' | 'onError'> {
+interface OptimizedImageProps extends Omit<ImageProps, "onLoad" | "onError"> {
   fallbackSrc?: string;
   showLoadingState?: boolean;
   loadingClassName?: string;
@@ -14,18 +14,21 @@ interface OptimizedImageProps extends Omit<ImageProps, 'onLoad' | 'onError'> {
 }
 
 export const OptimizedImage = forwardRef<HTMLImageElement, OptimizedImageProps>(
-  ({
-    src,
-    alt,
-    className,
-    fallbackSrc = '/images/placeholder.svg',
-    showLoadingState = true,
-    loadingClassName,
-    errorClassName,
-    onLoadComplete,
-    onError,
-    ...props
-  }, ref) => {
+  (
+    {
+      src,
+      alt,
+      className,
+      fallbackSrc = "/images/placeholder.svg",
+      showLoadingState = true,
+      loadingClassName,
+      errorClassName,
+      onLoadComplete,
+      onError,
+      ...props
+    },
+    ref,
+  ) => {
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [currentSrc, setCurrentSrc] = useState(src);
@@ -45,39 +48,39 @@ export const OptimizedImage = forwardRef<HTMLImageElement, OptimizedImageProps>(
     };
 
     return (
-      <div className={cn('relative overflow-hidden', className)}>
+      <div className={cn("relative overflow-hidden", className)}>
         <Image
           ref={ref}
           src={currentSrc}
           alt={alt}
           className={cn(
-            'transition-opacity duration-300',
-            isLoading ? 'opacity-0' : 'opacity-100',
-            hasError && errorClassName
+            "transition-opacity duration-300",
+            isLoading ? "opacity-0" : "opacity-100",
+            hasError && errorClassName,
           )}
           onLoad={handleLoad}
           onError={handleError}
           {...props}
         />
-        
+
         {/* Loading state */}
         {isLoading && showLoadingState && (
           <div
             className={cn(
-              'absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center',
-              loadingClassName
+              "absolute inset-0 flex animate-pulse items-center justify-center bg-gray-200",
+              loadingClassName,
             )}
           >
-            <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
           </div>
         )}
-        
+
         {/* Error state */}
         {hasError && currentSrc === fallbackSrc && (
-          <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
             <div className="text-center text-gray-500">
               <svg
-                className="w-8 h-8 mx-auto mb-2"
+                className="mx-auto mb-2 h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -95,16 +98,16 @@ export const OptimizedImage = forwardRef<HTMLImageElement, OptimizedImageProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
-OptimizedImage.displayName = 'OptimizedImage';
+OptimizedImage.displayName = "OptimizedImage";
 
 // Avatar component with optimized image loading
 interface OptimizedAvatarProps {
   src?: string;
   alt: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
   fallback?: string;
 }
@@ -112,34 +115,34 @@ interface OptimizedAvatarProps {
 export const OptimizedAvatar: React.FC<OptimizedAvatarProps> = ({
   src,
   alt,
-  size = 'md',
+  size = "md",
   className,
-  fallback
+  fallback,
 }) => {
   const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-12 h-12',
-    xl: 'w-16 h-16'
+    sm: "w-8 h-8",
+    md: "w-10 h-10",
+    lg: "w-12 h-12",
+    xl: "w-16 h-16",
   };
 
   const sizePx = {
     sm: 32,
     md: 40,
     lg: 48,
-    xl: 64
+    xl: 64,
   };
 
   if (!src) {
     return (
       <div
         className={cn(
-          'rounded-full bg-gray-200 flex items-center justify-center',
+          "flex items-center justify-center rounded-full bg-gray-200",
           sizeClasses[size],
-          className
+          className,
         )}
       >
-        <span className="text-gray-500 font-medium">
+        <span className="font-medium text-gray-500">
           {fallback || alt.charAt(0).toUpperCase()}
         </span>
       </div>
@@ -152,13 +155,9 @@ export const OptimizedAvatar: React.FC<OptimizedAvatarProps> = ({
       alt={alt}
       width={sizePx[size]}
       height={sizePx[size]}
-      className={cn(
-        'rounded-full object-cover',
-        sizeClasses[size],
-        className
-      )}
+      className={cn("rounded-full object-cover", sizeClasses[size], className)}
       fallbackSrc={`data:image/svg+xml;base64,${btoa(
-        `<svg width="${sizePx[size]}" height="${sizePx[size]}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="${sizePx[size] / 2}" fill="#999" text-anchor="middle" dy=".3em">${fallback || alt.charAt(0).toUpperCase()}</text></svg>`
+        `<svg width="${sizePx[size]}" height="${sizePx[size]}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="${sizePx[size] / 2}" fill="#999" text-anchor="middle" dy=".3em">${fallback || alt.charAt(0).toUpperCase()}</text></svg>`,
       )}`}
     />
   );
@@ -180,7 +179,7 @@ export const OptimizedLogo: React.FC<OptimizedLogoProps> = ({
   width = 120,
   height = 40,
   className,
-  priority = true
+  priority = true,
 }) => {
   return (
     <OptimizedImage
@@ -209,14 +208,14 @@ export const OptimizedHeroImage: React.FC<OptimizedHeroImageProps> = ({
   src,
   alt,
   className,
-  priority = true
+  priority = true,
 }) => {
   return (
     <OptimizedImage
       src={src}
       alt={alt}
       fill
-      className={cn('object-cover', className)}
+      className={cn("object-cover", className)}
       priority={priority}
       quality={85}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

@@ -557,10 +557,14 @@ export class PayPalPaymentProvider implements PaymentProvider {
     };
   }
 
-  public async getBalance(): Promise<{ available: number; pending: number; currency: string; }> {
+  public async getBalance(): Promise<{
+    available: number;
+    pending: number;
+    currency: string;
+  }> {
     // PayPal does not have a direct API for retrieving account balance.
     // This is a workaround for the unimplemented feature, returning a placeholder balance.
-    return { available: 0, pending: 0, currency: 'USD' };
+    return { available: 0, pending: 0, currency: "USD" };
   }
 
   manageBillingPortal(customerId: string): Promise<{ url: string }> {

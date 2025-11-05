@@ -1,17 +1,23 @@
-import type { SourcePlatform } from '@/schemas/source'
-import type { StatusFormData } from '@/schemas/status'
+import type { SourcePlatform } from "@/schemas/source";
+import type { StatusFormData } from "@/schemas/status";
 
-import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
-import { useContentParser } from '@/hooks/useContentParser'
-import { useTRPC } from '@/hooks/useTRPC'
-import { statusSchema } from '@/schemas/status'
-import { tones } from '@/schemas/tone'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { TRPCClientError } from '@trpc/client'
-import { AlertTriangle, Loader2 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { useContentParser } from "@/hooks/useContentParser";
+import { useTRPC } from "@/hooks/useTRPC";
+import { statusSchema } from "@/schemas/status";
+import { tones } from "@/schemas/tone";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TRPCClientError } from "@trpc/client";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 
 /**
  * Status component to generate and manage status updates based on user input.
@@ -23,12 +29,12 @@ import { useForm } from 'react-hook-form'
  * @param source - The platform source from which the content is generated.
  */
 export function Status({ source }: { source: SourcePlatform }) {
-  const trpc = useTRPC()
-  const parser = useContentParser(source)
-  const formRef = useRef<HTMLFormElement>(null)
-  const [loadingTone, setLoadingTone] = useState<null | string>(null)
-  const [usageData, setUsageData] = useState<any>(null)
-  const [usageLimitReached, setUsageLimitReached] = useState(false)
+  const trpc = useTRPC();
+  const parser = useContentParser(source);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [loadingTone, setLoadingTone] = useState<null | string>(null);
+  const [usageData, setUsageData] = useState<any>(null);
+  const [usageLimitReached, setUsageLimitReached] = useState(false);
 
   // Check usage status on component mount
   useEffect(() => {
@@ -44,27 +50,26 @@ export function Status({ source }: { source: SourcePlatform }) {
      */
     const checkUsage = async () => {
       try {
-        const usage = await trpc.usage.query()
-        setUsageData(usage)
+        const usage = await trpc.usage.query();
+        setUsageData(usage);
         // Check if usage limit is reached
         if (usage?.currentMonthTotal >= usage?.planLimit) {
-          setUsageLimitReached(true)
+          setUsageLimitReached(true);
         }
+      } catch (error) {
+        console.error("Failed to fetch usage:", error);
       }
-      catch (error) {
-        console.error('Failed to fetch usage:', error)
-      }
-    }
-    checkUsage()
-  }, [])
+    };
+    checkUsage();
+  }, []);
 
   const form = useForm<StatusFormData>({
     defaultValues: {
-      keyword: '',
-      tone: 'neutral', // Set default tone
+      keyword: "",
+      tone: "neutral", // Set default tone
     },
     resolver: zodResolver(statusSchema),
-  })
+  });
 
   /**
    * Handles form submission and processes the generated status text.
@@ -79,54 +84,64 @@ export function Status({ source }: { source: SourcePlatform }) {
   const onSubmit = async (formData: StatusFormData) => {
     // Check if usage limit is reached before attempting generation
     if (usageLimitReached) {
-      await parser.setText('Usage limit exceeded for current billing period. Please upgrade your plan to continue.', formRef.current || undefined)
-      return
+      await parser.setText(
+        "Usage limit exceeded for current billing period. Please upgrade your plan to continue.",
+        formRef.current || undefined,
+      );
+      return;
     }
 
-    setLoadingTone(formData.tone)
+    setLoadingTone(formData.tone);
     try {
       const response = await trpc.generate.mutate({
         source,
         text: formData.keyword,
         tone: formData.tone,
-        type: 'status',
-      })
-      if (!response)
-        return
+        type: "status",
+      });
+      if (!response) return;
 
-      await parser.setText(response.text, formRef.current || undefined)
+      await parser.setText(response.text, formRef.current || undefined);
 
       // Update usage data after successful generation
       if (usageData) {
         const newUsageData = {
           ...usageData,
           currentMonthTotal: usageData.currentMonthTotal + 1,
-        }
-        setUsageData(newUsageData)
+        };
+        setUsageData(newUsageData);
         // Check if limit is now reached
         if (newUsageData.currentMonthTotal >= newUsageData.planLimit) {
-          setUsageLimitReached(true)
+          setUsageLimitReached(true);
         }
       }
-    }
-    catch (error) {
-      if (error instanceof TRPCClientError && error.data?.code === 'FORBIDDEN') {
-        setUsageLimitReached(true)
-        await parser.setText('Usage limit exceeded for current billing period. Please upgrade your plan to continue.', formRef.current || undefined)
+    } catch (error) {
+      if (
+        error instanceof TRPCClientError &&
+        error.data?.code === "FORBIDDEN"
+      ) {
+        setUsageLimitReached(true);
+        await parser.setText(
+          "Usage limit exceeded for current billing period. Please upgrade your plan to continue.",
+          formRef.current || undefined,
+        );
+      } else {
+        await parser.setText(
+          error instanceof TRPCClientError
+            ? error.message
+            : "Error: Unknown error",
+          formRef.current || undefined,
+        );
       }
-      else {
-        await parser.setText(error instanceof TRPCClientError ? error.message : 'Error: Unknown error', formRef.current || undefined)
-      }
+    } finally {
+      setLoadingTone(null);
     }
-    finally {
-      setLoadingTone(null)
-    }
-  }
+  };
 
   return (
     <Form {...form}>
       {usageLimitReached && (
-        <div className="flex items-center gap-2 text-xs text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded mb-2">
+        <div className="mb-2 flex items-center gap-2 rounded bg-red-50 px-2 py-1 text-xs text-red-500 dark:bg-red-900/20">
           <AlertTriangle className="h-3 w-3" />
           <span>Usage limit reached</span>
         </div>
@@ -140,14 +155,14 @@ export function Status({ source }: { source: SourcePlatform }) {
           control={form.control}
           name="keyword"
           render={({ field }) => (
-            <FormItem className="flex-1 relative z-10">
+            <FormItem className="relative z-10 flex-1">
               <FormControl>
                 <input
                   placeholder="Enter keywords to inspire your tweet ..."
                   {...field}
-                  onClick={e => e.stopPropagation()}
-                  onFocus={e => e.stopPropagation()}
-                  value={field.value ?? ''}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={(e) => e.stopPropagation()}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -162,15 +177,13 @@ export function Status({ source }: { source: SourcePlatform }) {
               <FormControl>
                 <select
                   {...field}
-                  onClick={e => e.stopPropagation()}
-                  onFocus={e => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={(e) => e.stopPropagation()}
                   value={field.value}
                 >
                   {tones.map(({ emoji, name }) => (
                     <option key={name} value={name}>
-                      {emoji}
-                      {' '}
-                      {name.charAt(0).toUpperCase() + name.slice(1)}
+                      {emoji} {name.charAt(0).toUpperCase() + name.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -180,32 +193,26 @@ export function Status({ source }: { source: SourcePlatform }) {
           )}
         />
         <Button
-          disabled={!form.formState.isValid || loadingTone !== null || usageLimitReached}
-          title={usageLimitReached ? 'Usage limit exceeded' : 'Generate status'}
+          disabled={
+            !form.formState.isValid || loadingTone !== null || usageLimitReached
+          }
+          title={usageLimitReached ? "Usage limit exceeded" : "Generate status"}
           type="submit"
         >
-          {loadingTone
-            ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  {' '}
-                  Generating
-                </>
-              )
-            : (
-                'Generate'
-              )}
+          {loadingTone ? (
+            <>
+              <Loader2 className="animate-spin" /> Generating
+            </>
+          ) : (
+            "Generate"
+          )}
         </Button>
       </form>
       {usageData && (
-        <div className="text-xs text-gray-500 mt-2">
-          {usageData.currentMonthTotal}
-          /
-          {usageData.planLimit}
-          {' '}
-          used this month
+        <div className="mt-2 text-xs text-gray-500">
+          {usageData.currentMonthTotal}/{usageData.planLimit} used this month
         </div>
       )}
     </Form>
-  )
+  );
 }

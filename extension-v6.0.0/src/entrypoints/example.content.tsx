@@ -1,65 +1,65 @@
-import '@/entrypoints/style.css'
-import { createTRPCProxyClient } from '@trpc/client'
-import ReactDOM from 'react-dom/client'
-import { chromeLink } from 'trpc-chrome/link'
+import "@/entrypoints/style.css";
+import { createTRPCProxyClient } from "@trpc/client";
+import ReactDOM from "react-dom/client";
+import { chromeLink } from "trpc-chrome/link";
 
-import type { AppRouter } from './background'
+import type { AppRouter } from "./background";
 
-import { Test } from './content/Test'
+import { Test } from "./content/Test";
 
 // Integrated - Vanilla
 // More: https://wxt.dev/guide/content-script-ui.html
 // If using Integrated - React, refer to the popup's trpc usage
 export default defineContentScript({
-  cssInjectionMode: 'ui',
+  cssInjectionMode: "ui",
 
   async main(ctx) {
-    const port = chrome.runtime.connect()
+    const port = chrome.runtime.connect();
     const trpc = createTRPCProxyClient<AppRouter>({
       links: [chromeLink({ port })],
-    })
+    });
 
-    const hello = await trpc.greeting.query({ name: 'content script' })
+    const hello = await trpc.greeting.query({ name: "content script" });
     // eslint-disable-next-line no-console
-    console.log(hello)
+    console.log(hello);
 
     const ui = await createShadowRootUi(ctx, {
-      anchor: 'body',
-      append: 'first',
-      name: 'wxt-react-example',
+      anchor: "body",
+      append: "first",
+      name: "wxt-react-example",
       onMount: (container) => {
         // Don't mount react app directly on <body>
-        const wrapper = document.createElement('div')
-        container.append(wrapper)
+        const wrapper = document.createElement("div");
+        container.append(wrapper);
 
-        const root = ReactDOM.createRoot(wrapper)
-        root.render(<Test />)
-        return { root, wrapper }
+        const root = ReactDOM.createRoot(wrapper);
+        root.render(<Test />);
+        return { root, wrapper };
       },
       onRemove: (elements) => {
-        elements?.root.unmount()
-        elements?.wrapper.remove()
+        elements?.root.unmount();
+        elements?.wrapper.remove();
       },
-      position: 'inline',
-    })
-    ui.mount()
+      position: "inline",
+    });
+    ui.mount();
 
     const textUi = await createShadowRootUi(ctx, {
-      anchor: 'body',
-      append: 'last',
-      name: 'wxt-react-example-text',
+      anchor: "body",
+      append: "last",
+      name: "wxt-react-example-text",
       onMount: (container) => {
-        const text = document.createElement('div')
-        text.textContent = 'Hello from content script!'
-        container.append(text)
-        return { text }
+        const text = document.createElement("div");
+        text.textContent = "Hello from content script!";
+        container.append(text);
+        return { text };
       },
       onRemove: (elements) => {
-        elements?.text.remove()
+        elements?.text.remove();
       },
-      position: 'inline',
-    })
-    textUi.mount()
+      position: "inline",
+    });
+    textUi.mount();
   },
-  matches: ['https://example.com/'],
-})
+  matches: ["https://example.com/"],
+});

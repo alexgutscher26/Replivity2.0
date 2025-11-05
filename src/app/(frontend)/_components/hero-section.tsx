@@ -1,9 +1,9 @@
 "use client";
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import React from 'react';
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import React from "react";
 import { api } from "@/trpc/react";
 import { Chrome, Flame } from "lucide-react";
 
@@ -110,8 +110,8 @@ const FloatingAnnotation = ({
 }) => (
   <div
     className={cn(
-      'hidden lg:block absolute text-gray-300 animate-float w-max',
-      className
+      "animate-float absolute hidden w-max text-gray-300 lg:block",
+      className,
     )}
     style={style}
   >
@@ -133,14 +133,14 @@ const Hero = () => {
   const [download] = api.settings.downloadExtension.useSuspenseQuery();
 
   return (
-    <section className="relative bg-black isolate overflow-hidden">
+    <section className="relative isolate overflow-hidden bg-black">
       <div
         className="absolute inset-0 -z-10"
         style={{
           backgroundImage:
-            'radial-gradient(rgb(55 65 81) 1px, transparent 1px)',
-          backgroundSize: '30px 30px',
-          opacity: '0.15',
+            "radial-gradient(rgb(55 65 81) 1px, transparent 1px)",
+          backgroundSize: "30px 30px",
+          opacity: "0.15",
         }}
       />
       <div
@@ -149,68 +149,69 @@ const Hero = () => {
       />
 
       <div className="container mx-auto px-6 pt-24 pb-20 md:pt-40 md:pb-28">
-        <div className="relative max-w-4xl mx-auto">
+        <div className="relative mx-auto max-w-4xl">
           <FloatingAnnotation
-             className="top-[-4rem] left-1/2 -translate-x-1/2 text-center"
-             arrow={<ArrowTop className="mx-auto mt-2" />}
-             style={{ animationDelay: '0.5s' }}
-           >
-             <p>Browser extension for all platforms</p>
-           </FloatingAnnotation>
+            className="top-[-4rem] left-1/2 -translate-x-1/2 text-center"
+            arrow={<ArrowTop className="mx-auto mt-2" />}
+            style={{ animationDelay: "0.5s" }}
+          >
+            <p>Browser extension for all platforms</p>
+          </FloatingAnnotation>
 
           <FloatingAnnotation
-             className="top-8 -left-12 sm:-left-24 md:-left-44 text-right"
-             arrow={<ArrowLeft className="ml-auto mt-2" />}
-             style={{ animationDelay: '0s' }}
-           >
-             <p>
-               AI-powered social
-               <br />
-               media responses
-             </p>
-           </FloatingAnnotation>
-            
-           <FloatingAnnotation
-             className="top-12 -right-16 sm:-right-28 md:-right-52 text-left"
-             arrow={<ArrowRight className="mr-auto mt-2" />}
-             style={{ animationDelay: '1s' }}
-           >
-             <p>
-               Smart comment
-               <br />
-               generation
-             </p>
-           </FloatingAnnotation>
+            className="top-8 -left-12 text-right sm:-left-24 md:-left-44"
+            arrow={<ArrowLeft className="mt-2 ml-auto" />}
+            style={{ animationDelay: "0s" }}
+          >
+            <p>
+              AI-powered social
+              <br />
+              media responses
+            </p>
+          </FloatingAnnotation>
+
+          <FloatingAnnotation
+            className="top-12 -right-16 text-left sm:-right-28 md:-right-52"
+            arrow={<ArrowRight className="mt-2 mr-auto" />}
+            style={{ animationDelay: "1s" }}
+          >
+            <p>
+              Smart comment
+              <br />
+              generation
+            </p>
+          </FloatingAnnotation>
 
           <div className="relative z-10 flex flex-col items-center text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter max-w-4xl leading-tight">
-              <span className="text-emerald-400">AI-powered</span> social media extension for everyone
+            <h1 className="max-w-4xl text-4xl leading-tight font-bold tracking-tighter sm:text-5xl lg:text-6xl">
+              <span className="text-emerald-400">AI-powered</span> social media
+              extension for everyone
             </h1>
-            <p className="mt-6 text-lg text-gray-300 max-w-2xl leading-relaxed hidden sm:block">
-               {settings?.name} is a browser extension available for Chrome and
-               Firefox that uses AI models to help you write better social
-               media posts and reply to comments faster.
-             </p>
-             <p className="mt-6 text-lg text-gray-300 max-w-2xl leading-relaxed sm:hidden">
-               Write better social media posts and reply to comments faster
-               with {settings?.name}. Available for Chrome and Firefox.
-             </p>
+            <p className="mt-6 hidden max-w-2xl text-lg leading-relaxed text-gray-300 sm:block">
+              {settings?.name} is a browser extension available for Chrome and
+              Firefox that uses AI models to help you write better social media
+              posts and reply to comments faster.
+            </p>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-gray-300 sm:hidden">
+              Write better social media posts and reply to comments faster with{" "}
+              {settings?.name}. Available for Chrome and Firefox.
+            </p>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
+            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
               <Button
                 asChild
-                className="bg-emerald-500 hover:bg-emerald-600 text-black font-bold rounded-lg px-8 h-12 text-base transition-all duration-300"
+                className="h-12 rounded-lg bg-emerald-500 px-8 text-base font-bold text-black transition-all duration-300 hover:bg-emerald-600"
               >
                 <Link href={download.chrome! ?? "#"}>
                   <Chrome className="relative size-5" />
                   <span>Download for Chrome</span>
                 </Link>
               </Button>
-              
+
               <Button
                 asChild
                 variant="outline"
-                className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg px-8 h-12 text-base transition-all duration-300"
+                className="h-12 rounded-lg border-gray-600 px-8 text-base text-gray-300 transition-all duration-300 hover:bg-gray-800 hover:text-white"
               >
                 <Link href={download.firefox! ?? "#"}>
                   <Flame className="relative size-5" />

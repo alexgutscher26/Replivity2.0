@@ -10,7 +10,10 @@ export const env = createEnv({
     // AppSumo Integration
     APPSUMO_CLIENT_ID: z.string().optional(),
     APPSUMO_CLIENT_SECRET: z.string().optional(),
-    APPSUMO_WEBHOOK_SECRET: z.string().min(1, "AppSumo webhook secret is required").optional(),
+    APPSUMO_WEBHOOK_SECRET: z
+      .string()
+      .min(1, "AppSumo webhook secret is required")
+      .optional(),
     APPSUMO_API_BASE_URL: z.string().url().default("https://api.appsumo.com"),
   },
 

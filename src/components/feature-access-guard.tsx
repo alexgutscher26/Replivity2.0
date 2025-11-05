@@ -102,13 +102,12 @@ function UpgradePrompt({ featureKey }: { featureKey: FeatureKey }) {
             {featureName} - Premium Feature
           </p>
           <p className="text-sm text-amber-700">
-            Upgrade your plan to access this feature and unlock more powerful tools.
+            Upgrade your plan to access this feature and unlock more powerful
+            tools.
           </p>
         </div>
         <Button asChild size="sm" className="ml-4">
-          <Link href="/dashboard/settings/billing">
-            Upgrade Plan
-          </Link>
+          <Link href="/dashboard/settings/billing">Upgrade Plan</Link>
         </Button>
       </AlertDescription>
     </Alert>
@@ -124,7 +123,7 @@ export function withFeatureAccess<P extends object>(
   options?: {
     fallback?: React.ReactNode;
     showUpgradePrompt?: boolean;
-  }
+  },
 ) {
   const WithFeatureAccessComponent = (props: P) => {
     return (
@@ -149,7 +148,13 @@ export function withFeatureAccess<P extends object>(
 export function useFeatureGuard(featureKey: FeatureKey) {
   const { hasAccess, isLoading, error } = useFeatureAccess(featureKey);
 
-  const FeatureGuard = ({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) => (
+  const FeatureGuard = ({
+    children,
+    fallback,
+  }: {
+    children: React.ReactNode;
+    fallback?: React.ReactNode;
+  }) => (
     <FeatureAccessGuard featureKey={featureKey} fallback={fallback}>
       {children}
     </FeatureAccessGuard>

@@ -5,18 +5,21 @@ import { api } from "@/trpc/react";
 import { Hash, TrendingUp } from "lucide-react";
 
 export default function HashtagUsage() {
-  const { data: hashtagStats, isLoading } = api.generations.getHashtagStats.useQuery();
+  const { data: hashtagStats, isLoading } =
+    api.generations.getHashtagStats.useQuery();
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Hashtag Generation</CardTitle>
-          <Hash className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium">
+            Hashtag Generation
+          </CardTitle>
+          <Hash className="text-muted-foreground h-4 w-4" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">Loading...</div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Calculating hashtag usage...
           </p>
         </CardContent>
@@ -31,19 +34,24 @@ export default function HashtagUsage() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Hashtag Generation</CardTitle>
-        <Hash className="h-4 w-4 text-muted-foreground" />
+        <CardTitle className="text-sm font-medium">
+          Hashtag Generation
+        </CardTitle>
+        <Hash className="text-muted-foreground h-4 w-4" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{total.toLocaleString()}</div>
-        <p className="text-xs text-muted-foreground">
-          <span className={`inline-flex items-center gap-1 ${
-            isPositive ? "text-green-600" : "text-red-600"
-          }`}>
+        <p className="text-muted-foreground text-xs">
+          <span
+            className={`inline-flex items-center gap-1 ${
+              isPositive ? "text-green-600" : "text-red-600"
+            }`}
+          >
             <TrendingUp className="h-3 w-3" />
-            {isPositive ? "+" : ""}{percentageChange.toFixed(1)}%
-          </span>
-          {" "}from last month
+            {isPositive ? "+" : ""}
+            {percentageChange.toFixed(1)}%
+          </span>{" "}
+          from last month
         </p>
       </CardContent>
     </Card>

@@ -106,7 +106,7 @@ APPSUMO_API_BASE_URL=https://api.appsumo.com
 Run the database migration to create the AppSumo license table:
 
 ```bash
-npm run db:migrate
+bun run db:migrate
 # or
 bun run db:migrate
 ```

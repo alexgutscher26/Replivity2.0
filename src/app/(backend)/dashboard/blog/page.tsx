@@ -61,7 +61,11 @@ export default function BlogDashboard() {
   const limit = 10;
 
   // Queries
-  const { data: postsData, isLoading, refetch } = api.blog.getPosts.useQuery({
+  const {
+    data: postsData,
+    isLoading,
+    refetch,
+  } = api.blog.getPosts.useQuery({
     limit,
     offset: page * limit,
     status: status === "all" ? undefined : status,
@@ -97,7 +101,11 @@ export default function BlogDashboard() {
    */
   const getStatusBadge = (status: string) => {
     return (
-      <Badge className={statusColors[status as PostStatus] || "bg-gray-100 text-gray-800"}>
+      <Badge
+        className={
+          statusColors[status as PostStatus] || "bg-gray-100 text-gray-800"
+        }
+      >
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </Badge>
     );
@@ -134,7 +142,9 @@ export default function BlogDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Published Posts</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Published Posts
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.publishedPosts}</div>
@@ -154,7 +164,7 @@ export default function BlogDashboard() {
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Search posts..."
             value={search}
@@ -162,7 +172,10 @@ export default function BlogDashboard() {
             className="pl-10"
           />
         </div>
-        <Select value={status} onValueChange={(value) => setStatus(value as PostStatus | "all")}>
+        <Select
+          value={status}
+          onValueChange={(value) => setStatus(value as PostStatus | "all")}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -173,11 +186,17 @@ export default function BlogDashboard() {
             <SelectItem value="archived">Archived</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={`${sortBy}-${sortOrder}`} onValueChange={(value) => {
-          const [newSortBy, newSortOrder] = value.split('-') as [SortBy, SortOrder];
-          setSortBy(newSortBy);
-          setSortOrder(newSortOrder);
-        }}>
+        <Select
+          value={`${sortBy}-${sortOrder}`}
+          onValueChange={(value) => {
+            const [newSortBy, newSortOrder] = value.split("-") as [
+              SortBy,
+              SortOrder,
+            ];
+            setSortBy(newSortBy);
+            setSortOrder(newSortOrder);
+          }}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -228,7 +247,7 @@ export default function BlogDashboard() {
                       <div>
                         <div className="font-medium">{post.title}</div>
                         {post.excerpt && (
-                          <div className="text-sm text-muted-foreground truncate max-w-[300px]">
+                          <div className="text-muted-foreground max-w-[300px] truncate text-sm">
                             {post.excerpt}
                           </div>
                         )}
@@ -238,7 +257,11 @@ export default function BlogDashboard() {
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {post.categories.slice(0, 2).map((pc) => (
-                          <Badge key={pc.category.id} variant="outline" className="text-xs">
+                          <Badge
+                            key={pc.category.id}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {pc.category.name}
                           </Badge>
                         ))}
@@ -251,7 +274,9 @@ export default function BlogDashboard() {
                     </TableCell>
                     <TableCell>{post.viewCount}</TableCell>
                     <TableCell>
-                      {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(post.createdAt), {
+                        addSuffix: true,
+                      })}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -296,8 +321,9 @@ export default function BlogDashboard() {
       {/* Pagination */}
       {postsData && postsData.totalCount > limit && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {page * limit + 1} to {Math.min((page + 1) * limit, postsData.totalCount)} of{" "}
+          <div className="text-muted-foreground text-sm">
+            Showing {page * limit + 1} to{" "}
+            {Math.min((page + 1) * limit, postsData.totalCount)} of{" "}
             {postsData.totalCount} posts
           </div>
           <div className="flex items-center space-x-2">

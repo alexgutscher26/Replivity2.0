@@ -1,8 +1,8 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { 
-  hashtagPerformance, 
-  hashtagSets, 
-  hashtagCompetition, 
+import {
+  hashtagPerformance,
+  hashtagSets,
+  hashtagCompetition,
   hashtagOptimization,
 } from "@/server/db/schema/hashtag-schema";
 import { TRPCError } from "@trpc/server";
@@ -45,7 +45,7 @@ export const hashtagRouter = createTRPCRouter({
     .input(hashtagSetSchema)
     .mutation(async ({ ctx, input }) => {
       const id = randomUUID();
-      
+
       await ctx.db.insert(hashtagSets).values({
         id,
         userId: ctx.session.user.id,
@@ -65,16 +65,16 @@ export const hashtagRouter = createTRPCRouter({
     }),
 
   getHashtagSets: protectedProcedure
-    .input(z.object({
-      category: z.string().optional(),
-      platform: z.string().optional(),
-      limit: z.number().min(1).max(100).default(50),
-      offset: z.number().min(0).default(0),
-    }))
+    .input(
+      z.object({
+        category: z.string().optional(),
+        platform: z.string().optional(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      const whereConditions = [
-        eq(hashtagSets.userId, ctx.session.user.id),
-      ];
+      const whereConditions = [eq(hashtagSets.userId, ctx.session.user.id)];
 
       if (input.category && input.category !== "all") {
         whereConditions.push(eq(hashtagSets.category, input.category));
@@ -96,20 +96,24 @@ export const hashtagRouter = createTRPCRouter({
     }),
 
   updateHashtagSet: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      ...hashtagSetSchema.shape,
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        ...hashtagSetSchema.shape,
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { id, ...updateData } = input;
 
       const existingSet = await ctx.db
         .select()
         .from(hashtagSets)
-        .where(and(
-          eq(hashtagSets.id, id),
-          eq(hashtagSets.userId, ctx.session.user.id)
-        ))
+        .where(
+          and(
+            eq(hashtagSets.id, id),
+            eq(hashtagSets.userId, ctx.session.user.id),
+          ),
+        )
         .limit(1);
 
       if (!existingSet.length) {
@@ -132,8 +136,7 @@ export const hashtagRouter = createTRPCRouter({
 
   deleteHashtagSet: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({  }) => {
-
+    .mutation(async ({}) => {
       return { success: true };
     }),
 
@@ -142,7 +145,7 @@ export const hashtagRouter = createTRPCRouter({
     .input(hashtagPerformanceSchema)
     .mutation(async ({ ctx, input }) => {
       const id = randomUUID();
-      
+
       // Analyze hashtag characteristics
       const hashtag = input.hashtag;
       const hasNumbers = /\d/.test(hashtag);
@@ -150,12 +153,14 @@ export const hashtagRouter = createTRPCRouter({
       const length = hashtag.length;
 
       // Calculate metrics
-      const engagementRate = input.impressions && input.engagements 
-        ? (input.engagements / input.impressions) * 100 
-        : 0;
-      const clickThroughRate = input.impressions && input.clicks 
-        ? (input.clicks / input.impressions) * 100 
-        : 0;
+      const engagementRate =
+        input.impressions && input.engagements
+          ? (input.engagements / input.impressions) * 100
+          : 0;
+      const clickThroughRate =
+        input.impressions && input.clicks
+          ? (input.clicks / input.impressions) * 100
+          : 0;
 
       await ctx.db.insert(hashtagPerformance).values({
         id,
@@ -180,11 +185,13 @@ export const hashtagRouter = createTRPCRouter({
     }),
 
   getHashtagPerformance: protectedProcedure
-    .input(z.object({
-      platform: z.string().optional(),
-      limit: z.number().min(1).max(100).default(20),
-      offset: z.number().min(0).default(0),
-    }))
+    .input(
+      z.object({
+        platform: z.string().optional(),
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const whereConditions = [
         eq(hashtagPerformance.userId, ctx.session.user.id),
@@ -210,7 +217,7 @@ export const hashtagRouter = createTRPCRouter({
     .input(hashtagCompetitionAnalysisSchema)
     .mutation(async ({ ctx, input }) => {
       const id = crypto.randomUUID();
-      
+
       // Mock competition analysis (in real implementation, this would call external APIs)
       const mockAnalysis = {
         totalPosts: Math.floor(Math.random() * 1000000) + 10000,
@@ -218,12 +225,24 @@ export const hashtagRouter = createTRPCRouter({
         avgEngagement: parseFloat((Math.random() * 10 + 1).toFixed(2)),
         topPostEngagement: Math.floor(Math.random() * 100000) + 1000,
         competitionScore: Math.floor(Math.random() * 100),
-        difficulty: ["easy", "medium", "hard", "very_hard"][Math.floor(Math.random() * 4)],
+        difficulty: ["easy", "medium", "hard", "very_hard"][
+          Math.floor(Math.random() * 4)
+        ],
         opportunity: parseFloat((Math.random() * 100).toFixed(2)),
-        trendDirection: ["rising", "falling", "stable"][Math.floor(Math.random() * 3)],
+        trendDirection: ["rising", "falling", "stable"][
+          Math.floor(Math.random() * 3)
+        ],
         growthRate: parseFloat((Math.random() * 30 - 15).toFixed(2)),
         bestPostingTimes: [9, 12, 15, 18, 21],
-        peakEngagementDay: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][Math.floor(Math.random() * 7)],
+        peakEngagementDay: [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday",
+        ][Math.floor(Math.random() * 7)],
         topContentTypes: ["image", "video", "text", "carousel"],
         relatedHashtags: ["#related1", "#related2", "#related3"],
         topRegions: ["US", "UK", "Canada", "Australia"],
@@ -254,11 +273,13 @@ export const hashtagRouter = createTRPCRouter({
     }),
 
   getHashtagCompetitionAnalysis: protectedProcedure
-    .input(z.object({
-      hashtag: z.string().optional(),
-      platform: z.string().optional(),
-      limit: z.number().min(1).max(100).default(20),
-    }))
+    .input(
+      z.object({
+        hashtag: z.string().optional(),
+        platform: z.string().optional(),
+        limit: z.number().min(1).max(100).default(20),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const whereConditions = [];
 
@@ -282,11 +303,13 @@ export const hashtagRouter = createTRPCRouter({
 
   // Hashtag Analytics
   getHashtagAnalytics: protectedProcedure
-    .input(z.object({
-      platform: z.string().optional(),
-      dateFrom: z.date().optional(),
-      dateTo: z.date().optional(),
-    }))
+    .input(
+      z.object({
+        platform: z.string().optional(),
+        dateFrom: z.date().optional(),
+        dateTo: z.date().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const whereConditions = [
         eq(hashtagPerformance.userId, ctx.session.user.id),
@@ -356,9 +379,11 @@ export const hashtagRouter = createTRPCRouter({
 
   // User Optimization Settings
   getUserOptimizationSettings: protectedProcedure
-    .input(z.object({
-      platform: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        platform: z.string().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const whereConditions = [
         eq(hashtagOptimization.userId, ctx.session.user.id),
@@ -378,23 +403,29 @@ export const hashtagRouter = createTRPCRouter({
     }),
 
   updateOptimizationSettings: protectedProcedure
-    .input(z.object({
-      platform: z.string(),
-      preferredCategories: z.array(z.string()).optional(),
-      avoidCategories: z.array(z.string()).optional(),
-      minEngagementRate: z.number().min(0).max(100).default(2),
-      maxCompetitionLevel: z.enum(["low", "medium", "high"]).default("medium"),
-      autoOptimize: z.boolean().default(true),
-      learningEnabled: z.boolean().default(true),
-    }))
+    .input(
+      z.object({
+        platform: z.string(),
+        preferredCategories: z.array(z.string()).optional(),
+        avoidCategories: z.array(z.string()).optional(),
+        minEngagementRate: z.number().min(0).max(100).default(2),
+        maxCompetitionLevel: z
+          .enum(["low", "medium", "high"])
+          .default("medium"),
+        autoOptimize: z.boolean().default(true),
+        learningEnabled: z.boolean().default(true),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const existingSettings = await ctx.db
         .select()
         .from(hashtagOptimization)
-        .where(and(
-          eq(hashtagOptimization.userId, ctx.session.user.id),
-          eq(hashtagOptimization.platform, input.platform)
-        ))
+        .where(
+          and(
+            eq(hashtagOptimization.userId, ctx.session.user.id),
+            eq(hashtagOptimization.platform, input.platform),
+          ),
+        )
         .limit(1);
 
       if (existingSettings.length > 0) {
@@ -409,7 +440,7 @@ export const hashtagRouter = createTRPCRouter({
             learningEnabled: input.learningEnabled,
             updatedAt: new Date(),
           })
-          .where(eq(hashtagOptimization.id, existingSettings[0]?.id ?? ''));
+          .where(eq(hashtagOptimization.id, existingSettings[0]?.id ?? ""));
       } else {
         const id = crypto.randomUUID();
         await ctx.db.insert(hashtagOptimization).values({

@@ -24,7 +24,7 @@ export const featurePermissionsRouter = createTRPCRouter({
       displayName: getFeatureDisplayName(featureKey as FeatureKey),
       description: getFeatureDescription(featureKey as FeatureKey),
     }));
-    
+
     return features;
   }),
 
@@ -45,15 +45,19 @@ export const featurePermissionsRouter = createTRPCRouter({
         .where(eq(featurePermissions.productId, input.productId));
 
       // Create a map of all features with their permission status
-      const allFeatures = Object.values(AVAILABLE_FEATURES).map((featureKey) => {
-        const permission = permissions.find((p) => p.featureKey === featureKey);
-        return {
-          key: featureKey,
-          displayName: getFeatureDisplayName(featureKey as FeatureKey),
-          description: getFeatureDescription(featureKey as FeatureKey),
-          enabled: permission?.enabled ?? false,
-        };
-      });
+      const allFeatures = Object.values(AVAILABLE_FEATURES).map(
+        (featureKey) => {
+          const permission = permissions.find(
+            (p) => p.featureKey === featureKey,
+          );
+          return {
+            key: featureKey,
+            displayName: getFeatureDisplayName(featureKey as FeatureKey),
+            description: getFeatureDescription(featureKey as FeatureKey),
+            enabled: permission?.enabled ?? false,
+          };
+        },
+      );
 
       return allFeatures;
     }),

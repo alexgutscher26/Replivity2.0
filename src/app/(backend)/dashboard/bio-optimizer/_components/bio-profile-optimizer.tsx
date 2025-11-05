@@ -58,11 +58,22 @@ import { useSession } from "@/hooks/use-auth-hooks";
 
 const bioOptimizerSchema = z.object({
   currentBio: z.string().default(""),
-  platform: z.enum(["twitter", "linkedin", "instagram", "facebook", "tiktok", "general"]).default("general"),
+  platform: z
+    .enum(["twitter", "linkedin", "instagram", "facebook", "tiktok", "general"])
+    .default("general"),
   industry: z.string().default(""),
   targetAudience: z.string().default(""),
   goals: z.array(z.string()).default([]),
-  tone: z.enum(["professional", "casual", "friendly", "authoritative", "creative", "humorous"]).default("professional"),
+  tone: z
+    .enum([
+      "professional",
+      "casual",
+      "friendly",
+      "authoritative",
+      "creative",
+      "humorous",
+    ])
+    .default("professional"),
 });
 
 type BioOptimizerFormValues = z.infer<typeof bioOptimizerSchema>;
@@ -102,7 +113,8 @@ export function BioProfileOptimizer() {
   const [optimizedBios, setOptimizedBios] = useState<OptimizedBio[]>([]);
   const [suggestions, setSuggestions] = useState<OptimizationSuggestion[]>([]);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
-  const [keywordAnalysis, setKeywordAnalysis] = useState<KeywordAnalysis | null>(null);
+  const [keywordAnalysis, setKeywordAnalysis] =
+    useState<KeywordAnalysis | null>(null);
 
   const form = useForm<BioOptimizerFormValues>({
     resolver: zodResolver(bioOptimizerSchema),
@@ -131,26 +143,202 @@ export function BioProfileOptimizer() {
 
   // Industry-specific keyword database
   const industryKeywords = {
-    marketing: ["digital marketing", "SEO", "content marketing", "social media", "branding", "analytics", "campaigns", "strategy", "growth", "ROI"],
-    tech: ["software development", "programming", "AI", "machine learning", "cloud computing", "cybersecurity", "data science", "innovation", "automation", "scalability"],
-    design: ["UI/UX", "graphic design", "creative", "visual design", "user experience", "branding", "typography", "illustration", "prototyping", "design thinking"],
-    business: ["entrepreneurship", "leadership", "strategy", "consulting", "management", "operations", "growth", "innovation", "productivity", "networking"],
-    finance: ["financial planning", "investment", "accounting", "budgeting", "wealth management", "risk management", "portfolio", "analysis", "compliance", "advisory"],
-    healthcare: ["patient care", "medical", "healthcare", "wellness", "treatment", "diagnosis", "prevention", "health education", "clinical", "research"],
-    education: ["teaching", "learning", "curriculum", "education", "training", "development", "mentoring", "academic", "research", "knowledge"],
-    sales: ["sales", "revenue", "client relations", "negotiation", "lead generation", "conversion", "pipeline", "CRM", "prospecting", "closing"],
-    hr: ["human resources", "talent acquisition", "employee engagement", "recruitment", "performance management", "culture", "diversity", "training", "retention", "leadership development"],
-    consulting: ["consulting", "advisory", "strategy", "transformation", "optimization", "solutions", "expertise", "implementation", "analysis", "recommendations"]
+    marketing: [
+      "digital marketing",
+      "SEO",
+      "content marketing",
+      "social media",
+      "branding",
+      "analytics",
+      "campaigns",
+      "strategy",
+      "growth",
+      "ROI",
+    ],
+    tech: [
+      "software development",
+      "programming",
+      "AI",
+      "machine learning",
+      "cloud computing",
+      "cybersecurity",
+      "data science",
+      "innovation",
+      "automation",
+      "scalability",
+    ],
+    design: [
+      "UI/UX",
+      "graphic design",
+      "creative",
+      "visual design",
+      "user experience",
+      "branding",
+      "typography",
+      "illustration",
+      "prototyping",
+      "design thinking",
+    ],
+    business: [
+      "entrepreneurship",
+      "leadership",
+      "strategy",
+      "consulting",
+      "management",
+      "operations",
+      "growth",
+      "innovation",
+      "productivity",
+      "networking",
+    ],
+    finance: [
+      "financial planning",
+      "investment",
+      "accounting",
+      "budgeting",
+      "wealth management",
+      "risk management",
+      "portfolio",
+      "analysis",
+      "compliance",
+      "advisory",
+    ],
+    healthcare: [
+      "patient care",
+      "medical",
+      "healthcare",
+      "wellness",
+      "treatment",
+      "diagnosis",
+      "prevention",
+      "health education",
+      "clinical",
+      "research",
+    ],
+    education: [
+      "teaching",
+      "learning",
+      "curriculum",
+      "education",
+      "training",
+      "development",
+      "mentoring",
+      "academic",
+      "research",
+      "knowledge",
+    ],
+    sales: [
+      "sales",
+      "revenue",
+      "client relations",
+      "negotiation",
+      "lead generation",
+      "conversion",
+      "pipeline",
+      "CRM",
+      "prospecting",
+      "closing",
+    ],
+    hr: [
+      "human resources",
+      "talent acquisition",
+      "employee engagement",
+      "recruitment",
+      "performance management",
+      "culture",
+      "diversity",
+      "training",
+      "retention",
+      "leadership development",
+    ],
+    consulting: [
+      "consulting",
+      "advisory",
+      "strategy",
+      "transformation",
+      "optimization",
+      "solutions",
+      "expertise",
+      "implementation",
+      "analysis",
+      "recommendations",
+    ],
   };
 
   // Platform-specific high-performing keywords
   const platformKeywords = {
-    linkedin: ["professional", "expert", "specialist", "leader", "consultant", "advisor", "strategist", "manager", "director", "founder"],
-    twitter: ["creator", "influencer", "thought leader", "expert", "enthusiast", "advocate", "speaker", "writer", "innovator", "pioneer"],
-    instagram: ["creator", "artist", "influencer", "lifestyle", "inspiration", "community", "passion", "creative", "authentic", "storyteller"],
-    facebook: ["business", "service", "community", "local", "family", "trusted", "reliable", "experienced", "professional", "friendly"],
-    tiktok: ["creator", "viral", "trending", "fun", "entertaining", "creative", "original", "engaging", "popular", "authentic"],
-    general: ["professional", "expert", "passionate", "experienced", "dedicated", "innovative", "creative", "reliable", "trusted", "knowledgeable"]
+    linkedin: [
+      "professional",
+      "expert",
+      "specialist",
+      "leader",
+      "consultant",
+      "advisor",
+      "strategist",
+      "manager",
+      "director",
+      "founder",
+    ],
+    twitter: [
+      "creator",
+      "influencer",
+      "thought leader",
+      "expert",
+      "enthusiast",
+      "advocate",
+      "speaker",
+      "writer",
+      "innovator",
+      "pioneer",
+    ],
+    instagram: [
+      "creator",
+      "artist",
+      "influencer",
+      "lifestyle",
+      "inspiration",
+      "community",
+      "passion",
+      "creative",
+      "authentic",
+      "storyteller",
+    ],
+    facebook: [
+      "business",
+      "service",
+      "community",
+      "local",
+      "family",
+      "trusted",
+      "reliable",
+      "experienced",
+      "professional",
+      "friendly",
+    ],
+    tiktok: [
+      "creator",
+      "viral",
+      "trending",
+      "fun",
+      "entertaining",
+      "creative",
+      "original",
+      "engaging",
+      "popular",
+      "authentic",
+    ],
+    general: [
+      "professional",
+      "expert",
+      "passionate",
+      "experienced",
+      "dedicated",
+      "innovative",
+      "creative",
+      "reliable",
+      "trusted",
+      "knowledgeable",
+    ],
   };
 
   const platformConfig = {
@@ -163,19 +351,19 @@ export function BioProfileOptimizer() {
         "Use relevant hashtags (1-2 max)",
         "Include a call-to-action",
         "Emojis are encouraged",
-        "Link to your website or latest content"
+        "Link to your website or latest content",
       ],
       bestPractices: [
         "Start with your value proposition",
         "Use line breaks for readability",
         "Include your location if relevant",
-        "Mention what you tweet about"
+        "Mention what you tweet about",
       ],
       avoid: [
         "Too many hashtags",
         "Overly promotional language",
-        "Generic descriptions"
-      ]
+        "Generic descriptions",
+      ],
     },
     linkedin: {
       limit: 220,
@@ -186,21 +374,21 @@ export function BioProfileOptimizer() {
         "Highlight your expertise and achievements",
         "Include industry keywords",
         "Mention your current role",
-        "Add a professional call-to-action"
+        "Add a professional call-to-action",
       ],
       bestPractices: [
         "Start with your current position",
         "Include years of experience",
         "Mention key skills or specializations",
         "Add contact information",
-        "Use industry-specific terminology"
+        "Use industry-specific terminology",
       ],
       avoid: [
         "Casual language or slang",
         "Too many emojis",
         "Personal information",
-        "Controversial topics"
-      ]
+        "Controversial topics",
+      ],
     },
     instagram: {
       limit: 150,
@@ -211,20 +399,20 @@ export function BioProfileOptimizer() {
         "Use emojis strategically",
         "Include relevant hashtags",
         "Add your website link",
-        "Show personality"
+        "Show personality",
       ],
       bestPractices: [
         "Use line breaks for visual appeal",
         "Include what you post about",
         "Add location if relevant",
         "Use branded hashtags",
-        "Include contact info"
+        "Include contact info",
       ],
       avoid: [
         "Wall of text",
         "Too many hashtags in bio",
-        "Unclear value proposition"
-      ]
+        "Unclear value proposition",
+      ],
     },
     facebook: {
       limit: 101,
@@ -235,19 +423,19 @@ export function BioProfileOptimizer() {
         "Include business hours if applicable",
         "Add contact information",
         "Mention your services/products",
-        "Use local keywords if relevant"
+        "Use local keywords if relevant",
       ],
       bestPractices: [
         "Include your mission statement",
         "Add location and contact details",
         "Mention what makes you unique",
-        "Include website link"
+        "Include website link",
       ],
       avoid: [
         "Too much promotional content",
         "Overly formal language",
-        "Missing contact information"
-      ]
+        "Missing contact information",
+      ],
     },
     tiktok: {
       limit: 80,
@@ -258,19 +446,15 @@ export function BioProfileOptimizer() {
         "Use trending hashtags",
         "Keep it short and catchy",
         "Include what content you create",
-        "Add posting schedule if consistent"
+        "Add posting schedule if consistent",
       ],
       bestPractices: [
         "Use emojis creatively",
         "Include your niche/content type",
         "Add posting frequency",
-        "Use trending phrases"
+        "Use trending phrases",
       ],
-      avoid: [
-        "Overly serious tone",
-        "Too much text",
-        "Boring descriptions"
-      ]
+      avoid: ["Overly serious tone", "Too much text", "Boring descriptions"],
     },
     general: {
       limit: 200,
@@ -281,105 +465,135 @@ export function BioProfileOptimizer() {
         "Clear value proposition",
         "Professional yet approachable",
         "Include key information",
-        "Easy to customize"
+        "Easy to customize",
       ],
       bestPractices: [
         "Focus on your expertise",
         "Include contact information",
         "Mention your goals",
-        "Keep it versatile"
+        "Keep it versatile",
       ],
       avoid: [
         "Platform-specific references",
         "Too casual or too formal",
-        "Overly long descriptions"
-      ]
-    }
+        "Overly long descriptions",
+      ],
+    },
   };
 
   const toggleGoal = (goal: string) => {
     const newGoals = selectedGoals.includes(goal)
-      ? selectedGoals.filter(g => g !== goal)
+      ? selectedGoals.filter((g) => g !== goal)
       : [...selectedGoals, goal];
     setSelectedGoals(newGoals);
     form.setValue("goals", newGoals);
   };
 
-  const analyzeKeywords = (bio: string, industry: string, platform: string): KeywordAnalysis => {
-    const words = bio.toLowerCase().split(/\W+/).filter(word => word.length > 2);
+  const analyzeKeywords = (
+    bio: string,
+    industry: string,
+    platform: string,
+  ): KeywordAnalysis => {
+    const words = bio
+      .toLowerCase()
+      .split(/\W+/)
+      .filter((word) => word.length > 2);
     const currentKeywords = [...new Set(words)];
-    
+
     // Get industry-specific keywords
-    const industryKey = industry.toLowerCase().replace(/\s+/g, '');
-    const relevantIndustryKeywords = industryKeywords[industryKey as keyof typeof industryKeywords] || [];
-    
+    const industryKey = industry.toLowerCase().replace(/\s+/g, "");
+    const relevantIndustryKeywords =
+      industryKeywords[industryKey as keyof typeof industryKeywords] || [];
+
     // Get platform-specific keywords
-    const relevantPlatformKeywords = platformKeywords[platform as keyof typeof platformKeywords] || [];
-    
+    const relevantPlatformKeywords =
+      platformKeywords[platform as keyof typeof platformKeywords] || [];
+
     // Combine suggested keywords
-    const suggestedKeywords = [...new Set([
-      ...relevantIndustryKeywords.slice(0, 8),
-      ...relevantPlatformKeywords.slice(0, 5),
-      industry.toLowerCase(),
-      ...selectedGoals.map(goal => goal.toLowerCase())
-    ])];
-    
+    const suggestedKeywords = [
+      ...new Set([
+        ...relevantIndustryKeywords.slice(0, 8),
+        ...relevantPlatformKeywords.slice(0, 5),
+        industry.toLowerCase(),
+        ...selectedGoals.map((goal) => goal.toLowerCase()),
+      ]),
+    ];
+
     // Find missing keywords
-    const missingKeywords = suggestedKeywords.filter(keyword => 
-      !bio.toLowerCase().includes(keyword.toLowerCase())
+    const missingKeywords = suggestedKeywords.filter(
+      (keyword) => !bio.toLowerCase().includes(keyword.toLowerCase()),
     );
-    
+
     // Calculate keyword density
     const keywordDensity: Record<string, number> = {};
-    suggestedKeywords.forEach(keyword => {
-      const regex = new RegExp(keyword.replace(/\s+/g, '\\s+'), 'gi');
+    suggestedKeywords.forEach((keyword) => {
+      const regex = new RegExp(keyword.replace(/\s+/g, "\\s+"), "gi");
       const matches = bio.match(regex);
       keywordDensity[keyword] = matches ? matches.length : 0;
     });
-    
+
     // Calculate SEO score (0-100)
-    const keywordScore = (suggestedKeywords.length - missingKeywords.length) / suggestedKeywords.length * 40;
-    const densityScore = Object.values(keywordDensity).reduce((sum, count) => sum + Math.min(count * 10, 30), 0);
+    const keywordScore =
+      ((suggestedKeywords.length - missingKeywords.length) /
+        suggestedKeywords.length) *
+      40;
+    const densityScore = Object.values(keywordDensity).reduce(
+      (sum, count) => sum + Math.min(count * 10, 30),
+      0,
+    );
     const lengthScore = bio.length > 50 ? 20 : (bio.length / 50) * 20;
-    const seoScore = Math.min(Math.round(keywordScore + densityScore + lengthScore), 100);
-    
+    const seoScore = Math.min(
+      Math.round(keywordScore + densityScore + lengthScore),
+      100,
+    );
+
     // Generate competitor keywords (simulated)
     const competitorKeywords = [
-      "industry leader", "top performer", "award-winning", "certified", "experienced",
-      "results-driven", "innovative solutions", "client-focused", "proven track record"
+      "industry leader",
+      "top performer",
+      "award-winning",
+      "certified",
+      "experienced",
+      "results-driven",
+      "innovative solutions",
+      "client-focused",
+      "proven track record",
     ].slice(0, 5);
-    
+
     // Generate optimization suggestions
     const suggestions = [];
-    
+
     if (missingKeywords.length > 0) {
       suggestions.push({
         type: "add" as const,
-        suggestion: `Consider adding these high-impact keywords: ${missingKeywords.slice(0, 3).join(", ")}`
+        suggestion: `Consider adding these high-impact keywords: ${missingKeywords.slice(0, 3).join(", ")}`,
       });
     }
-    
+
     if (seoScore < 60) {
       suggestions.push({
         type: "optimize" as const,
-        suggestion: "Your bio could benefit from more industry-specific keywords to improve discoverability"
+        suggestion:
+          "Your bio could benefit from more industry-specific keywords to improve discoverability",
       });
     }
-    
-    if (Object.values(keywordDensity).some(density => density > 3)) {
+
+    if (Object.values(keywordDensity).some((density) => density > 3)) {
       suggestions.push({
         type: "remove" as const,
-        suggestion: "Some keywords appear too frequently. Consider varying your language for better readability"
+        suggestion:
+          "Some keywords appear too frequently. Consider varying your language for better readability",
       });
     }
-    
+
     if (bio.length < 50) {
       suggestions.push({
         type: "add" as const,
-        suggestion: "Your bio is quite short. Adding more relevant keywords could improve your professional presence"
+        suggestion:
+          "Your bio is quite short. Adding more relevant keywords could improve your professional presence",
       });
     }
-    
+
     return {
       suggestedKeywords,
       currentKeywords: currentKeywords.slice(0, 10),
@@ -387,18 +601,22 @@ export function BioProfileOptimizer() {
       keywordDensity,
       seoScore,
       competitorKeywords,
-      suggestions
+      suggestions,
     };
   };
 
-  const optimizeKeywordsInBio = (bio: string, keywords: string[], platform: string): string => {
+  const optimizeKeywordsInBio = (
+    bio: string,
+    keywords: string[],
+    platform: string,
+  ): string => {
     let optimizedBio = bio;
     const config = platformConfig[platform as keyof typeof platformConfig];
     const limit = config.limit;
-    
+
     // Add missing high-priority keywords if there's space
     const highPriorityKeywords = keywords.slice(0, 3);
-    
+
     for (const keyword of highPriorityKeywords) {
       if (!optimizedBio.toLowerCase().includes(keyword.toLowerCase())) {
         const addition = ` | ${keyword}`;
@@ -407,127 +625,269 @@ export function BioProfileOptimizer() {
         }
       }
     }
-    
+
     return optimizedBio;
   };
 
-  const generatePlatformSpecificBios = (data: BioOptimizerFormValues, baseContent: string, limit?: number): OptimizedBio[] => {
+  const generatePlatformSpecificBios = (
+    data: BioOptimizerFormValues,
+    baseContent: string,
+    limit?: number,
+  ): OptimizedBio[] => {
     const bios: OptimizedBio[] = [];
-    
+
     // Get keyword analysis for optimization
-    const keywordAnalysis = analyzeKeywords(data.currentBio, data.industry, data.platform);
+    const keywordAnalysis = analyzeKeywords(
+      data.currentBio,
+      data.industry,
+      data.platform,
+    );
     const topKeywords = keywordAnalysis.suggestedKeywords.slice(0, 5);
 
     // Platform-specific bio generation logic with keyword optimization
     switch (data.platform) {
-      case 'twitter':
+      case "twitter":
         bios.push(
           {
-            content: optimizeKeywordsInBio(`${baseContent} | ${data.industry} insights 🧵 | ${selectedGoals[0] ?? 'Building connections'} | Follow for daily tips`, topKeywords, data.platform),
-            improvements: ["Added thread emoji for Twitter culture", "Included daily posting promise", "Clear value proposition", "Optimized keywords"],
+            content: optimizeKeywordsInBio(
+              `${baseContent} | ${data.industry} insights 🧵 | ${selectedGoals[0] ?? "Building connections"} | Follow for daily tips`,
+              topKeywords,
+              data.platform,
+            ),
+            improvements: [
+              "Added thread emoji for Twitter culture",
+              "Included daily posting promise",
+              "Clear value proposition",
+              "Optimized keywords",
+            ],
             score: 88,
-            keywords: [data.industry, "insights", "tips", ...topKeywords.slice(0, 2)],
+            keywords: [
+              data.industry,
+              "insights",
+              "tips",
+              ...topKeywords.slice(0, 2),
+            ],
             seoScore: keywordAnalysis.seoScore + 10,
             keywordDensity: keywordAnalysis.keywordDensity,
           },
           {
-            content: optimizeKeywordsInBio(`🚀 ${data.industry} expert helping ${data.targetAudience} | Tweets about trends & strategies | DM for collabs`, topKeywords, data.platform),
-            improvements: ["Rocket emoji for growth", "Clear target audience", "Call-to-action for DMs", "SEO optimized"],
+            content: optimizeKeywordsInBio(
+              `🚀 ${data.industry} expert helping ${data.targetAudience} | Tweets about trends & strategies | DM for collabs`,
+              topKeywords,
+              data.platform,
+            ),
+            improvements: [
+              "Rocket emoji for growth",
+              "Clear target audience",
+              "Call-to-action for DMs",
+              "SEO optimized",
+            ],
             score: 85,
-            keywords: [data.industry, "expert", "trends", ...topKeywords.slice(0, 2)],
+            keywords: [
+              data.industry,
+              "expert",
+              "trends",
+              ...topKeywords.slice(0, 2),
+            ],
             seoScore: keywordAnalysis.seoScore + 8,
             keywordDensity: keywordAnalysis.keywordDensity,
-          }
+          },
         );
         break;
 
-      case 'linkedin':
+      case "linkedin":
         bios.push(
           {
-            content: optimizeKeywordsInBio(`${data.industry} Professional | Helping ${data.targetAudience} achieve ${selectedGoals[0] ?? 'success'} | 5+ years experience | Connect for industry insights`, topKeywords, data.platform),
-            improvements: ["Professional tone", "Experience highlighted", "Clear networking CTA", "Industry keywords included"],
+            content: optimizeKeywordsInBio(
+              `${data.industry} Professional | Helping ${data.targetAudience} achieve ${selectedGoals[0] ?? "success"} | 5+ years experience | Connect for industry insights`,
+              topKeywords,
+              data.platform,
+            ),
+            improvements: [
+              "Professional tone",
+              "Experience highlighted",
+              "Clear networking CTA",
+              "Industry keywords included",
+            ],
             score: 92,
-            keywords: [data.industry, "professional", "experience", ...topKeywords.slice(0, 2)],
+            keywords: [
+              data.industry,
+              "professional",
+              "experience",
+              ...topKeywords.slice(0, 2),
+            ],
             seoScore: keywordAnalysis.seoScore + 15,
             keywordDensity: keywordAnalysis.keywordDensity,
           },
           {
-            content: optimizeKeywordsInBio(`Senior ${data.industry} Specialist | Passionate about ${data.targetAudience} growth | Speaker & Consultant | Let's connect and share insights`, topKeywords, data.platform),
-            improvements: ["Authority positioning", "Multiple credentials", "Collaborative tone", "Keyword optimized"],
+            content: optimizeKeywordsInBio(
+              `Senior ${data.industry} Specialist | Passionate about ${data.targetAudience} growth | Speaker & Consultant | Let's connect and share insights`,
+              topKeywords,
+              data.platform,
+            ),
+            improvements: [
+              "Authority positioning",
+              "Multiple credentials",
+              "Collaborative tone",
+              "Keyword optimized",
+            ],
             score: 89,
-            keywords: ["senior", data.industry, "specialist", ...topKeywords.slice(0, 2)],
+            keywords: [
+              "senior",
+              data.industry,
+              "specialist",
+              ...topKeywords.slice(0, 2),
+            ],
             seoScore: keywordAnalysis.seoScore + 12,
             keywordDensity: keywordAnalysis.keywordDensity,
-          }
+          },
         );
         break;
 
-      case 'instagram':
+      case "instagram":
         bios.push(
           {
-            content: optimizeKeywordsInBio(`✨ ${data.industry} Creator\n🎯 Helping ${data.targetAudience}\n📍 [Your City]\n👇 Latest content`, topKeywords, data.platform),
-            improvements: ["Visual line breaks", "Emojis for engagement", "Location included", "Trending keywords"],
+            content: optimizeKeywordsInBio(
+              `✨ ${data.industry} Creator\n🎯 Helping ${data.targetAudience}\n📍 [Your City]\n👇 Latest content`,
+              topKeywords,
+              data.platform,
+            ),
+            improvements: [
+              "Visual line breaks",
+              "Emojis for engagement",
+              "Location included",
+              "Trending keywords",
+            ],
             score: 87,
-            keywords: [data.industry, "creator", "content", ...topKeywords.slice(0, 2)],
+            keywords: [
+              data.industry,
+              "creator",
+              "content",
+              ...topKeywords.slice(0, 2),
+            ],
             seoScore: keywordAnalysis.seoScore + 9,
             keywordDensity: keywordAnalysis.keywordDensity,
           },
           {
-            content: optimizeKeywordsInBio(`${baseContent} 💫\n${data.industry} tips & inspiration\n${selectedGoals[0] ?? 'Building community'} daily\n🔗 Link below`, topKeywords, data.platform),
-            improvements: ["Personal branding", "Daily content promise", "Link direction", "SEO enhanced"],
+            content: optimizeKeywordsInBio(
+              `${baseContent} 💫\n${data.industry} tips & inspiration\n${selectedGoals[0] ?? "Building community"} daily\n🔗 Link below`,
+              topKeywords,
+              data.platform,
+            ),
+            improvements: [
+              "Personal branding",
+              "Daily content promise",
+              "Link direction",
+              "SEO enhanced",
+            ],
             score: 84,
-            keywords: [data.industry, "tips", "inspiration", ...topKeywords.slice(0, 2)],
+            keywords: [
+              data.industry,
+              "tips",
+              "inspiration",
+              ...topKeywords.slice(0, 2),
+            ],
             seoScore: keywordAnalysis.seoScore + 7,
             keywordDensity: keywordAnalysis.keywordDensity,
-          }
+          },
         );
         break;
 
-      case 'facebook':
-        bios.push(
-          {
-            content: optimizeKeywordsInBio(`${data.industry} business helping ${data.targetAudience} succeed. Contact us for ${selectedGoals[0] ?? 'consultation'}. Open Mon-Fri 9-5.`, topKeywords, data.platform),
-            improvements: ["Business focus", "Contact information", "Operating hours", "Local SEO keywords"],
-            score: 86,
-            keywords: [data.industry, "business", "contact", ...topKeywords.slice(0, 2)],
-            seoScore: keywordAnalysis.seoScore + 11,
-            keywordDensity: keywordAnalysis.keywordDensity,
-          }
-        );
+      case "facebook":
+        bios.push({
+          content: optimizeKeywordsInBio(
+            `${data.industry} business helping ${data.targetAudience} succeed. Contact us for ${selectedGoals[0] ?? "consultation"}. Open Mon-Fri 9-5.`,
+            topKeywords,
+            data.platform,
+          ),
+          improvements: [
+            "Business focus",
+            "Contact information",
+            "Operating hours",
+            "Local SEO keywords",
+          ],
+          score: 86,
+          keywords: [
+            data.industry,
+            "business",
+            "contact",
+            ...topKeywords.slice(0, 2),
+          ],
+          seoScore: keywordAnalysis.seoScore + 11,
+          keywordDensity: keywordAnalysis.keywordDensity,
+        });
         break;
 
-      case 'tiktok':
-        bios.push(
-          {
-            content: optimizeKeywordsInBio(`${data.industry} content 🔥\nDaily tips for ${data.targetAudience}\nNew videos every day!`, topKeywords, data.platform),
-            improvements: ["Fire emoji for trending", "Daily posting schedule", "Excitement tone", "Viral keywords"],
-            score: 83,
-            keywords: [data.industry, "content", "daily", ...topKeywords.slice(0, 2)],
-            seoScore: keywordAnalysis.seoScore + 6,
-            keywordDensity: keywordAnalysis.keywordDensity,
-          }
-        );
+      case "tiktok":
+        bios.push({
+          content: optimizeKeywordsInBio(
+            `${data.industry} content 🔥\nDaily tips for ${data.targetAudience}\nNew videos every day!`,
+            topKeywords,
+            data.platform,
+          ),
+          improvements: [
+            "Fire emoji for trending",
+            "Daily posting schedule",
+            "Excitement tone",
+            "Viral keywords",
+          ],
+          score: 83,
+          keywords: [
+            data.industry,
+            "content",
+            "daily",
+            ...topKeywords.slice(0, 2),
+          ],
+          seoScore: keywordAnalysis.seoScore + 6,
+          keywordDensity: keywordAnalysis.keywordDensity,
+        });
         break;
 
       default:
-        bios.push(
-          {
-            content: optimizeKeywordsInBio(`${baseContent} | ${data.industry} Expert | Helping ${data.targetAudience} achieve their goals`, topKeywords, data.platform),
-            improvements: ["Clear expertise", "Target audience focus", "Goal-oriented", "Keyword optimized"],
-            score: 80,
-            keywords: [data.industry, "expert", "goals", ...topKeywords.slice(0, 2)],
-            seoScore: keywordAnalysis.seoScore + 5,
-            keywordDensity: keywordAnalysis.keywordDensity,
-          }
-        );
+        bios.push({
+          content: optimizeKeywordsInBio(
+            `${baseContent} | ${data.industry} Expert | Helping ${data.targetAudience} achieve their goals`,
+            topKeywords,
+            data.platform,
+          ),
+          improvements: [
+            "Clear expertise",
+            "Target audience focus",
+            "Goal-oriented",
+            "Keyword optimized",
+          ],
+          score: 80,
+          keywords: [
+            data.industry,
+            "expert",
+            "goals",
+            ...topKeywords.slice(0, 2),
+          ],
+          seoScore: keywordAnalysis.seoScore + 5,
+          keywordDensity: keywordAnalysis.keywordDensity,
+        });
     }
 
     // Add a keyword-optimized generic option for all platforms
     bios.push({
-      content: optimizeKeywordsInBio(`${baseContent} - ${data.industry} specialist passionate about ${data.targetAudience} success. Let's connect!`, topKeywords, data.platform),
-      improvements: ["Personal touch", "Shows passion", "Networking focus", "SEO optimized"],
+      content: optimizeKeywordsInBio(
+        `${baseContent} - ${data.industry} specialist passionate about ${data.targetAudience} success. Let's connect!`,
+        topKeywords,
+        data.platform,
+      ),
+      improvements: [
+        "Personal touch",
+        "Shows passion",
+        "Networking focus",
+        "SEO optimized",
+      ],
       score: 82,
-      keywords: [data.industry, "specialist", "success", ...topKeywords.slice(0, 2)],
+      keywords: [
+        data.industry,
+        "specialist",
+        "success",
+        ...topKeywords.slice(0, 2),
+      ],
       seoScore: keywordAnalysis.seoScore + 8,
       keywordDensity: keywordAnalysis.keywordDensity,
     });
@@ -545,7 +905,8 @@ export function BioProfileOptimizer() {
       suggestions.push({
         type: "warning",
         title: "Empty Bio",
-        description: "Your bio is empty. Add a compelling description to attract your target audience.",
+        description:
+          "Your bio is empty. Add a compelling description to attract your target audience.",
       });
     } else if (bio.length > limit) {
       suggestions.push({
@@ -562,20 +923,30 @@ export function BioProfileOptimizer() {
     }
 
     // Platform-specific content analysis
-    const hasEmoji = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(bio);
+    const hasEmoji =
+      /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+        bio,
+      );
     const hasURL = /https?:\/\//.test(bio);
-    const hasCallToAction = /\b(follow|contact|visit|check out|dm|message|connect|collaborate)\b/i.test(bio);
-    const hasLineBreaks = bio.includes('\n');
+    const hasCallToAction =
+      /\b(follow|contact|visit|check out|dm|message|connect|collaborate)\b/i.test(
+        bio,
+      );
+    const hasLineBreaks = bio.includes("\n");
     const hasLocation = /\b(\w+,\s*\w+|📍)/u.test(bio);
-    const hasRole = /\b(ceo|founder|manager|director|specialist|expert|consultant)\b/i.test(bio);
+    const hasRole =
+      /\b(ceo|founder|manager|director|specialist|expert|consultant)\b/i.test(
+        bio,
+      );
 
     // Platform-specific suggestions
-    if (platform === 'linkedin') {
+    if (platform === "linkedin") {
       if (!hasRole) {
         suggestions.push({
           type: "improvement",
           title: "Add Professional Title",
-          description: "LinkedIn bios should include your current role or professional title.",
+          description:
+            "LinkedIn bios should include your current role or professional title.",
           example: "Senior Marketing Manager | Digital Strategy Expert",
         });
       }
@@ -583,15 +954,17 @@ export function BioProfileOptimizer() {
         suggestions.push({
           type: "warning",
           title: "Limit Emojis",
-          description: "LinkedIn favors a professional tone. Use emojis sparingly.",
+          description:
+            "LinkedIn favors a professional tone. Use emojis sparingly.",
         });
       }
-    } else if (platform === 'instagram') {
+    } else if (platform === "instagram") {
       if (!hasEmoji) {
         suggestions.push({
           type: "improvement",
           title: "Add Visual Elements",
-          description: "Instagram bios benefit from emojis and visual elements.",
+          description:
+            "Instagram bios benefit from emojis and visual elements.",
           example: "✨ Creator | 📸 Daily inspiration | 🌟 Your niche",
         });
       }
@@ -599,15 +972,17 @@ export function BioProfileOptimizer() {
         suggestions.push({
           type: "improvement",
           title: "Use Line Breaks",
-          description: "Break up your bio with line breaks for better readability on Instagram.",
+          description:
+            "Break up your bio with line breaks for better readability on Instagram.",
         });
       }
-    } else if (platform === 'twitter') {
+    } else if (platform === "twitter") {
       if (!hasEmoji) {
         suggestions.push({
           type: "improvement",
           title: "Add Personality",
-          description: "Twitter bios benefit from emojis to show personality and save space.",
+          description:
+            "Twitter bios benefit from emojis to show personality and save space.",
           example: "🚀 for innovation, 💡 for ideas, 📈 for growth",
         });
       }
@@ -616,23 +991,26 @@ export function BioProfileOptimizer() {
         suggestions.push({
           type: "warning",
           title: "Too Many Hashtags",
-          description: "Limit hashtags to 1-2 in your Twitter bio for better readability.",
+          description:
+            "Limit hashtags to 1-2 in your Twitter bio for better readability.",
         });
       }
-    } else if (platform === 'facebook') {
+    } else if (platform === "facebook") {
       if (!hasLocation && !hasURL) {
         suggestions.push({
           type: "improvement",
           title: "Add Contact Information",
-          description: "Facebook bios should include location or website for business purposes.",
+          description:
+            "Facebook bios should include location or website for business purposes.",
         });
       }
-    } else if (platform === 'tiktok') {
+    } else if (platform === "tiktok") {
       if (!hasEmoji) {
         suggestions.push({
           type: "improvement",
           title: "Make It Fun",
-          description: "TikTok bios should be fun and engaging with emojis and creative language.",
+          description:
+            "TikTok bios should be fun and engaging with emojis and creative language.",
         });
       }
     }
@@ -645,14 +1023,17 @@ export function BioProfileOptimizer() {
         instagram: "Follow for inspiration | DM for collabs",
         facebook: "Message us for inquiries | Visit our website",
         tiktok: "Follow for daily content | Comment your thoughts",
-        general: "Connect with me | Let's collaborate"
+        general: "Connect with me | Let's collaborate",
       };
-      
+
       suggestions.push({
         type: "improvement",
         title: "Add Call-to-Action",
-        description: "Include a clear call-to-action to guide visitors on what to do next.",
-        example: platformCTA[platform as keyof typeof platformCTA] || platformCTA.general,
+        description:
+          "Include a clear call-to-action to guide visitors on what to do next.",
+        example:
+          platformCTA[platform as keyof typeof platformCTA] ||
+          platformCTA.general,
       });
     }
 
@@ -660,7 +1041,8 @@ export function BioProfileOptimizer() {
       suggestions.push({
         type: "success",
         title: "Good Length",
-        description: "Your bio has a good length that provides sufficient information without being overwhelming.",
+        description:
+          "Your bio has a good length that provides sufficient information without being overwhelming.",
       });
     }
 
@@ -669,27 +1051,34 @@ export function BioProfileOptimizer() {
 
   const generateOptimizedBios = async (data: BioOptimizerFormValues) => {
     setIsOptimizing(true);
-    
+
     try {
       // Simulate AI optimization (in real implementation, this would call an AI service)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const config = platformConfig[data.platform];
       const limit = config.limit;
       const baseContent = data.currentBio || (user?.name ?? "Professional");
-      
+
       // Generate platform-specific optimized bios
-      const platformSpecificBios = generatePlatformSpecificBios(data, baseContent, limit);
-      
+      const platformSpecificBios = generatePlatformSpecificBios(
+        data,
+        baseContent,
+        limit,
+      );
+
       // Ensure bios fit platform limits
-      const fittedBios = platformSpecificBios.map(bio => ({
+      const fittedBios = platformSpecificBios.map((bio) => ({
         ...bio,
-        content: bio.content.length > limit ? bio.content.substring(0, limit - 3) + "..." : bio.content,
+        content:
+          bio.content.length > limit
+            ? bio.content.substring(0, limit - 3) + "..."
+            : bio.content,
       }));
 
       setOptimizedBios(fittedBios);
       setSuggestions(analyzeBio(data.currentBio, data.platform));
-      
+
       toast.success("Bio optimization complete!", {
         description: `Generated ${fittedBios.length} platform-specific optimized versions of your bio.`,
       });
@@ -715,14 +1104,21 @@ export function BioProfileOptimizer() {
 
     try {
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Generate keyword analysis
-      const keywordInsights = analyzeKeywords(data.currentBio, data.industry, data.platform);
+      const keywordInsights = analyzeKeywords(
+        data.currentBio,
+        data.industry,
+        data.platform,
+      );
       setKeywordAnalysis(keywordInsights);
 
       // Generate analysis and suggestions
-      const optimizationSuggestions = analyzeBio(data.currentBio, data.platform);
+      const optimizationSuggestions = analyzeBio(
+        data.currentBio,
+        data.platform,
+      );
       setSuggestions(optimizationSuggestions);
 
       // Generate optimized bios
@@ -751,7 +1147,7 @@ export function BioProfileOptimizer() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="currentBio"
@@ -766,7 +1162,8 @@ export function BioProfileOptimizer() {
                         />
                       </FormControl>
                       <FormDescription>
-                        Paste your existing bio or leave empty to create a new one.
+                        Paste your existing bio or leave empty to create a new
+                        one.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -779,28 +1176,35 @@ export function BioProfileOptimizer() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Platform</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select platform" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.entries(platformConfig).map(([key, config]) => {
-                            const IconComponent = config.icon;
-                            return (
-                              <SelectItem key={key} value={key}>
-                                <div className="flex items-center gap-2">
-                                  <IconComponent className="h-4 w-4" />
-                                  {config.name}
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
+                          {Object.entries(platformConfig).map(
+                            ([key, config]) => {
+                              const IconComponent = config.icon;
+                              return (
+                                <SelectItem key={key} value={key}>
+                                  <div className="flex items-center gap-2">
+                                    <IconComponent className="h-4 w-4" />
+                                    {config.name}
+                                  </div>
+                                </SelectItem>
+                              );
+                            },
+                          )}
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Character limit: {platformConfig[form.watch("platform")]?.limit || 'Select platform'}
+                        Character limit:{" "}
+                        {platformConfig[form.watch("platform")]?.limit ||
+                          "Select platform"}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -813,17 +1217,24 @@ export function BioProfileOptimizer() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tone</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select tone" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="professional">Professional</SelectItem>
+                          <SelectItem value="professional">
+                            Professional
+                          </SelectItem>
                           <SelectItem value="casual">Casual</SelectItem>
                           <SelectItem value="friendly">Friendly</SelectItem>
-                          <SelectItem value="authoritative">Authoritative</SelectItem>
+                          <SelectItem value="authoritative">
+                            Authoritative
+                          </SelectItem>
                           <SelectItem value="creative">Creative</SelectItem>
                           <SelectItem value="humorous">Humorous</SelectItem>
                         </SelectContent>
@@ -840,7 +1251,10 @@ export function BioProfileOptimizer() {
                     <FormItem>
                       <FormLabel>Industry/Field</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Marketing, Tech, Design" {...field} />
+                        <Input
+                          placeholder="e.g., Marketing, Tech, Design"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         Your area of expertise or industry.
@@ -857,7 +1271,10 @@ export function BioProfileOptimizer() {
                     <FormItem>
                       <FormLabel>Target Audience</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., entrepreneurs, students, professionals" {...field} />
+                        <Input
+                          placeholder="e.g., entrepreneurs, students, professionals"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         Who do you want to reach?
@@ -877,8 +1294,10 @@ export function BioProfileOptimizer() {
                   {availableGoals.map((goal) => (
                     <Badge
                       key={goal}
-                      variant={selectedGoals.includes(goal) ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-primary/80"
+                      variant={
+                        selectedGoals.includes(goal) ? "default" : "outline"
+                      }
+                      className="hover:bg-primary/80 cursor-pointer"
                       onClick={() => toggleGoal(goal)}
                     >
                       {goal}
@@ -917,21 +1336,28 @@ export function BioProfileOptimizer() {
           <CardContent>
             <div className="space-y-3">
               {suggestions.map((suggestion, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg border">
+                <div
+                  key={index}
+                  className="flex items-start gap-3 rounded-lg border p-3"
+                >
                   {suggestion.type === "success" && (
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                    <CheckCircle className="mt-0.5 h-5 w-5 text-green-500" />
                   )}
                   {suggestion.type === "warning" && (
-                    <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                    <AlertCircle className="mt-0.5 h-5 w-5 text-yellow-500" />
                   )}
                   {suggestion.type === "improvement" && (
-                    <TrendingUp className="h-5 w-5 text-blue-500 mt-0.5" />
+                    <TrendingUp className="mt-0.5 h-5 w-5 text-blue-500" />
                   )}
                   <div className="flex-1">
                     <h4 className="font-medium">{suggestion.title}</h4>
-                    <p className="text-sm text-muted-foreground">{suggestion.description}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {suggestion.description}
+                    </p>
                     {suggestion.example && (
-                      <p className="text-sm text-blue-600 mt-1 italic">Example: {suggestion.example}</p>
+                      <p className="mt-1 text-sm text-blue-600 italic">
+                        Example: {suggestion.example}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -947,47 +1373,56 @@ export function BioProfileOptimizer() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Info className="h-5 w-5 text-blue-500" />
-              {platformConfig[form.watch("platform")]?.name || 'Platform'} Guidelines
+              {platformConfig[form.watch("platform")]?.name || "Platform"}{" "}
+              Guidelines
             </CardTitle>
             <CardDescription>
               Platform-specific best practices and recommendations.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div>
-                <h4 className="font-medium text-green-600 mb-2">Best Practices</h4>
-                <ul className="text-sm space-y-1">
-                  {(platformConfig[form.watch("platform")]?.bestPractices || []).map((practice, index) => (
+                <h4 className="mb-2 font-medium text-green-600">
+                  Best Practices
+                </h4>
+                <ul className="space-y-1 text-sm">
+                  {(
+                    platformConfig[form.watch("platform")]?.bestPractices || []
+                  ).map((practice, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 text-green-500 mt-1 flex-shrink-0" />
+                      <CheckCircle className="mt-1 h-3 w-3 flex-shrink-0 text-green-500" />
                       {practice}
                     </li>
                   ))}
                 </ul>
               </div>
-              
+
               <div>
-                <h4 className="font-medium text-blue-600 mb-2">Guidelines</h4>
-                <ul className="text-sm space-y-1">
-                  {(platformConfig[form.watch("platform")]?.guidelines || []).map((guideline, index) => (
+                <h4 className="mb-2 font-medium text-blue-600">Guidelines</h4>
+                <ul className="space-y-1 text-sm">
+                  {(
+                    platformConfig[form.watch("platform")]?.guidelines || []
+                  ).map((guideline, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <Lightbulb className="h-3 w-3 text-blue-500 mt-1 flex-shrink-0" />
+                      <Lightbulb className="mt-1 h-3 w-3 flex-shrink-0 text-blue-500" />
                       {guideline}
                     </li>
                   ))}
                 </ul>
               </div>
-              
+
               <div>
-                <h4 className="font-medium text-red-600 mb-2">Avoid</h4>
-                <ul className="text-sm space-y-1">
-                  {(platformConfig[form.watch("platform")]?.avoid || []).map((item, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <AlertCircle className="h-3 w-3 text-red-500 mt-1 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
+                <h4 className="mb-2 font-medium text-red-600">Avoid</h4>
+                <ul className="space-y-1 text-sm">
+                  {(platformConfig[form.watch("platform")]?.avoid || []).map(
+                    (item, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <AlertCircle className="mt-1 h-3 w-3 flex-shrink-0 text-red-500" />
+                        {item}
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
             </div>
@@ -1004,16 +1439,20 @@ export function BioProfileOptimizer() {
               Keyword Analysis & SEO Insights
             </CardTitle>
             <CardDescription>
-              Optimize your bio with industry-relevant keywords for better discoverability.
+              Optimize your bio with industry-relevant keywords for better
+              discoverability.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div>
-                <h4 className="font-medium text-purple-600 mb-3">SEO Score</h4>
+                <h4 className="mb-3 font-medium text-purple-600">SEO Score</h4>
                 <div className="flex items-center gap-3">
-                  <div className="relative w-16 h-16">
-                    <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+                  <div className="relative h-16 w-16">
+                    <svg
+                      className="h-16 w-16 -rotate-90 transform"
+                      viewBox="0 0 36 36"
+                    >
                       <path
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         fill="none"
@@ -1023,63 +1462,107 @@ export function BioProfileOptimizer() {
                       <path
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         fill="none"
-                        stroke={keywordAnalysis.seoScore >= 80 ? "#10b981" : keywordAnalysis.seoScore >= 60 ? "#f59e0b" : "#ef4444"}
+                        stroke={
+                          keywordAnalysis.seoScore >= 80
+                            ? "#10b981"
+                            : keywordAnalysis.seoScore >= 60
+                              ? "#f59e0b"
+                              : "#ef4444"
+                        }
                         strokeWidth="3"
                         strokeDasharray={`${keywordAnalysis.seoScore}, 100`}
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-lg font-bold">{keywordAnalysis.seoScore}</span>
+                      <span className="text-lg font-bold">
+                        {keywordAnalysis.seoScore}
+                      </span>
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">
-                      {keywordAnalysis.seoScore >= 80 ? "Excellent" : keywordAnalysis.seoScore >= 60 ? "Good" : "Needs Improvement"}
+                    <p className="text-muted-foreground text-sm">
+                      {keywordAnalysis.seoScore >= 80
+                        ? "Excellent"
+                        : keywordAnalysis.seoScore >= 60
+                          ? "Good"
+                          : "Needs Improvement"}
                     </p>
-                    <p className="text-xs text-muted-foreground">SEO Optimization</p>
+                    <p className="text-muted-foreground text-xs">
+                      SEO Optimization
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-medium text-blue-600 mb-3">Suggested Keywords</h4>
+                <h4 className="mb-3 font-medium text-blue-600">
+                  Suggested Keywords
+                </h4>
                 <div className="space-y-2">
-                  {(keywordAnalysis.suggestedKeywords || []).slice(0, 6).map((keyword, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <span>{keyword}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {index < 2 ? "High" : index < 4 ? "Medium" : "Low"} Priority
-                      </Badge>
-                    </div>
-                  ))}
+                  {(keywordAnalysis.suggestedKeywords || [])
+                    .slice(0, 6)
+                    .map((keyword, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between text-sm"
+                      >
+                        <span>{keyword}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {index < 2 ? "High" : index < 4 ? "Medium" : "Low"}{" "}
+                          Priority
+                        </Badge>
+                      </div>
+                    ))}
                 </div>
               </div>
 
               <div>
-                <h4 className="font-medium text-green-600 mb-3">Keyword Density</h4>
+                <h4 className="mb-3 font-medium text-green-600">
+                  Keyword Density
+                </h4>
                 <div className="space-y-2">
-                  {Object.entries(keywordAnalysis.keywordDensity || {}).slice(0, 5).map(([keyword, density], index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <span className="truncate">{keyword}</span>
-                      <span className="text-muted-foreground">{(density * 100).toFixed(1)}%</span>
-                    </div>
-                  ))}
+                  {Object.entries(keywordAnalysis.keywordDensity || {})
+                    .slice(0, 5)
+                    .map(([keyword, density], index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between text-sm"
+                      >
+                        <span className="truncate">{keyword}</span>
+                        <span className="text-muted-foreground">
+                          {(density * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
 
             <div className="mt-6">
-              <h4 className="font-medium mb-3">Optimization Suggestions</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(keywordAnalysis.suggestions || []).map((suggestion, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg border">
-                    <Lightbulb className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-medium">{suggestion.type === "add" ? "Add Keywords" : suggestion.type === "remove" ? "Remove Keywords" : "Optimize Keywords"}</p>
-                      <p className="text-xs text-muted-foreground">{suggestion.suggestion}</p>
+              <h4 className="mb-3 font-medium">Optimization Suggestions</h4>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {(keywordAnalysis.suggestions || []).map(
+                  (suggestion, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 rounded-lg border p-3"
+                    >
+                      <Lightbulb className="mt-0.5 h-4 w-4 flex-shrink-0 text-yellow-500" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          {suggestion.type === "add"
+                            ? "Add Keywords"
+                            : suggestion.type === "remove"
+                              ? "Remove Keywords"
+                              : "Optimize Keywords"}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {suggestion.suggestion}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </div>
           </CardContent>
@@ -1089,12 +1572,16 @@ export function BioProfileOptimizer() {
       {/* Optimized Bios */}
       {optimizedBios.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">Platform-Specific Bio Suggestions</h3>
+          <h3 className="text-lg font-medium">
+            Platform-Specific Bio Suggestions
+          </h3>
           {optimizedBios.map((bio, index) => (
             <Card key={index}>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Version {index + 1}</CardTitle>
+                  <CardTitle className="text-base">
+                    Version {index + 1}
+                  </CardTitle>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary">Score: {bio.score}/100</Badge>
                     {bio.seoScore && (
@@ -1114,16 +1601,16 @@ export function BioProfileOptimizer() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="p-3 bg-muted rounded-lg">
+                  <div className="bg-muted rounded-lg p-3">
                     <p className="font-medium">{bio.content}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-sm">
                       {bio.content.length} characters
                     </p>
                   </div>
-                  
+
                   <div>
-                    <h5 className="font-medium mb-2">Improvements:</h5>
-                    <ul className="text-sm text-muted-foreground space-y-1">
+                    <h5 className="mb-2 font-medium">Improvements:</h5>
+                    <ul className="text-muted-foreground space-y-1 text-sm">
                       {(bio.improvements || []).map((improvement, i) => (
                         <li key={i} className="flex items-center gap-2">
                           <CheckCircle className="h-3 w-3 text-green-500" />
@@ -1132,10 +1619,10 @@ export function BioProfileOptimizer() {
                       ))}
                     </ul>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                      <h5 className="font-medium mb-2">Keywords:</h5>
+                      <h5 className="mb-2 font-medium">Keywords:</h5>
                       <div className="flex flex-wrap gap-1">
                         {(bio.keywords || []).map((keyword, i) => (
                           <Badge key={i} variant="outline" className="text-xs">
@@ -1144,17 +1631,26 @@ export function BioProfileOptimizer() {
                         ))}
                       </div>
                     </div>
-                    
+
                     {bio.keywordDensity && (
                       <div>
-                        <h5 className="font-medium mb-2">Top Keyword Density:</h5>
+                        <h5 className="mb-2 font-medium">
+                          Top Keyword Density:
+                        </h5>
                         <div className="space-y-1">
-                          {Object.entries(bio.keywordDensity || {}).slice(0, 3).map(([keyword, density], i) => (
-                            <div key={i} className="flex justify-between text-xs">
-                              <span className="truncate">{keyword}</span>
-                              <span className="text-muted-foreground">{(density * 100).toFixed(1)}%</span>
-                            </div>
-                          ))}
+                          {Object.entries(bio.keywordDensity || {})
+                            .slice(0, 3)
+                            .map(([keyword, density], i) => (
+                              <div
+                                key={i}
+                                className="flex justify-between text-xs"
+                              >
+                                <span className="truncate">{keyword}</span>
+                                <span className="text-muted-foreground">
+                                  {(density * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            ))}
                         </div>
                       </div>
                     )}

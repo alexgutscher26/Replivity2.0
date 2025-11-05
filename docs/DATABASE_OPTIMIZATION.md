@@ -85,11 +85,11 @@ The optimization implementation includes:
 
 ```bash
 # Run the complete optimization process
-npm run db:optimize
+bun run db:optimize
 
 # Or run individual steps
-npm run db:push  # Apply migrations
-npm run db:studio  # Open Drizzle Studio
+bun run db:push  # Apply migrations
+bun run db:studio  # Open Drizzle Studio
 ```
 
 ### Using Query Optimization in Code
@@ -199,16 +199,16 @@ curl -X DELETE /api/admin/database/health
 ### Debug Commands
 ```bash
 # Check database health
-npm run db:optimize
+bun run db:optimize
 
 # View database schema
-npm run db:studio
+bun run db:studio
 
 # Generate new migration
-npm run db:generate
+bun run db:generate
 
 # Apply migrations
-npm run db:push
+bun run db:push
 ```
 
 ## Future Enhancements

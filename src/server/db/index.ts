@@ -14,7 +14,11 @@ import * as settings from "./schema/settings-schema";
 import * as usage from "./schema/usage-schema";
 
 // Import optimized connection pool
-import { pooledDb, checkDatabaseHealth, closeDatabaseConnections } from "./pool";
+import {
+  pooledDb,
+  checkDatabaseHealth,
+  closeDatabaseConnections,
+} from "./pool";
 
 /**
  * Cache the database connection in development. This avoids creating a new connection on every HMR

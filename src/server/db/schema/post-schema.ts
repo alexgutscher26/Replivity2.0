@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { sql, relations } from "drizzle-orm";
-import { 
-  index, 
-  integer, 
-  timestamp, 
-  varchar, 
-  text, 
-  boolean, 
+import {
+  index,
+  integer,
+  timestamp,
+  varchar,
+  text,
+  boolean,
   jsonb,
-  primaryKey
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { createTable } from "../config";
 import { user } from "./auth-schema";
@@ -40,9 +40,9 @@ export const blogPosts = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-        (): Date => new Date(),
-      ),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      (): Date => new Date(),
+    ),
   },
   (table) => ({
     createdByIdIdx: index("blog_post_created_by_idx").on(table.createdById),
@@ -115,7 +115,9 @@ export const blogPostCategories = createTable(
   (table) => ({
     pk: primaryKey({ columns: [table.postId, table.categoryId] }),
     postIdIdx: index("blog_post_category_post_idx").on(table.postId),
-    categoryIdIdx: index("blog_post_category_category_idx").on(table.categoryId),
+    categoryIdIdx: index("blog_post_category_category_idx").on(
+      table.categoryId,
+    ),
   }),
 );
 
@@ -177,9 +179,12 @@ export const blogPostsRelations = relations(blogPosts, ({ one, many }) => ({
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-export const blogCategoriesRelations = relations(blogCategories, ({ many }) => ({
-  posts: many(blogPostCategories),
-}));
+export const blogCategoriesRelations = relations(
+  blogCategories,
+  ({ many }) => ({
+    posts: many(blogPostCategories),
+  }),
+);
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
 export const blogTagsRelations = relations(blogTags, ({ many }) => ({
@@ -187,16 +192,19 @@ export const blogTagsRelations = relations(blogTags, ({ many }) => ({
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-export const blogPostCategoriesRelations = relations(blogPostCategories, ({ one }) => ({
-  post: one(blogPosts, {
-    fields: [blogPostCategories.postId],
-    references: [blogPosts.id],
+export const blogPostCategoriesRelations = relations(
+  blogPostCategories,
+  ({ one }) => ({
+    post: one(blogPosts, {
+      fields: [blogPostCategories.postId],
+      references: [blogPosts.id],
+    }),
+    category: one(blogCategories, {
+      fields: [blogPostCategories.categoryId],
+      references: [blogCategories.id],
+    }),
   }),
-  category: one(blogCategories, {
-    fields: [blogPostCategories.categoryId],
-    references: [blogCategories.id],
-  }),
-}));
+);
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
 export const blogPostTagsRelations = relations(blogPostTags, ({ one }) => ({
@@ -220,10 +228,12 @@ export const blogComments: any = createTable(
     postId: integer("post_id")
       .notNull()
       .references(() => blogPosts.id, { onDelete: "cascade" }),
-    parentId: integer("parent_id")
-      .references(() => blogComments.id, { onDelete: "cascade" }),
-    authorId: varchar("author_id", { length: 255 })
-      .references(() => user.id, { onDelete: "set null" }),
+    parentId: integer("parent_id").references(() => blogComments.id, {
+      onDelete: "cascade",
+    }),
+    authorId: varchar("author_id", { length: 255 }).references(() => user.id, {
+      onDelete: "set null",
+    }),
     authorName: varchar("author_name", { length: 100 }).notNull(),
     authorEmail: varchar("author_email", { length: 255 }).notNull(),
     authorWebsite: varchar("author_website", { length: 500 }),
@@ -279,46 +289,55 @@ export const blogCommentLikes = createTable(
  * Comment Relations
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-export const blogCommentsRelations = relations(blogComments, ({ one, many }) => ({
-  post: one(blogPosts, {
-    fields: [blogComments.postId],
-    references: [blogPosts.id],
+export const blogCommentsRelations = relations(
+  blogComments,
+  ({ one, many }) => ({
+    post: one(blogPosts, {
+      fields: [blogComments.postId],
+      references: [blogPosts.id],
+    }),
+    author: one(user, {
+      fields: [blogComments.authorId],
+      references: [user.id],
+    }),
+    parent: one(blogComments, {
+      fields: [blogComments.parentId],
+      references: [blogComments.id],
+      relationName: "CommentReplies",
+    }),
+    replies: many(blogComments, {
+      relationName: "CommentReplies",
+    }),
+    likes: many(blogCommentLikes),
   }),
-  author: one(user, {
-    fields: [blogComments.authorId],
-    references: [user.id],
-  }),
-  parent: one(blogComments, {
-    fields: [blogComments.parentId],
-    references: [blogComments.id],
-    relationName: "CommentReplies",
-  }),
-  replies: many(blogComments, {
-    relationName: "CommentReplies",
-  }),
-  likes: many(blogCommentLikes),
-}));
+);
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-export const blogCommentLikesRelations = relations(blogCommentLikes, ({ one }) => ({
-  comment: one(blogComments, {
-    fields: [blogCommentLikes.commentId],
-    references: [blogComments.id],
+export const blogCommentLikesRelations = relations(
+  blogCommentLikes,
+  ({ one }) => ({
+    comment: one(blogComments, {
+      fields: [blogCommentLikes.commentId],
+      references: [blogComments.id],
+    }),
+    user: one(user, {
+      fields: [blogCommentLikes.userId],
+      references: [user.id],
+    }),
   }),
-  user: one(user, {
-    fields: [blogCommentLikes.userId],
-    references: [user.id],
-  }),
-}));
+);
 
 // Update blog posts relations to include comments
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-export const blogPostsRelationsUpdated = relations(blogPosts, ({ one, many }) => ({
-  author: one(user, {
-    fields: [blogPosts.createdById],
-    references: [user.id],
+export const blogPostsRelationsUpdated = relations(
+  blogPosts,
+  ({ one, many }) => ({
+    author: one(user, {
+      fields: [blogPosts.createdById],
+      references: [user.id],
+    }),
+    categories: many(blogPostCategories),
+    tags: many(blogPostTags),
+    comments: many(blogComments),
   }),
-  categories: many(blogPostCategories),
-  tags: many(blogPostTags),
-  comments: many(blogComments),
-}));
+);

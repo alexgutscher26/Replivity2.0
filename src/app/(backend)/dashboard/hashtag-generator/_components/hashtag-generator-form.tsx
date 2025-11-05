@@ -1,10 +1,30 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -20,7 +40,14 @@ import { useState } from "react";
 const hashtagFormSchema = z.object({
   content: z.string().min(1, "Content is required"),
   platform: z.enum(["twitter", "facebook", "linkedin", "instagram"]),
-  tone: z.enum(["casual", "professional", "trendy", "serious", "playful", "inspirational"]),
+  tone: z.enum([
+    "casual",
+    "professional",
+    "trendy",
+    "serious",
+    "playful",
+    "inspirational",
+  ]),
   niche: z.string().optional(),
   count: z.number().min(5).max(30).default(10),
   optimizeForPlatform: z.boolean().default(true),
@@ -81,7 +108,7 @@ export default function HashtagGeneratorForm() {
 
   const onSubmit = (values: HashtagFormValues) => {
     setIsGenerating(true);
-    
+
     const getPlatformOptimization = (platform: string) => {
       switch (platform) {
         case "twitter":
@@ -90,23 +117,25 @@ export default function HashtagGeneratorForm() {
             optimalCount: "5-10",
             characteristics: "concise, trending, real-time focused",
             avoid: "overly long hashtags, too many hashtags",
-            best: "mix of trending and niche, current events"
+            best: "mix of trending and niche, current events",
           };
         case "facebook":
           return {
             maxLength: 63206,
             optimalCount: "2-5",
-            characteristics: "community-focused, shareable, conversation-starting",
+            characteristics:
+              "community-focused, shareable, conversation-starting",
             avoid: "excessive hashtags, overly promotional",
-            best: "branded hashtags, community hashtags, event hashtags"
+            best: "branded hashtags, community hashtags, event hashtags",
           };
         case "linkedin":
           return {
             maxLength: 3000,
             optimalCount: "3-5",
-            characteristics: "professional, industry-specific, thought leadership",
+            characteristics:
+              "professional, industry-specific, thought leadership",
             avoid: "casual slang, overly trendy hashtags",
-            best: "industry keywords, professional development, business topics"
+            best: "industry keywords, professional development, business topics",
           };
         case "instagram":
           return {
@@ -114,7 +143,7 @@ export default function HashtagGeneratorForm() {
             optimalCount: "8-15",
             characteristics: "visual, lifestyle, discovery-focused",
             avoid: "banned hashtags, shadow-banned terms",
-            best: "mix of popular and niche, location-based, lifestyle"
+            best: "mix of popular and niche, location-based, lifestyle",
           };
         default:
           return {
@@ -122,13 +151,13 @@ export default function HashtagGeneratorForm() {
             optimalCount: "5-10",
             characteristics: "engaging, relevant",
             avoid: "irrelevant hashtags",
-            best: "targeted, relevant hashtags"
+            best: "targeted, relevant hashtags",
           };
       }
     };
 
     const platformOpt = getPlatformOptimization(values.platform);
-    
+
     const prompt = `Generate exactly ${values.count} relevant hashtags for the following content on ${values.platform}:
 
 Content: "${values.content}"
@@ -136,15 +165,19 @@ ${values.niche ? `Niche/Industry: ${values.niche}` : ""}
 Tone: ${values.tone}
 Platform: ${values.platform}
 
-${values.optimizeForPlatform ? `PLATFORM OPTIMIZATION FOR ${values.platform.toUpperCase()}:
+${
+  values.optimizeForPlatform
+    ? `PLATFORM OPTIMIZATION FOR ${values.platform.toUpperCase()}:
 - Optimal hashtag count: ${platformOpt.optimalCount}
 - Platform characteristics: ${platformOpt.characteristics}
 - Avoid: ${platformOpt.avoid}
 - Best practices: ${platformOpt.best}
 - Competition level preference: ${values.competitionLevel}
-` : ""}
+`
+    : ""
+}
 
-${values.includeTrending ? "TRENDING REQUIREMENTS:\n- Include 2-3 currently trending hashtags relevant to the content\n- Balance trending with niche-specific hashtags\n- Ensure trending hashtags align with the content theme\n" : ''}
+${values.includeTrending ? "TRENDING REQUIREMENTS:\n- Include 2-3 currently trending hashtags relevant to the content\n- Balance trending with niche-specific hashtags\n- Ensure trending hashtags align with the content theme\n" : ""}
 
 Requirements:
 - Generate exactly ${values.count} hashtags
@@ -228,7 +261,10 @@ Example format: #hashtag1 #hashtag2 #hashtag3`;
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Platform</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select platform" />
@@ -236,7 +272,10 @@ Example format: #hashtag1 #hashtag2 #hashtag3`;
                         </FormControl>
                         <SelectContent>
                           {platforms.map((platform) => (
-                            <SelectItem key={platform.value} value={platform.value}>
+                            <SelectItem
+                              key={platform.value}
+                              value={platform.value}
+                            >
                               {platform.label}
                             </SelectItem>
                           ))}
@@ -253,7 +292,10 @@ Example format: #hashtag1 #hashtag2 #hashtag3`;
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tone</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select tone" />
@@ -318,9 +360,11 @@ Example format: #hashtag1 #hashtag2 #hashtag3`;
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <FormLabel className="text-base font-medium">Advanced Options</FormLabel>
+                  <FormLabel className="text-base font-medium">
+                    Advanced Options
+                  </FormLabel>
                 </div>
-                
+
                 <div className="grid grid-cols-1 gap-4">
                   <FormField
                     control={form.control}
@@ -328,7 +372,9 @@ Example format: #hashtag1 #hashtag2 #hashtag3`;
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-sm font-medium">Platform Optimization</FormLabel>
+                          <FormLabel className="text-sm font-medium">
+                            Platform Optimization
+                          </FormLabel>
                           <FormDescription>
                             Apply platform-specific hashtag best practices
                           </FormDescription>
@@ -349,7 +395,9 @@ Example format: #hashtag1 #hashtag2 #hashtag3`;
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-sm font-medium">Include Trending</FormLabel>
+                          <FormLabel className="text-sm font-medium">
+                            Include Trending
+                          </FormLabel>
                           <FormDescription>
                             Include currently trending hashtags in results
                           </FormDescription>
@@ -370,20 +418,30 @@ Example format: #hashtag1 #hashtag2 #hashtag3`;
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Competition Level</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select competition level" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="low">Low - Niche hashtags</SelectItem>
-                            <SelectItem value="medium">Medium - Balanced mix</SelectItem>
-                            <SelectItem value="high">High - Popular hashtags</SelectItem>
+                            <SelectItem value="low">
+                              Low - Niche hashtags
+                            </SelectItem>
+                            <SelectItem value="medium">
+                              Medium - Balanced mix
+                            </SelectItem>
+                            <SelectItem value="high">
+                              High - Popular hashtags
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Choose hashtag competition level based on your strategy
+                          Choose hashtag competition level based on your
+                          strategy
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -430,10 +488,9 @@ Example format: #hashtag1 #hashtag2 #hashtag3`;
             )}
           </CardTitle>
           <CardDescription>
-            {generatedHashtags.length > 0 
+            {generatedHashtags.length > 0
               ? `${generatedHashtags.length} hashtags generated. Click to copy individual hashtags.`
-              : "Your generated hashtags will appear here"
-            }
+              : "Your generated hashtags will appear here"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -444,30 +501,32 @@ Example format: #hashtag1 #hashtag2 #hashtag3`;
                   <Badge
                     key={index}
                     variant="secondary"
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    className="hover:bg-primary hover:text-primary-foreground cursor-pointer transition-colors"
                     onClick={() => copyIndividualHashtag(hashtag)}
                   >
                     {hashtag}
                   </Badge>
                 ))}
               </div>
-              
+
               <Separator />
-              
+
               <div className="space-y-2">
                 <p className="text-sm font-medium">Copy as text:</p>
-                <div className="p-3 bg-muted rounded-md">
-                  <p className="text-sm font-mono break-all">
+                <div className="bg-muted rounded-md p-3">
+                  <p className="font-mono text-sm break-all">
                     {generatedHashtags.join(" ")}
                   </p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              <Hash className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <div className="text-muted-foreground py-8 text-center">
+              <Hash className="mx-auto mb-4 h-12 w-12 opacity-50" />
               <p>No hashtags generated yet</p>
-              <p className="text-sm">Fill out the form and click generate to get started</p>
+              <p className="text-sm">
+                Fill out the form and click generate to get started
+              </p>
             </div>
           )}
         </CardContent>

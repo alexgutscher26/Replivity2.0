@@ -9,12 +9,12 @@ import { api } from "@/trpc/react";
 import { CommentForm } from "./CommentForm";
 import { CommentItem } from "./CommentItem";
 import { CommentDebug } from "./CommentDebug";
-import { 
-  MessageSquare, 
-  SortAsc, 
-  SortDesc, 
+import {
+  MessageSquare,
+  SortAsc,
+  SortDesc,
   Filter,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,7 +31,10 @@ interface CommentListProps {
 type SortBy = "createdAt" | "likeCount";
 type SortOrder = "asc" | "desc";
 
-export function CommentList({ postId, initialCommentsCount = 0 }: CommentListProps) {
+export function CommentList({
+  postId,
+  initialCommentsCount = 0,
+}: CommentListProps) {
   const [sortBy, setSortBy] = useState<SortBy>("createdAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [page, setPage] = useState(0);
@@ -42,7 +45,7 @@ export function CommentList({ postId, initialCommentsCount = 0 }: CommentListPro
     isLoading,
     error,
     refetch,
-    isFetching
+    isFetching,
   } = api.blog.getComments.useQuery({
     postId,
     limit,
@@ -70,12 +73,16 @@ export function CommentList({ postId, initialCommentsCount = 0 }: CommentListPro
   };
 
   const loadMore = () => {
-    setPage(prev => prev + 1);
+    setPage((prev) => prev + 1);
   };
 
   const getSortIcon = (field: SortBy) => {
     if (sortBy !== field) return null;
-    return sortOrder === "asc" ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />;
+    return sortOrder === "asc" ? (
+      <SortAsc className="h-3 w-3" />
+    ) : (
+      <SortDesc className="h-3 w-3" />
+    );
   };
 
   const totalComments = commentsData?.totalCount ?? initialCommentsCount;
@@ -86,12 +93,12 @@ export function CommentList({ postId, initialCommentsCount = 0 }: CommentListPro
     return (
       <Card>
         <CardContent className="pt-6">
-          <div className="text-center text-muted-foreground">
-            <MessageSquare className="mx-auto h-8 w-8 mb-2" />
+          <div className="text-muted-foreground text-center">
+            <MessageSquare className="mx-auto mb-2 h-8 w-8" />
             <p>Failed to load comments. Please try again.</p>
-            <Button 
-              variant="outline" 
-              onClick={() => void refetch()} 
+            <Button
+              variant="outline"
+              onClick={() => void refetch()}
               className="mt-2"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
@@ -116,7 +123,7 @@ export function CommentList({ postId, initialCommentsCount = 0 }: CommentListPro
                 {totalComments}
               </Badge>
             </CardTitle>
-            
+
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -126,28 +133,34 @@ export function CommentList({ postId, initialCommentsCount = 0 }: CommentListPro
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleSortChange("createdAt")}>
-                    <div className="flex items-center justify-between w-full">
+                  <DropdownMenuItem
+                    onClick={() => handleSortChange("createdAt")}
+                  >
+                    <div className="flex w-full items-center justify-between">
                       <span>Date</span>
                       {getSortIcon("createdAt")}
                     </div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSortChange("likeCount")}>
-                    <div className="flex items-center justify-between w-full">
+                  <DropdownMenuItem
+                    onClick={() => handleSortChange("likeCount")}
+                  >
+                    <div className="flex w-full items-center justify-between">
                       <span>Likes</span>
                       {getSortIcon("likeCount")}
                     </div>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              
-              <Button 
-                variant="ghost" 
-                size="sm" 
+
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => void refetch()}
                 disabled={isFetching}
               >
-                <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`}
+                />
               </Button>
             </div>
           </div>
@@ -155,10 +168,7 @@ export function CommentList({ postId, initialCommentsCount = 0 }: CommentListPro
       </Card>
 
       {/* Comment Form */}
-      <CommentForm 
-        postId={postId} 
-        onCommentAdded={handleCommentAdded}
-      />
+      <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
 
       {/* Comments List */}
       <div className="space-y-4">
@@ -190,9 +200,9 @@ export function CommentList({ postId, initialCommentsCount = 0 }: CommentListPro
           // Empty state
           <Card>
             <CardContent className="pt-6">
-              <div className="text-center text-muted-foreground py-8">
-                <MessageSquare className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                <h3 className="text-lg font-medium mb-2">No comments yet</h3>
+              <div className="text-muted-foreground py-8 text-center">
+                <MessageSquare className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                <h3 className="mb-2 text-lg font-medium">No comments yet</h3>
                 <p className="text-sm">
                   Be the first to share your thoughts on this post!
                 </p>
@@ -210,12 +220,12 @@ export function CommentList({ postId, initialCommentsCount = 0 }: CommentListPro
                 onCommentUpdated={() => void refetch()}
               />
             ))}
-            
+
             {/* Load More Button */}
             {hasMore && (
-              <div className="text-center pt-4">
-                <Button 
-                  variant="outline" 
+              <div className="pt-4 text-center">
+                <Button
+                  variant="outline"
                   onClick={loadMore}
                   disabled={isFetching}
                 >
@@ -233,16 +243,16 @@ export function CommentList({ postId, initialCommentsCount = 0 }: CommentListPro
           </>
         )}
       </div>
-      
+
       {/* Comments Stats */}
       {totalComments > 0 && (
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-center text-sm">
           Showing {comments.length} of {totalComments} comments
         </div>
       )}
-      
+
       {/* Debug Component - Remove in production */}
-      {process.env.NODE_ENV === 'development' && (
+      {process.env.NODE_ENV === "development" && (
         <CommentDebug postId={postId} />
       )}
     </div>

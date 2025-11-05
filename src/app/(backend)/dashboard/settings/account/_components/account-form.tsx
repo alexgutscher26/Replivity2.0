@@ -112,11 +112,12 @@ export function AccountForm() {
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-medium">Brand Voice Customization</h3>
-            <p className="text-sm text-muted-foreground">
-              Configure your brand voice to ensure consistent AI-generated content.
+            <p className="text-muted-foreground text-sm">
+              Configure your brand voice to ensure consistent AI-generated
+              content.
             </p>
           </div>
-          
+
           <FormField
             control={form.control}
             name="brandName"
@@ -172,7 +173,11 @@ export function AccountForm() {
                 <FormLabel className={isLoading ? "animate-pulse" : ""}>
                   Brand Tone
                 </FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={isLoading}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a tone" />
@@ -322,11 +327,11 @@ export function AccountForm() {
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-medium">Custom Prompt</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Advanced customization for AI responses.
             </p>
           </div>
-          
+
           <FormField
             control={form.control}
             name="customPrompt"
@@ -350,7 +355,8 @@ export function AccountForm() {
                     isLoading ? "text-muted-foreground animate-pulse" : ""
                   }
                 >
-                  This will override the brand voice settings above and directly instruct the AI.
+                  This will override the brand voice settings above and directly
+                  instruct the AI.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

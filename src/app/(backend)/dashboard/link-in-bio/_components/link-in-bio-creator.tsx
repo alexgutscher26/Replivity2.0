@@ -69,8 +69,13 @@ import { useSession } from "@/hooks/use-auth-hooks";
 
 // Schema for form validation
 const linkInBioSchema = z.object({
-  title: z.string().min(1, "Title is required").max(50, "Title must be 50 characters or less"),
-  description: z.string().max(200, "Description must be 200 characters or less"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(50, "Title must be 50 characters or less"),
+  description: z
+    .string()
+    .max(200, "Description must be 200 characters or less"),
   profileImage: z.string().url().optional().or(z.literal("")),
   theme: z.enum(["minimal", "gradient", "neon", "classic", "modern", "dark"]),
   backgroundColor: z.string().optional(),
@@ -85,7 +90,7 @@ const linkInBioSchema = z.object({
       icon: z.string().optional(),
       isActive: z.boolean().default(true),
       priority: z.number().default(0),
-    })
+    }),
   ),
   socialLinks: z.object({
     instagram: z.string().optional(),
@@ -169,20 +174,46 @@ const themes = {
 // Popular link templates
 const linkTemplates = [
   { title: "My Website", url: "https://yourwebsite.com", icon: "globe" },
-  { title: "Shop My Products", url: "https://yourstore.com", icon: "shopping-bag" },
-  { title: "Book a Call", url: "https://calendly.com/yourusername", icon: "calendar" },
-  { title: "My Portfolio", url: "https://yourportfolio.com", icon: "briefcase" },
-  { title: "Latest Blog Post", url: "https://yourblog.com/latest", icon: "file-text" },
-  { title: "Subscribe to Newsletter", url: "https://yoursubscription.com", icon: "mail" },
+  {
+    title: "Shop My Products",
+    url: "https://yourstore.com",
+    icon: "shopping-bag",
+  },
+  {
+    title: "Book a Call",
+    url: "https://calendly.com/yourusername",
+    icon: "calendar",
+  },
+  {
+    title: "My Portfolio",
+    url: "https://yourportfolio.com",
+    icon: "briefcase",
+  },
+  {
+    title: "Latest Blog Post",
+    url: "https://yourblog.com/latest",
+    icon: "file-text",
+  },
+  {
+    title: "Subscribe to Newsletter",
+    url: "https://yoursubscription.com",
+    icon: "mail",
+  },
   { title: "Download My App", url: "https://yourapp.com", icon: "smartphone" },
-  { title: "Join My Community", url: "https://discord.gg/yourcommunity", icon: "users" },
+  {
+    title: "Join My Community",
+    url: "https://discord.gg/yourcommunity",
+    icon: "users",
+  },
 ];
 
 export function LinkInBioCreator() {
   const { user } = useSession();
   const [isGenerating, setIsGenerating] = useState(false);
   const [preview, setPreview] = useState<LinkInBioPreview | null>(null);
-  const [activeTab, setActiveTab] = useState<"design" | "links" | "social" | "settings" | "preview">("design");
+  const [activeTab, setActiveTab] = useState<
+    "design" | "links" | "social" | "settings" | "preview"
+  >("design");
 
   const form = useForm<LinkInBioFormValues>({
     resolver: zodResolver(linkInBioSchema),
@@ -226,7 +257,11 @@ export function LinkInBioCreator() {
     },
   });
 
-  const { fields: linkFields, append: appendLink, remove: removeLink } = useFieldArray({
+  const {
+    fields: linkFields,
+    append: appendLink,
+    remove: removeLink,
+  } = useFieldArray({
     control: form.control,
     name: "links",
   });
@@ -243,7 +278,7 @@ export function LinkInBioCreator() {
     });
   };
 
-  const addTemplateLink = (template: typeof linkTemplates[0]) => {
+  const addTemplateLink = (template: (typeof linkTemplates)[0]) => {
     appendLink({
       id: Date.now().toString(),
       title: template.title,
@@ -257,15 +292,16 @@ export function LinkInBioCreator() {
 
   const generatePreview = async (data: LinkInBioFormValues) => {
     setIsGenerating(true);
-    
+
     try {
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Generate mock preview data
       const mockPreview: LinkInBioPreview = {
-        url: `https://linkbio.app/${user?.name?.toLowerCase().replace(/\s+/g, '') ?? 'username'}`,
-        qrCode: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzAwMCIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+UVIgQ29kZTwvdGV4dD48L3N2Zz4=",
+        url: `https://linkbio.app/${user?.name?.toLowerCase().replace(/\s+/g, "") ?? "username"}`,
+        qrCode:
+          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzAwMCIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+UVIgQ29kZTwvdGV4dD48L3N2Zz4=",
         analytics: {
           totalClicks: 1247,
           uniqueVisitors: 892,
@@ -283,10 +319,10 @@ export function LinkInBioCreator() {
           ],
         },
       };
-      
+
       setPreview(mockPreview);
       setActiveTab("preview");
-      
+
       toast.success("Link-in-bio page generated!", {
         description: "Your page is ready to share with the world.",
       });
@@ -315,20 +351,20 @@ export function LinkInBioCreator() {
       exportedAt: new Date().toISOString(),
       version: "1.0",
     };
-    
+
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
       type: "application/json",
     });
-    
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${data.title.replace(/\s+/g, '-').toLowerCase()}-linkinbio.json`;
+    a.download = `${data.title.replace(/\s+/g, "-").toLowerCase()}-linkinbio.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast.success("Page exported successfully!");
   };
 
@@ -366,7 +402,7 @@ export function LinkInBioCreator() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Design Tab */}
           {activeTab === "design" && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
@@ -386,13 +422,16 @@ export function LinkInBioCreator() {
                         <FormItem>
                           <FormLabel>Title</FormLabel>
                           <FormControl>
-                            <Input placeholder="Your Name or Brand" {...field} />
+                            <Input
+                              placeholder="Your Name or Brand"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="description"
@@ -400,7 +439,7 @@ export function LinkInBioCreator() {
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="Tell people what you do or what they can find here..."
                               className="resize-none"
                               {...field}
@@ -413,7 +452,7 @@ export function LinkInBioCreator() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="profileImage"
@@ -421,7 +460,10 @@ export function LinkInBioCreator() {
                         <FormItem>
                           <FormLabel>Profile Image URL</FormLabel>
                           <FormControl>
-                            <Input placeholder="https://example.com/your-photo.jpg" {...field} />
+                            <Input
+                              placeholder="https://example.com/your-photo.jpg"
+                              {...field}
+                            />
                           </FormControl>
                           <FormDescription>
                             Add a URL to your profile picture
@@ -450,7 +492,10 @@ export function LinkInBioCreator() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Theme</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select a theme" />
@@ -468,14 +513,17 @@ export function LinkInBioCreator() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="buttonStyle"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Button Style</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select button style" />
@@ -505,62 +553,85 @@ export function LinkInBioCreator() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div 
-                      className="w-full max-w-sm mx-auto rounded-lg p-6 min-h-[400px]"
+                    <div
+                      className="mx-auto min-h-[400px] w-full max-w-sm rounded-lg p-6"
                       style={{
                         background: selectedTheme.backgroundColor,
                         color: selectedTheme.textColor,
                       }}
                     >
-                      {form.watch("customization.showProfileImage") && form.watch("profileImage") && (
-                        <div className="flex justify-center mb-4">
-                          <img
-                            src={form.watch("profileImage")}
-                            alt="Profile"
-                            className="w-20 h-20 rounded-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      )}
-                      
-                      <div className="text-center mb-6">
-                        <h2 className="text-xl font-bold mb-2">{form.watch("title")}</h2>
-                        {form.watch("customization.showDescription") && form.watch("description") && (
-                          <p className="text-sm opacity-80">{form.watch("description")}</p>
-                        )}
-                      </div>
-                      
-                      <div className="space-y-3">
-                        {form.watch("links").filter(link => link.isActive).slice(0, 3).map((link, index) => (
-                          <div
-                            key={index}
-                            className={`w-full p-3 text-center transition-all duration-200 hover:scale-105 ${
-                              form.watch("buttonStyle") === "rounded" ? "rounded-lg" :
-                              form.watch("buttonStyle") === "pill" ? "rounded-full" : "rounded-none"
-                            }`}
-                            style={{
-                              backgroundColor: selectedTheme.buttonColor,
-                              color: selectedTheme.buttonTextColor,
-                            }}
-                          >
-                            {link.title || "Link Title"}
+                      {form.watch("customization.showProfileImage") &&
+                        form.watch("profileImage") && (
+                          <div className="mb-4 flex justify-center">
+                            <img
+                              src={form.watch("profileImage")}
+                              alt="Profile"
+                              className="h-20 w-20 rounded-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
                           </div>
-                        ))}
+                        )}
+
+                      <div className="mb-6 text-center">
+                        <h2 className="mb-2 text-xl font-bold">
+                          {form.watch("title")}
+                        </h2>
+                        {form.watch("customization.showDescription") &&
+                          form.watch("description") && (
+                            <p className="text-sm opacity-80">
+                              {form.watch("description")}
+                            </p>
+                          )}
                       </div>
-                      
-                      {form.watch("customization.showSocialLinks") && (
-                        <div className="flex justify-center gap-3 mt-6">
-                          {["instagram", "twitter", "linkedin"].map((platform) => (
+
+                      <div className="space-y-3">
+                        {form
+                          .watch("links")
+                          .filter((link) => link.isActive)
+                          .slice(0, 3)
+                          .map((link, index) => (
                             <div
-                              key={platform}
-                              className="w-8 h-8 rounded-full flex items-center justify-center"
-                              style={{ backgroundColor: selectedTheme.buttonColor }}
+                              key={index}
+                              className={`w-full p-3 text-center transition-all duration-200 hover:scale-105 ${
+                                form.watch("buttonStyle") === "rounded"
+                                  ? "rounded-lg"
+                                  : form.watch("buttonStyle") === "pill"
+                                    ? "rounded-full"
+                                    : "rounded-none"
+                              }`}
+                              style={{
+                                backgroundColor: selectedTheme.buttonColor,
+                                color: selectedTheme.buttonTextColor,
+                              }}
                             >
-                              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: selectedTheme.buttonTextColor }} />
+                              {link.title || "Link Title"}
                             </div>
                           ))}
+                      </div>
+
+                      {form.watch("customization.showSocialLinks") && (
+                        <div className="mt-6 flex justify-center gap-3">
+                          {["instagram", "twitter", "linkedin"].map(
+                            (platform) => (
+                              <div
+                                key={platform}
+                                className="flex h-8 w-8 items-center justify-center rounded-full"
+                                style={{
+                                  backgroundColor: selectedTheme.buttonColor,
+                                }}
+                              >
+                                <div
+                                  className="h-4 w-4 rounded-full"
+                                  style={{
+                                    backgroundColor:
+                                      selectedTheme.buttonTextColor,
+                                  }}
+                                />
+                              </div>
+                            ),
+                          )}
                         </div>
                       )}
                     </div>
@@ -586,7 +657,7 @@ export function LinkInBioCreator() {
                       </CardDescription>
                     </div>
                     <Button onClick={addLink} size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="mr-2 h-4 w-4" />
                       Add Link
                     </Button>
                   </div>
@@ -594,8 +665,8 @@ export function LinkInBioCreator() {
                 <CardContent>
                   {/* Quick Templates */}
                   <div className="mb-6">
-                    <h4 className="font-medium mb-3">Quick Add Templates</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <h4 className="mb-3 font-medium">Quick Add Templates</h4>
+                    <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
                       {linkTemplates.map((template, index) => (
                         <Button
                           key={index}
@@ -604,26 +675,26 @@ export function LinkInBioCreator() {
                           onClick={() => addTemplateLink(template)}
                           className="text-xs"
                         >
-                          <Plus className="h-3 w-3 mr-1" />
+                          <Plus className="mr-1 h-3 w-3" />
                           {template.title}
                         </Button>
                       ))}
                     </div>
                   </div>
-                  
+
                   <Separator className="my-6" />
-                  
+
                   {/* Links List */}
                   <div className="space-y-4">
                     {linkFields.map((field, index) => (
                       <Card key={field.id} className="p-4">
                         <div className="flex items-start gap-4">
                           <div className="flex items-center gap-2">
-                            <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+                            <GripVertical className="text-muted-foreground h-4 w-4 cursor-move" />
                             <Badge variant="outline">#{index + 1}</Badge>
                           </div>
-                          
-                          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                          <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2">
                             <FormField
                               control={form.control}
                               name={`links.${index}.title`}
@@ -631,13 +702,16 @@ export function LinkInBioCreator() {
                                 <FormItem>
                                   <FormLabel>Link Title</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="My Awesome Link" {...field} />
+                                    <Input
+                                      placeholder="My Awesome Link"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
-                            
+
                             <FormField
                               control={form.control}
                               name={`links.${index}.url`}
@@ -645,13 +719,16 @@ export function LinkInBioCreator() {
                                 <FormItem>
                                   <FormLabel>URL</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="https://example.com" {...field} />
+                                    <Input
+                                      placeholder="https://example.com"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
-                            
+
                             <FormField
                               control={form.control}
                               name={`links.${index}.description`}
@@ -659,13 +736,16 @@ export function LinkInBioCreator() {
                                 <FormItem>
                                   <FormLabel>Description (Optional)</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Brief description..." {...field} />
+                                    <Input
+                                      placeholder="Brief description..."
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
-                            
+
                             <div className="flex items-center gap-2">
                               <FormField
                                 control={form.control}
@@ -678,13 +758,15 @@ export function LinkInBioCreator() {
                                         onCheckedChange={field.onChange}
                                       />
                                     </FormControl>
-                                    <FormLabel className="text-sm">Active</FormLabel>
+                                    <FormLabel className="text-sm">
+                                      Active
+                                    </FormLabel>
                                   </FormItem>
                                 )}
                               />
                             </div>
                           </div>
-                          
+
                           <Button
                             type="button"
                             variant="outline"
@@ -697,11 +779,13 @@ export function LinkInBioCreator() {
                         </div>
                       </Card>
                     ))}
-                    
+
                     {linkFields.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <LinkIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No links added yet. Click "Add Link" to get started!</p>
+                      <div className="text-muted-foreground py-8 text-center">
+                        <LinkIcon className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                        <p>
+                          No links added yet. Click "Add Link" to get started!
+                        </p>
                       </div>
                     )}
                   </div>
@@ -723,7 +807,7 @@ export function LinkInBioCreator() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="socialLinks.instagram"
@@ -734,13 +818,16 @@ export function LinkInBioCreator() {
                           Instagram
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="https://instagram.com/username" {...field} />
+                          <Input
+                            placeholder="https://instagram.com/username"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="socialLinks.twitter"
@@ -751,13 +838,16 @@ export function LinkInBioCreator() {
                           Twitter/X
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="https://twitter.com/username" {...field} />
+                          <Input
+                            placeholder="https://twitter.com/username"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="socialLinks.linkedin"
@@ -768,13 +858,16 @@ export function LinkInBioCreator() {
                           LinkedIn
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="https://linkedin.com/in/username" {...field} />
+                          <Input
+                            placeholder="https://linkedin.com/in/username"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="socialLinks.facebook"
@@ -785,13 +878,16 @@ export function LinkInBioCreator() {
                           Facebook
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="https://facebook.com/username" {...field} />
+                          <Input
+                            placeholder="https://facebook.com/username"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="socialLinks.youtube"
@@ -802,13 +898,16 @@ export function LinkInBioCreator() {
                           YouTube
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="https://youtube.com/@username" {...field} />
+                          <Input
+                            placeholder="https://youtube.com/@username"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="socialLinks.github"
@@ -819,13 +918,16 @@ export function LinkInBioCreator() {
                           GitHub
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="https://github.com/username" {...field} />
+                          <Input
+                            placeholder="https://github.com/username"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="socialLinks.email"
@@ -842,7 +944,7 @@ export function LinkInBioCreator() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="socialLinks.phone"
@@ -859,7 +961,7 @@ export function LinkInBioCreator() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="socialLinks.website"
@@ -870,7 +972,10 @@ export function LinkInBioCreator() {
                           Website
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="https://yourwebsite.com" {...field} />
+                          <Input
+                            placeholder="https://yourwebsite.com"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -883,7 +988,7 @@ export function LinkInBioCreator() {
 
           {/* Settings Tab */}
           {activeTab === "settings" && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -915,7 +1020,7 @@ export function LinkInBioCreator() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="customization.showDescription"
@@ -936,7 +1041,7 @@ export function LinkInBioCreator() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="customization.showSocialLinks"
@@ -957,7 +1062,7 @@ export function LinkInBioCreator() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="customization.enableAnalytics"
@@ -980,7 +1085,7 @@ export function LinkInBioCreator() {
                   />
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -1007,7 +1112,8 @@ export function LinkInBioCreator() {
                           />
                         </FormControl>
                         <FormDescription>
-                          Advanced users can add custom CSS to further customize the appearance.
+                          Advanced users can add custom CSS to further customize
+                          the appearance.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -1022,9 +1128,9 @@ export function LinkInBioCreator() {
           {activeTab === "preview" && (
             <div className="space-y-6">
               {preview ? (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                   {/* Generated Page Info */}
-                  <div className="lg:col-span-2 space-y-6">
+                  <div className="space-y-6 lg:col-span-2">
                     <Card>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -1032,13 +1138,16 @@ export function LinkInBioCreator() {
                           Your Link-in-Bio Page
                         </CardTitle>
                         <CardDescription>
-                          Your page is ready! Share this link with your audience.
+                          Your page is ready! Share this link with your
+                          audience.
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                          <Globe className="h-4 w-4 text-muted-foreground" />
-                          <span className="flex-1 font-mono text-sm">{preview.url}</span>
+                        <div className="bg-muted flex items-center gap-2 rounded-lg p-3">
+                          <Globe className="text-muted-foreground h-4 w-4" />
+                          <span className="flex-1 font-mono text-sm">
+                            {preview.url}
+                          </span>
                           <Button
                             size="sm"
                             variant="outline"
@@ -1047,20 +1156,22 @@ export function LinkInBioCreator() {
                             <Copy className="h-4 w-4" />
                           </Button>
                         </div>
-                        
+
                         <div className="flex gap-2">
                           <Button onClick={exportPage} variant="outline">
-                            <Download className="h-4 w-4 mr-2" />
+                            <Download className="mr-2 h-4 w-4" />
                             Export Configuration
                           </Button>
-                          <Button onClick={() => window.open(preview.url, '_blank')}>
-                            <ExternalLink className="h-4 w-4 mr-2" />
+                          <Button
+                            onClick={() => window.open(preview.url, "_blank")}
+                          >
+                            <ExternalLink className="mr-2 h-4 w-4" />
                             Open Page
                           </Button>
                         </div>
                       </CardContent>
                     </Card>
-                    
+
                     {/* Analytics Preview */}
                     <Card>
                       <CardHeader>
@@ -1073,32 +1184,55 @@ export function LinkInBioCreator() {
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-blue-600">{preview.analytics.totalClicks}</div>
-                            <div className="text-sm text-muted-foreground">Total Clicks</div>
+                            <div className="text-2xl font-bold text-blue-600">
+                              {preview.analytics.totalClicks}
+                            </div>
+                            <div className="text-muted-foreground text-sm">
+                              Total Clicks
+                            </div>
                           </div>
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-green-600">{preview.analytics.uniqueVisitors}</div>
-                            <div className="text-sm text-muted-foreground">Unique Visitors</div>
+                            <div className="text-2xl font-bold text-green-600">
+                              {preview.analytics.uniqueVisitors}
+                            </div>
+                            <div className="text-muted-foreground text-sm">
+                              Unique Visitors
+                            </div>
                           </div>
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-purple-600">{preview.analytics.topLinks.length}</div>
-                            <div className="text-sm text-muted-foreground">Active Links</div>
+                            <div className="text-2xl font-bold text-purple-600">
+                              {preview.analytics.topLinks.length}
+                            </div>
+                            <div className="text-muted-foreground text-sm">
+                              Active Links
+                            </div>
                           </div>
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-orange-600">98%</div>
-                            <div className="text-sm text-muted-foreground">Uptime</div>
+                            <div className="text-2xl font-bold text-orange-600">
+                              98%
+                            </div>
+                            <div className="text-muted-foreground text-sm">
+                              Uptime
+                            </div>
                           </div>
                         </div>
-                        
+
                         <div>
-                          <h4 className="font-medium mb-3">Top Performing Links</h4>
+                          <h4 className="mb-3 font-medium">
+                            Top Performing Links
+                          </h4>
                           <div className="space-y-2">
                             {preview.analytics.topLinks.map((link, index) => (
-                              <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                              <div
+                                key={index}
+                                className="bg-muted flex items-center justify-between rounded p-2"
+                              >
                                 <span className="text-sm">{link.title}</span>
-                                <Badge variant="secondary">{link.clicks} clicks</Badge>
+                                <Badge variant="secondary">
+                                  {link.clicks} clicks
+                                </Badge>
                               </div>
                             ))}
                           </div>
@@ -1106,7 +1240,7 @@ export function LinkInBioCreator() {
                       </CardContent>
                     </Card>
                   </div>
-                  
+
                   {/* QR Code */}
                   <div>
                     <Card>
@@ -1117,24 +1251,24 @@ export function LinkInBioCreator() {
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="text-center">
-                        <div className="inline-block p-4 bg-white rounded-lg">
+                        <div className="inline-block rounded-lg bg-white p-4">
                           <img
                             src={preview.qrCode}
                             alt="QR Code"
-                            className="w-32 h-32 mx-auto"
+                            className="mx-auto h-32 w-32"
                           />
                         </div>
                         <Button
                           className="mt-4 w-full"
                           variant="outline"
                           onClick={() => {
-                            const link = document.createElement('a');
+                            const link = document.createElement("a");
                             link.href = preview.qrCode;
-                            link.download = 'qr-code.svg';
+                            link.download = "qr-code.svg";
                             link.click();
                           }}
                         >
-                          <Download className="h-4 w-4 mr-2" />
+                          <Download className="mr-2 h-4 w-4" />
                           Download QR Code
                         </Button>
                       </CardContent>
@@ -1143,13 +1277,19 @@ export function LinkInBioCreator() {
                 </div>
               ) : (
                 <Card>
-                  <CardContent className="text-center py-12">
-                    <Eye className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-medium mb-2">No Preview Available</h3>
+                  <CardContent className="py-12 text-center">
+                    <Eye className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                    <h3 className="mb-2 text-lg font-medium">
+                      No Preview Available
+                    </h3>
                     <p className="text-muted-foreground mb-4">
-                      Generate your link-in-bio page to see the preview and analytics.
+                      Generate your link-in-bio page to see the preview and
+                      analytics.
                     </p>
-                    <Button onClick={form.handleSubmit(onSubmit)} disabled={isGenerating}>
+                    <Button
+                      onClick={form.handleSubmit(onSubmit)}
+                      disabled={isGenerating}
+                    >
                       {isGenerating ? "Generating..." : "Generate Page"}
                     </Button>
                   </CardContent>
@@ -1169,12 +1309,12 @@ export function LinkInBioCreator() {
               >
                 {isGenerating ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
                     Generating...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-4 w-4 mr-2" />
+                    <Sparkles className="mr-2 h-4 w-4" />
                     Generate Link-in-Bio Page
                   </>
                 )}

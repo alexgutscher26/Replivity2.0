@@ -1,5 +1,12 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function DashboardSkeleton() {
   return (
@@ -11,22 +18,22 @@ export function DashboardSkeleton() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <div className="mx-auto aspect-square max-h-[250px] flex items-center justify-center">
-          <div className="relative w-full h-full flex items-center justify-center">
+        <div className="mx-auto flex aspect-square max-h-[250px] items-center justify-center">
+          <div className="relative flex h-full w-full items-center justify-center">
             {/* Circular skeleton for pie chart */}
             <Skeleton className="absolute h-[180px] w-[180px] rounded-full" />
             {/* Inner circle to create donut effect */}
-            <div className="absolute h-[120px] w-[120px] rounded-full bg-card z-10" />
+            <div className="bg-card absolute z-10 h-[120px] w-[120px] rounded-full" />
             {/* Center text placeholder */}
-            <div className="absolute flex flex-col items-center justify-center z-20">
-              <Skeleton className="h-8 w-16 mb-2" />
+            <div className="absolute z-20 flex flex-col items-center justify-center">
+              <Skeleton className="mb-2 h-8 w-16" />
               <Skeleton className="h-4 w-24" />
             </div>
           </div>
         </div>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 w-full">
+        <div className="flex w-full items-center gap-2">
           <Skeleton className="h-4 w-full" />
         </div>
         <div className="w-full">
@@ -34,5 +41,5 @@ export function DashboardSkeleton() {
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }

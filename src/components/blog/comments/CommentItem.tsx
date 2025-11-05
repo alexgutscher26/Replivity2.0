@@ -7,14 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
-import { 
-  Heart, 
-  Reply, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
+import {
+  Heart,
+  Reply,
+  MoreHorizontal,
+  Edit,
+  Trash2,
   ExternalLink,
-  Calendar
+  Calendar,
 } from "lucide-react";
 import { useSession } from "@/hooks/use-auth-hooks";
 import { CommentForm } from "./CommentForm";
@@ -62,25 +62,25 @@ interface CommentItemProps {
   maxDepth?: number;
 }
 
-export function CommentItem({ 
-  comment, 
-  postId, 
-  onCommentUpdated, 
-  depth = 0, 
-  maxDepth = 3 
+export function CommentItem({
+  comment,
+  postId,
+  onCommentUpdated,
+  depth = 0,
+  maxDepth = 3,
 }: CommentItemProps) {
   const { data: session } = useSession();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isLiked, setIsLiked] = useState(
-    comment.likes?.some(like => like.userId === session?.user?.id) ?? false
+    comment.likes?.some((like) => like.userId === session?.user?.id) ?? false,
   );
   const [likeCount, setLikeCount] = useState(comment.likeCount);
 
   const likeComment = api.blog.likeComment.useMutation({
     onSuccess: (data) => {
       setIsLiked(data.liked);
-      setLikeCount(prev => data.liked ? prev + 1 : prev - 1);
+      setLikeCount((prev) => (data.liked ? prev + 1 : prev - 1));
     },
     onError: (error) => {
       toast.error(error.message ?? "Failed to like comment");
@@ -118,7 +118,7 @@ export function CommentItem({
   const isOwner = session?.user?.id === comment.authorId;
   const authorInitials = comment.authorName
     .split(" ")
-    .map(name => name[0])
+    .map((name) => name[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
@@ -128,23 +128,25 @@ export function CommentItem({
 
   return (
     <div style={indentStyle}>
-      <Card className={`mb-4 ${depth > 0 ? 'border-l-4 border-l-primary/20 bg-muted/30' : ''}`}>
+      <Card
+        className={`mb-4 ${depth > 0 ? "border-l-primary/20 bg-muted/30 border-l-4" : ""}`}
+      >
         <CardContent className="pt-4">
           <div className="flex gap-3">
             <Avatar className="h-10 w-10 flex-shrink-0">
-              <AvatarImage 
-                src={comment.author?.image ?? undefined} 
-                alt={comment.authorName} 
+              <AvatarImage
+                src={comment.author?.image ?? undefined}
+                alt={comment.authorName}
               />
               <AvatarFallback className="bg-primary/10 text-primary font-medium">
                 {authorInitials}
               </AvatarFallback>
             </Avatar>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
+
+            <div className="min-w-0 flex-1">
+              <div className="mb-2 flex items-center gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm">
+                  <span className="text-sm font-medium">
                     {comment.authorName}
                   </span>
                   {comment.authorWebsite && (
@@ -158,19 +160,21 @@ export function CommentItem({
                     </a>
                   )}
                 </div>
-                
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+
+                <div className="text-muted-foreground flex items-center gap-2 text-xs">
                   <Calendar className="h-3 w-3" />
                   <time dateTime={comment.createdAt.toISOString()}>
-                    {formatDistanceToNow(comment.createdAt, { addSuffix: true })}
+                    {formatDistanceToNow(comment.createdAt, {
+                      addSuffix: true,
+                    })}
                   </time>
                   {comment.isEdited && comment.editedAt && (
-                    <Badge variant="secondary" className="text-xs px-1 py-0">
+                    <Badge variant="secondary" className="px-1 py-0 text-xs">
                       edited
                     </Badge>
                   )}
                 </div>
-                
+
                 {isOwner && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -183,7 +187,7 @@ export function CommentItem({
                         <Edit className="mr-2 h-3 w-3" />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => setShowDeleteDialog(true)}
                         className="text-destructive"
                       >
@@ -194,13 +198,13 @@ export function CommentItem({
                   </DropdownMenu>
                 )}
               </div>
-              
-              <div className="prose prose-sm max-w-none mb-3">
+
+              <div className="prose prose-sm mb-3 max-w-none">
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
                   {comment.content}
                 </p>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"
@@ -209,16 +213,18 @@ export function CommentItem({
                   disabled={likeComment.isPending}
                   className={`h-8 px-2 ${isLiked ? "text-red-500" : "text-muted-foreground"}`}
                 >
-                  <Heart className={`mr-1 h-3 w-3 ${isLiked ? "fill-current" : ""}`} />
+                  <Heart
+                    className={`mr-1 h-3 w-3 ${isLiked ? "fill-current" : ""}`}
+                  />
                   <span className="text-xs">{likeCount}</span>
                 </Button>
-                
+
                 {canReply && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowReplyForm(!showReplyForm)}
-                    className="h-8 px-2 text-muted-foreground"
+                    className="text-muted-foreground h-8 px-2"
                   >
                     <Reply className="mr-1 h-3 w-3" />
                     <span className="text-xs">Reply</span>
@@ -227,7 +233,7 @@ export function CommentItem({
               </div>
             </div>
           </div>
-          
+
           {showReplyForm && (
             <div className="mt-4 pl-13">
               <CommentForm
@@ -241,7 +247,7 @@ export function CommentItem({
           )}
         </CardContent>
       </Card>
-      
+
       {/* Render replies */}
       {comment.replies && comment.replies.length > 0 && (
         <div className="space-y-2">
@@ -257,24 +263,25 @@ export function CommentItem({
           ))}
         </div>
       )}
-      
+
       {/* Delete confirmation dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Comment</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this comment? This action cannot be undone.
+              Are you sure you want to delete this comment? This action cannot
+              be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
               Cancel
             </Button>
-            <Button
-              onClick={handleDelete}
-              variant="destructive"
-            >
+            <Button onClick={handleDelete} variant="destructive">
               Delete
             </Button>
           </DialogFooter>

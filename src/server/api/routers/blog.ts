@@ -1,16 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
-import { 
-  blogPosts, 
-  blogCategories, 
-  blogTags, 
-  blogPostCategories, 
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
+import {
+  blogPosts,
+  blogCategories,
+  blogTags,
+  blogPostCategories,
   blogPostTags,
   blogComments,
-  blogCommentLikes
+  blogCommentLikes,
 } from "@/server/db/schema/post-schema";
-import { eq, desc, asc, and, or, like, sql, count, inArray, isNull } from "drizzle-orm";
+import {
+  eq,
+  desc,
+  asc,
+  and,
+  or,
+  like,
+  sql,
+  count,
+  inArray,
+  isNull,
+} from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 // Validation schemas
@@ -39,7 +54,10 @@ const createCategorySchema = z.object({
   name: z.string().min(1).max(100),
   slug: z.string().min(1).max(100),
   description: z.string().optional(),
-  color: z.string().regex(/^#[0-9A-F]{6}$/i).optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i)
+    .optional(),
 });
 
 const updateCategorySchema = createCategorySchema.partial().extend({
@@ -49,7 +67,10 @@ const updateCategorySchema = createCategorySchema.partial().extend({
 const createTagSchema = z.object({
   name: z.string().min(1).max(50),
   slug: z.string().min(1).max(50),
-  color: z.string().regex(/^#[0-9A-F]{6}$/i).optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i)
+    .optional(),
 });
 
 const updateTagSchema = createTagSchema.partial().extend({
@@ -92,9 +113,9 @@ function calculateReadingTime(content: string): number {
 function generateSlug(title: string): string {
   return title
     .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replace(/[^a-z0-9 -]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
     .trim();
 }
 
@@ -104,61 +125,64 @@ export const blogRouter = createTRPCRouter({
     .input(createPostSchema)
     .mutation(async ({ ctx, input }) => {
       const { categoryIds, tagIds, ...postData } = input;
-      
+
       // Auto-generate slug if not provided
       if (!postData.slug) {
         postData.slug = generateSlug(postData.title);
       }
-      
+
       // Calculate reading time
       const readingTime = calculateReadingTime(postData.content);
-      
+
       // Check if slug already exists
       const existingPost = await ctx.db.query.blogPosts.findFirst({
         where: eq(blogPosts.slug, postData.slug),
       });
-      
+
       if (existingPost) {
         throw new TRPCError({
           code: "CONFLICT",
           message: "A post with this slug already exists",
         });
       }
-      
+
       // Create the post
-      const [newPost] = await ctx.db.insert(blogPosts).values({
-        ...postData,
-        readingTime,
-        createdById: ctx.session.user.id,
-      }).returning();
-      
+      const [newPost] = await ctx.db
+        .insert(blogPosts)
+        .values({
+          ...postData,
+          readingTime,
+          createdById: ctx.session.user.id,
+        })
+        .returning();
+
       if (!newPost) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create post",
         });
       }
-      
+
       // Add categories
       if (categoryIds && categoryIds.length > 0) {
         await ctx.db.insert(blogPostCategories).values(
-          categoryIds.map(categoryId => ({
+          categoryIds.map((categoryId) => ({
             postId: newPost.id,
             categoryId,
-          }))
+          })),
         );
       }
-      
+
       // Add tags
       if (tagIds && tagIds.length > 0) {
         await ctx.db.insert(blogPostTags).values(
-          tagIds.map(tagId => ({
+          tagIds.map((tagId) => ({
             postId: newPost.id,
             tagId,
-          }))
+          })),
         );
       }
-      
+
       return newPost;
     }),
 
@@ -166,64 +190,66 @@ export const blogRouter = createTRPCRouter({
     .input(updatePostSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, categoryIds, tagIds, ...updateData } = input;
-      
+
       // Check if post exists and user owns it
       const existingPost = await ctx.db.query.blogPosts.findFirst({
         where: eq(blogPosts.id, id),
       });
-      
+
       if (!existingPost) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Post not found",
         });
       }
-      
+
       if (existingPost.createdById !== ctx.session.user.id) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can only edit your own posts",
         });
       }
-      
+
       // Update reading time if content changed
       if (updateData.content) {
         updateData.readingTime = calculateReadingTime(updateData.content);
       }
-      
+
       // Update the post
       const [updatedPost] = await ctx.db
         .update(blogPosts)
         .set(updateData)
         .where(eq(blogPosts.id, id))
         .returning();
-      
+
       // Update categories if provided
       if (categoryIds !== undefined) {
-        await ctx.db.delete(blogPostCategories).where(eq(blogPostCategories.postId, id));
+        await ctx.db
+          .delete(blogPostCategories)
+          .where(eq(blogPostCategories.postId, id));
         if (categoryIds.length > 0) {
           await ctx.db.insert(blogPostCategories).values(
-            categoryIds.map(categoryId => ({
+            categoryIds.map((categoryId) => ({
               postId: id,
               categoryId,
-            }))
+            })),
           );
         }
       }
-      
+
       // Update tags if provided
       if (tagIds !== undefined) {
         await ctx.db.delete(blogPostTags).where(eq(blogPostTags.postId, id));
         if (tagIds.length > 0) {
           await ctx.db.insert(blogPostTags).values(
-            tagIds.map(tagId => ({
+            tagIds.map((tagId) => ({
               postId: id,
               tagId,
-            }))
+            })),
           );
         }
       }
-      
+
       return updatedPost;
     }),
 
@@ -233,31 +259,33 @@ export const blogRouter = createTRPCRouter({
       const existingPost = await ctx.db.query.blogPosts.findFirst({
         where: eq(blogPosts.id, input.id),
       });
-      
+
       if (!existingPost) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Post not found",
         });
       }
-      
+
       if (existingPost.createdById !== ctx.session.user.id) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can only delete your own posts",
         });
       }
-      
+
       await ctx.db.delete(blogPosts).where(eq(blogPosts.id, input.id));
       return { success: true };
     }),
 
   getPost: publicProcedure
-    .input(z.object({ 
-      slug: z.string().optional(),
-      id: z.number().optional(),
-      incrementView: z.boolean().default(false)
-    }))
+    .input(
+      z.object({
+        slug: z.string().optional(),
+        id: z.number().optional(),
+        incrementView: z.boolean().default(false),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       if (!input.slug && !input.id) {
         throw new TRPCError({
@@ -265,11 +293,11 @@ export const blogRouter = createTRPCRouter({
           message: "Either slug or id must be provided",
         });
       }
-      
-      const whereCondition = input.slug 
+
+      const whereCondition = input.slug
         ? eq(blogPosts.slug, input.slug)
         : eq(blogPosts.id, input.id!);
-      
+
       const post = await ctx.db.query.blogPosts.findFirst({
         where: whereCondition,
         with: {
@@ -292,14 +320,14 @@ export const blogRouter = createTRPCRouter({
           },
         },
       });
-      
+
       if (!post) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Post not found",
         });
       }
-      
+
       // Increment view count if requested
       if (input.incrementView) {
         await ctx.db
@@ -307,49 +335,54 @@ export const blogRouter = createTRPCRouter({
           .set({ viewCount: sql`${blogPosts.viewCount} + 1` })
           .where(eq(blogPosts.id, post.id));
       }
-      
+
       return post;
     }),
 
   getPosts: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(10),
-      offset: z.number().min(0).default(0),
-      status: z.enum(["draft", "published", "archived"]).optional(),
-      categoryId: z.number().optional(),
-      tagId: z.number().optional(),
-      search: z.string().optional(),
-      sortBy: z.enum(["createdAt", "publishedAt", "title", "viewCount"]).default("createdAt"),
-      sortOrder: z.enum(["asc", "desc"]).default("desc"),
-    }))
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(10),
+        offset: z.number().min(0).default(0),
+        status: z.enum(["draft", "published", "archived"]).optional(),
+        categoryId: z.number().optional(),
+        tagId: z.number().optional(),
+        search: z.string().optional(),
+        sortBy: z
+          .enum(["createdAt", "publishedAt", "title", "viewCount"])
+          .default("createdAt"),
+        sortOrder: z.enum(["asc", "desc"]).default("desc"),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { limit, offset, status, search, sortBy, sortOrder } = input;
-      
+
       const whereConditions = [];
-      
+
       // Filter by status
       if (status) {
         whereConditions.push(eq(blogPosts.status, status));
       }
-      
+
       // Search functionality
       if (search) {
         whereConditions.push(
           or(
             like(blogPosts.title, `%${search}%`),
             like(blogPosts.excerpt, `%${search}%`),
-            like(blogPosts.content, `%${search}%`)
-          )
+            like(blogPosts.content, `%${search}%`),
+          ),
         );
       }
-      
+
       // Create orderBy mapping
-      const orderByColumn = {
-        createdAt: blogPosts.createdAt,
-        publishedAt: blogPosts.publishedAt,
-        title: blogPosts.title,
-        viewCount: blogPosts.viewCount,
-      }[sortBy] ?? blogPosts.createdAt;
+      const orderByColumn =
+        {
+          createdAt: blogPosts.createdAt,
+          publishedAt: blogPosts.publishedAt,
+          title: blogPosts.title,
+          viewCount: blogPosts.viewCount,
+        }[sortBy] ?? blogPosts.createdAt;
 
       // Build the base query
       const query = ctx.db.query.blogPosts.findMany({
@@ -375,19 +408,22 @@ export const blogRouter = createTRPCRouter({
         },
         limit,
         offset,
-        orderBy: sortOrder === "desc" ? desc(orderByColumn) : asc(orderByColumn),
+        orderBy:
+          sortOrder === "desc" ? desc(orderByColumn) : asc(orderByColumn),
       });
-      
+
       const posts = await query;
-      
+
       // Get total count for pagination
       const countResult = await ctx.db
         .select({ count: count() })
         .from(blogPosts)
-        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
-      
+        .where(
+          whereConditions.length > 0 ? and(...whereConditions) : undefined,
+        );
+
       const totalCount = countResult[0]?.count ?? 0;
-      
+
       return {
         posts,
         totalCount,
@@ -402,15 +438,18 @@ export const blogRouter = createTRPCRouter({
       const existingCategory = await ctx.db.query.blogCategories.findFirst({
         where: eq(blogCategories.slug, input.slug),
       });
-      
+
       if (existingCategory) {
         throw new TRPCError({
           code: "CONFLICT",
           message: "A category with this slug already exists",
         });
       }
-      
-      const [newCategory] = await ctx.db.insert(blogCategories).values(input).returning();
+
+      const [newCategory] = await ctx.db
+        .insert(blogCategories)
+        .values(input)
+        .returning();
       return newCategory;
     }),
 
@@ -418,37 +457,38 @@ export const blogRouter = createTRPCRouter({
     .input(updateCategorySchema)
     .mutation(async ({ ctx, input }) => {
       const { id, ...updateData } = input;
-      
+
       const [updatedCategory] = await ctx.db
         .update(blogCategories)
         .set(updateData)
         .where(eq(blogCategories.id, id))
         .returning();
-      
+
       if (!updatedCategory) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Category not found",
         });
       }
-      
+
       return updatedCategory;
     }),
 
   deleteCategory: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(blogCategories).where(eq(blogCategories.id, input.id));
+      await ctx.db
+        .delete(blogCategories)
+        .where(eq(blogCategories.id, input.id));
       return { success: true };
     }),
 
-  getCategories: publicProcedure
-    .query(async ({ ctx }) => {
-      return await ctx.db.query.blogCategories.findMany({
-        where: eq(blogCategories.isActive, true),
-        orderBy: asc(blogCategories.name),
-      });
-    }),
+  getCategories: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.query.blogCategories.findMany({
+      where: eq(blogCategories.isActive, true),
+      orderBy: asc(blogCategories.name),
+    });
+  }),
 
   // Tags CRUD
   createTag: protectedProcedure
@@ -457,14 +497,14 @@ export const blogRouter = createTRPCRouter({
       const existingTag = await ctx.db.query.blogTags.findFirst({
         where: eq(blogTags.slug, input.slug),
       });
-      
+
       if (existingTag) {
         throw new TRPCError({
           code: "CONFLICT",
           message: "A tag with this slug already exists",
         });
       }
-      
+
       const [newTag] = await ctx.db.insert(blogTags).values(input).returning();
       return newTag;
     }),
@@ -473,20 +513,20 @@ export const blogRouter = createTRPCRouter({
     .input(updateTagSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, ...updateData } = input;
-      
+
       const [updatedTag] = await ctx.db
         .update(blogTags)
         .set(updateData)
         .where(eq(blogTags.id, id))
         .returning();
-      
+
       if (!updatedTag) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Tag not found",
         });
       }
-      
+
       return updatedTag;
     }),
 
@@ -494,26 +534,33 @@ export const blogRouter = createTRPCRouter({
   createComment: publicProcedure
     .input(createCommentSchema)
     .mutation(async ({ ctx, input }) => {
-      const { postId, parentId, authorName, authorEmail, authorWebsite, content } = input;
-      
+      const {
+        postId,
+        parentId,
+        authorName,
+        authorEmail,
+        authorWebsite,
+        content,
+      } = input;
+
       // Check if post exists
       const post = await ctx.db.query.blogPosts.findFirst({
         where: eq(blogPosts.id, postId),
       });
-      
+
       if (!post) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Blog post not found",
         });
       }
-      
+
       // If parentId is provided, check if parent comment exists
       if (parentId) {
         const parentComment = await ctx.db.query.blogComments.findFirst({
           where: eq(blogComments.id, parentId),
         });
-        
+
         if (!parentComment) {
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -521,7 +568,7 @@ export const blogRouter = createTRPCRouter({
           });
         }
       }
-      
+
       const [newComment] = await ctx.db
         .insert(blogComments)
         .values({
@@ -535,7 +582,7 @@ export const blogRouter = createTRPCRouter({
           status: "pending", // Default to pending for moderation
         })
         .returning();
-      
+
       return newComment;
     }),
 
@@ -543,17 +590,17 @@ export const blogRouter = createTRPCRouter({
     .input(getCommentsSchema)
     .query(async ({ ctx, input }) => {
       const { postId, limit, offset, status, sortBy, sortOrder } = input;
-      
+
       const whereConditions = [];
-      
+
       // Filter by postId if provided
       if (postId) {
         whereConditions.push(eq(blogComments.postId, postId));
       }
-      
+
       // Only fetch top-level comments (parentId is null) for proper nested structure
       whereConditions.push(isNull(blogComments.parentId));
-      
+
       // Filter by status if provided
       if (status) {
         whereConditions.push(eq(blogComments.status, status));
@@ -562,9 +609,12 @@ export const blogRouter = createTRPCRouter({
         whereConditions.push(eq(blogComments.status, "approved"));
       }
       // For admin view (no postId), show all statuses if no status filter is provided
-      
-      const orderByColumn = sortBy === "likeCount" ? blogComments.likeCount : blogComments.createdAt;
-      
+
+      const orderByColumn =
+        sortBy === "likeCount"
+          ? blogComments.likeCount
+          : blogComments.createdAt;
+
       const comments = await ctx.db.query.blogComments.findMany({
         where: and(...whereConditions),
         with: {
@@ -615,17 +665,18 @@ export const blogRouter = createTRPCRouter({
         },
         limit,
         offset,
-        orderBy: sortOrder === "desc" ? desc(orderByColumn) : asc(orderByColumn),
+        orderBy:
+          sortOrder === "desc" ? desc(orderByColumn) : asc(orderByColumn),
       });
-      
+
       // Get total count for pagination (only top-level comments)
       const countResult = await ctx.db
         .select({ count: count() })
         .from(blogComments)
         .where(and(...whereConditions));
-      
+
       const totalCount = countResult[0]?.count ?? 0;
-      
+
       return {
         comments,
         totalCount,
@@ -637,19 +688,19 @@ export const blogRouter = createTRPCRouter({
     .input(updateCommentSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, ...updateData } = input;
-      
+
       // Check if comment exists and user has permission
       const comment = await ctx.db.query.blogComments.findFirst({
         where: eq(blogComments.id, id),
       });
-      
+
       if (!comment) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Comment not found",
         });
       }
-      
+
       // Only allow comment author or admin to update
       if (comment.authorId !== ctx.session.user.id) {
         throw new TRPCError({
@@ -657,7 +708,7 @@ export const blogRouter = createTRPCRouter({
           message: "You can only edit your own comments",
         });
       }
-      
+
       const [updatedComment] = await ctx.db
         .update(blogComments)
         .set({
@@ -667,7 +718,7 @@ export const blogRouter = createTRPCRouter({
         })
         .where(eq(blogComments.id, id))
         .returning();
-      
+
       return updatedComment;
     }),
 
@@ -677,14 +728,14 @@ export const blogRouter = createTRPCRouter({
       const comment = await ctx.db.query.blogComments.findFirst({
         where: eq(blogComments.id, input.id),
       });
-      
+
       if (!comment) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Comment not found",
         });
       }
-      
+
       // Only allow comment author or admin to delete
       if (comment.authorId !== ctx.session.user.id) {
         throw new TRPCError({
@@ -692,9 +743,9 @@ export const blogRouter = createTRPCRouter({
           message: "You can only delete your own comments",
         });
       }
-      
+
       await ctx.db.delete(blogComments).where(eq(blogComments.id, input.id));
-      
+
       return { success: true };
     }),
 
@@ -703,42 +754,44 @@ export const blogRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { commentId } = input;
       const userId = ctx.session.user.id;
-      
+
       // Check if comment exists
       const comment = await ctx.db.query.blogComments.findFirst({
         where: eq(blogComments.id, commentId),
       });
-      
+
       if (!comment) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Comment not found",
         });
       }
-      
+
       // Check if user already liked this comment
       const existingLike = await ctx.db.query.blogCommentLikes.findFirst({
         where: and(
           eq(blogCommentLikes.commentId, commentId),
-          eq(blogCommentLikes.userId, userId)
+          eq(blogCommentLikes.userId, userId),
         ),
       });
-      
+
       if (existingLike) {
         // Unlike the comment
-        await ctx.db.delete(blogCommentLikes).where(
-          and(
-            eq(blogCommentLikes.commentId, commentId),
-            eq(blogCommentLikes.userId, userId)
-          )
-        );
-        
+        await ctx.db
+          .delete(blogCommentLikes)
+          .where(
+            and(
+              eq(blogCommentLikes.commentId, commentId),
+              eq(blogCommentLikes.userId, userId),
+            ),
+          );
+
         // Decrement like count
         await ctx.db
           .update(blogComments)
           .set({ likeCount: sql`${blogComments.likeCount} - 1` })
           .where(eq(blogComments.id, commentId));
-        
+
         return { liked: false };
       } else {
         // Like the comment
@@ -746,22 +799,24 @@ export const blogRouter = createTRPCRouter({
           commentId,
           userId,
         });
-        
+
         // Increment like count
         await ctx.db
           .update(blogComments)
           .set({ likeCount: sql`${blogComments.likeCount} + 1` })
           .where(eq(blogComments.id, commentId));
-        
+
         return { liked: true };
       }
     }),
 
   moderateComment: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      status: z.enum(["approved", "rejected", "spam"]),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        status: z.enum(["approved", "rejected", "spam"]),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Check if user is admin
       if (ctx.session.user.role !== "admin") {
@@ -770,30 +825,32 @@ export const blogRouter = createTRPCRouter({
           message: "Only admins can moderate comments",
         });
       }
-      
+
       const { id, status } = input;
-      
+
       const [updatedComment] = await ctx.db
         .update(blogComments)
         .set({ status })
         .where(eq(blogComments.id, id))
         .returning();
-      
+
       if (!updatedComment) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Comment not found",
         });
       }
-      
+
       return updatedComment;
     }),
 
   bulkModerateComments: protectedProcedure
-    .input(z.object({
-      ids: z.array(z.number()),
-      status: z.enum(["approved", "rejected", "spam"]),
-    }))
+    .input(
+      z.object({
+        ids: z.array(z.number()),
+        status: z.enum(["approved", "rejected", "spam"]),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Check if user is admin
       if (ctx.session.user.role !== "admin") {
@@ -802,22 +859,24 @@ export const blogRouter = createTRPCRouter({
           message: "Only admins can moderate comments",
         });
       }
-      
+
       const { ids, status } = input;
-      
+
       const updatedComments = await ctx.db
         .update(blogComments)
         .set({ status })
         .where(inArray(blogComments.id, ids))
         .returning();
-      
+
       return updatedComments;
     }),
 
   bulkDeleteComments: protectedProcedure
-    .input(z.object({
-      ids: z.array(z.number()),
-    }))
+    .input(
+      z.object({
+        ids: z.array(z.number()),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Check if user is admin
       if (ctx.session.user.role !== "admin") {
@@ -826,11 +885,11 @@ export const blogRouter = createTRPCRouter({
           message: "Only admins can delete comments",
         });
       }
-      
+
       const { ids } = input;
-      
+
       await ctx.db.delete(blogComments).where(inArray(blogComments.id, ids));
-      
+
       return { success: true, deletedCount: ids.length };
     }),
 
@@ -841,41 +900,39 @@ export const blogRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  getTags: publicProcedure
-    .query(async ({ ctx }) => {
-      return await ctx.db.query.blogTags.findMany({
-        where: eq(blogTags.isActive, true),
-        orderBy: asc(blogTags.name),
-      });
-    }),
+  getTags: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.query.blogTags.findMany({
+      where: eq(blogTags.isActive, true),
+      orderBy: asc(blogTags.name),
+    });
+  }),
 
   // Analytics
-  getStats: protectedProcedure
-    .query(async ({ ctx }) => {
-      const [postsCount] = await ctx.db
-        .select({ count: count() })
-        .from(blogPosts)
-        .where(eq(blogPosts.createdById, ctx.session.user.id));
-      
-      const [publishedCount] = await ctx.db
-        .select({ count: count() })
-        .from(blogPosts)
-        .where(
-          and(
-            eq(blogPosts.createdById, ctx.session.user.id),
-            eq(blogPosts.status, "published")
-          )
-        );
-      
-      const [totalViews] = await ctx.db
-        .select({ total: sql<number>`sum(${blogPosts.viewCount})` })
-        .from(blogPosts)
-        .where(eq(blogPosts.createdById, ctx.session.user.id));
-      
-      return {
-        totalPosts: postsCount?.count ?? 0,
-        publishedPosts: publishedCount?.count ?? 0,
-        totalViews: totalViews?.total ?? 0,
-      };
-    }),
+  getStats: protectedProcedure.query(async ({ ctx }) => {
+    const [postsCount] = await ctx.db
+      .select({ count: count() })
+      .from(blogPosts)
+      .where(eq(blogPosts.createdById, ctx.session.user.id));
+
+    const [publishedCount] = await ctx.db
+      .select({ count: count() })
+      .from(blogPosts)
+      .where(
+        and(
+          eq(blogPosts.createdById, ctx.session.user.id),
+          eq(blogPosts.status, "published"),
+        ),
+      );
+
+    const [totalViews] = await ctx.db
+      .select({ total: sql<number>`sum(${blogPosts.viewCount})` })
+      .from(blogPosts)
+      .where(eq(blogPosts.createdById, ctx.session.user.id));
+
+    return {
+      totalPosts: postsCount?.count ?? 0,
+      publishedPosts: publishedCount?.count ?? 0,
+      totalViews: totalViews?.total ?? 0,
+    };
+  }),
 });

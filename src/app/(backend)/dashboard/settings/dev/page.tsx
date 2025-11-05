@@ -14,7 +14,7 @@ export default async function SeedGeneralPage() {
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-medium">Developer</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Manage developer settings and seed the database.
         </p>
       </div>

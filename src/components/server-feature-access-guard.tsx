@@ -16,7 +16,7 @@ interface ServerFeatureAccessGuardProps {
 /**
  * Server-side component that conditionally renders children based on feature access
  * This component runs during SSR and doesn't cause hydration issues
- */ 
+ */
 export async function ServerFeatureAccessGuard({
   featureKey,
   children,
@@ -85,13 +85,12 @@ function ServerUpgradePrompt({ featureKey }: { featureKey: FeatureKey }) {
             {featureName} - Premium Feature
           </p>
           <p className="text-sm text-amber-700">
-            Upgrade your plan to access this feature and unlock more powerful tools.
+            Upgrade your plan to access this feature and unlock more powerful
+            tools.
           </p>
         </div>
         <Button asChild size="sm" className="ml-4">
-          <Link href="/dashboard/settings/billing">
-            Upgrade Plan
-          </Link>
+          <Link href="/dashboard/settings/billing">Upgrade Plan</Link>
         </Button>
       </AlertDescription>
     </Alert>

@@ -18,7 +18,7 @@ import { Suspense } from "react";
 import { type Metadata } from "next";
 
 // Force this page to be dynamic since it uses TRPC calls that require headers
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface BlogPageProps {
   searchParams: Promise<{
@@ -31,7 +31,7 @@ interface BlogPageProps {
 
 function BlogPostCard({ post }: { post: any }) {
   return (
-    <Card className="group hover:shadow-lg transition-shadow duration-200">
+    <Card className="group transition-shadow duration-200 hover:shadow-lg">
       <CardContent className="p-0">
         {post.featuredImage && (
           <div className="relative aspect-video overflow-hidden rounded-t-lg">
@@ -39,36 +39,41 @@ function BlogPostCard({ post }: { post: any }) {
               src={post.featuredImage}
               alt={post.title}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-200"
+              className="object-cover transition-transform duration-200 group-hover:scale-105"
             />
           </div>
         )}
         <div className="p-6">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="mb-3 flex items-center gap-2">
             {post.categories.slice(0, 2).map((pc: any) => (
-              <Badge key={pc.category.id} variant="secondary" className="text-xs">
+              <Badge
+                key={pc.category.id}
+                variant="secondary"
+                className="text-xs"
+              >
                 {pc.category.name}
               </Badge>
             ))}
           </div>
-          
-          <h2 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-            <Link href={`/blog/${post.slug}`}>
-              {post.title}
-            </Link>
+
+          <h2 className="group-hover:text-primary mb-2 text-xl font-semibold transition-colors">
+            <Link href={`/blog/${post.slug}`}>{post.title}</Link>
           </h2>
-          
+
           {post.excerpt && (
             <p className="text-muted-foreground mb-4 line-clamp-2">
               {post.excerpt}
             </p>
           )}
-          
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+
+          <div className="text-muted-foreground flex items-center justify-between text-sm">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                {formatDistanceToNow(new Date(post.publishedAt ?? post.createdAt ?? new Date()), { addSuffix: true })}
+                {formatDistanceToNow(
+                  new Date(post.publishedAt ?? post.createdAt ?? new Date()),
+                  { addSuffix: true },
+                )}
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
@@ -79,9 +84,9 @@ function BlogPostCard({ post }: { post: any }) {
                 {post.viewCount} views
               </div>
             </div>
-            <Link 
+            <Link
               href={`/blog/${post.slug}`}
-              className="flex items-center gap-1 text-primary hover:underline"
+              className="text-primary flex items-center gap-1 hover:underline"
             >
               Read more
               <ArrowRight className="h-4 w-4" />
@@ -93,10 +98,10 @@ function BlogPostCard({ post }: { post: any }) {
   );
 }
 
-function BlogFilters({ 
-  categories, 
-  tags, 
-  searchParams 
+function BlogFilters({
+  categories,
+  tags,
+  searchParams,
 }: {
   categories: any[];
   tags: any[];
@@ -108,9 +113,9 @@ function BlogFilters({
   };
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center mb-8">
+    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
         <Input
           placeholder="Search blog posts..."
           defaultValue={searchParams.search}
@@ -118,7 +123,7 @@ function BlogFilters({
           name="search"
         />
       </div>
-      
+
       <Select defaultValue={searchParams.category ?? "all"}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="All Categories" />
@@ -132,7 +137,7 @@ function BlogFilters({
           ))}
         </SelectContent>
       </Select>
-      
+
       <Select defaultValue={searchParams.tag ?? "all"}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="All Tags" />
@@ -152,11 +157,11 @@ function BlogFilters({
 
 function FeaturedPost({ post }: { post: any }) {
   if (!post) return null;
-  
+
   return (
     <Card className="mb-12 overflow-hidden">
       <CardContent className="p-0">
-        <div className="grid lg:grid-cols-2 gap-0">
+        <div className="grid gap-0 lg:grid-cols-2">
           {post.featuredImage && (
             <div className="relative aspect-video lg:aspect-auto">
               <Image
@@ -167,10 +172,13 @@ function FeaturedPost({ post }: { post: any }) {
               />
             </div>
           )}
-          <div className="p-8 flex flex-col justify-center">
-            <Badge className="w-fit mb-4">Featured Post</Badge>
-            <h1 className="text-3xl font-bold mb-4">
-              <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
+          <div className="flex flex-col justify-center p-8">
+            <Badge className="mb-4 w-fit">Featured Post</Badge>
+            <h1 className="mb-4 text-3xl font-bold">
+              <Link
+                href={`/blog/${post.slug}`}
+                className="hover:text-primary transition-colors"
+              >
                 {post.title}
               </Link>
             </h1>
@@ -179,10 +187,13 @@ function FeaturedPost({ post }: { post: any }) {
                 {post.excerpt}
               </p>
             )}
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
+            <div className="text-muted-foreground mb-6 flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                {formatDistanceToNow(new Date(post.publishedAt ?? post.createdAt ?? new Date()), { addSuffix: true })}
+                {formatDistanceToNow(
+                  new Date(post.publishedAt ?? post.createdAt ?? new Date()),
+                  { addSuffix: true },
+                )}
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
@@ -206,27 +217,31 @@ function FeaturedPost({ post }: { post: any }) {
   );
 }
 
-function Pagination({ currentPage, totalPages, hasMore }: {
+function Pagination({
+  currentPage,
+  totalPages,
+  hasMore,
+}: {
   currentPage: number;
   totalPages: number;
   hasMore: boolean;
 }) {
   if (totalPages <= 1) return null;
-  
+
   return (
-    <div className="flex items-center justify-center gap-2 mt-12">
+    <div className="mt-12 flex items-center justify-center gap-2">
       {currentPage > 1 && (
         <Link href={`/blog?page=${currentPage - 1}`}>
           <Button variant="outline">Previous</Button>
         </Link>
       )}
-      
+
       <div className="flex items-center gap-1">
         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
           const page = i + 1;
           return (
             <Link key={page} href={`/blog?page=${page}`}>
-              <Button 
+              <Button
                 variant={page === currentPage ? "default" : "outline"}
                 size="sm"
               >
@@ -236,7 +251,7 @@ function Pagination({ currentPage, totalPages, hasMore }: {
           );
         })}
       </div>
-      
+
       {hasMore && (
         <Link href={`/blog?page=${currentPage + 1}`}>
           <Button variant="outline">Next</Button>
@@ -249,11 +264,11 @@ function Pagination({ currentPage, totalPages, hasMore }: {
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   // Unwrap searchParams Promise
   const params = await searchParams;
-  
+
   const page = parseInt(params.page ?? "1");
   const limit = 9;
   const offset = (page - 1) * limit;
-  
+
   // Fetch data
   const [postsData, categories, tags] = await Promise.all([
     api.blog.getPosts({
@@ -267,44 +282,48 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     api.blog.getCategories(),
     api.blog.getTags(),
   ]);
-  
+
   // Get featured post from the first post if on page 1
-  const featuredPost = page === 1 && postsData.posts.length > 0 ? postsData.posts[0] : null;
-  
+  const featuredPost =
+    page === 1 && postsData.posts.length > 0 ? postsData.posts[0] : null;
+
   const totalPages = Math.ceil(postsData.totalCount / limit);
-  
+
   // Generate structured data for SEO
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Blog",
-    "name": "Replivity Blog",
-    "description": "Discover insights, tips, and stories about AI social media management and automation.",
-    "url": `${baseUrl}/blog`,
-    "publisher": {
+    name: "Replivity Blog",
+    description:
+      "Discover insights, tips, and stories about AI social media management and automation.",
+    url: `${baseUrl}/blog`,
+    publisher: {
       "@type": "Organization",
-      "name": "Replivity",
-      "url": baseUrl,
+      name: "Replivity",
+      url: baseUrl,
     },
-    "blogPost": postsData.posts.slice(0, 10).map(post => ({
+    blogPost: postsData.posts.slice(0, 10).map((post) => ({
       "@type": "BlogPosting",
-      "headline": post.title,
-      "description": post.excerpt,
-      "url": `${baseUrl}/blog/${post.slug}`,
-      "datePublished": post.publishedAt?.toISOString(),
-      "author": {
+      headline: post.title,
+      description: post.excerpt,
+      url: `${baseUrl}/blog/${post.slug}`,
+      datePublished: post.publishedAt?.toISOString(),
+      author: {
         "@type": "Organization",
-        "name": "Replivity Team",
+        name: "Replivity Team",
       },
-      "publisher": {
+      publisher: {
         "@type": "Organization",
-        "name": "Replivity",
+        name: "Replivity",
       },
-      "image": post.featuredImage ? `${baseUrl}${post.featuredImage}` : `${baseUrl}/og-image.svg`,
-      "wordCount": post.readingTime ? post.readingTime * 200 : undefined,
+      image: post.featuredImage
+        ? `${baseUrl}${post.featuredImage}`
+        : `${baseUrl}/og-image.svg`,
+      wordCount: post.readingTime ? post.readingTime * 200 : undefined,
     })),
   };
-  
+
   return (
     <>
       {/* Structured Data */}
@@ -314,36 +333,36 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           __html: JSON.stringify(structuredData),
         }}
       />
-      
+
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Our Blog</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover insights, tips, and stories from our team. Stay updated with the latest trends and best practices.
+        <div className="mb-12 text-center">
+          <h1 className="mb-4 text-4xl font-bold">Our Blog</h1>
+          <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
+            Discover insights, tips, and stories from our team. Stay updated
+            with the latest trends and best practices.
           </p>
         </div>
-        
+
         {/* Featured Post */}
-        {page === 1 && featuredPost && (
-          <FeaturedPost post={featuredPost} />
-        )}
-        
+        {page === 1 && featuredPost && <FeaturedPost post={featuredPost} />}
+
         {/* Filters */}
         <Suspense fallback={<div>Loading filters...</div>}>
-          <BlogFilters 
-            categories={categories} 
-            tags={tags} 
+          <BlogFilters
+            categories={categories}
+            tags={tags}
             searchParams={params}
           />
         </Suspense>
-        
+
         {/* Posts Grid */}
         {postsData.posts.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-semibold mb-2">No posts found</h3>
+          <div className="py-12 text-center">
+            <h3 className="mb-2 text-xl font-semibold">No posts found</h3>
             <p className="text-muted-foreground">
-              Try adjusting your search criteria or check back later for new content.
+              Try adjusting your search criteria or check back later for new
+              content.
             </p>
           </div>
         ) : (
@@ -353,8 +372,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                 <BlogPostCard key={post.id} post={post} />
               ))}
             </div>
-            
-            <Pagination 
+
+            <Pagination
               currentPage={page}
               totalPages={totalPages}
               hasMore={postsData.hasMore}
@@ -366,13 +385,16 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   );
 }
 
-export async function generateMetadata({ searchParams }: BlogPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: BlogPageProps): Promise<Metadata> {
   // Unwrap searchParams Promise
   const params = await searchParams;
-  
+
   let title = "Blog - Latest Posts and Insights";
-  let description = "Discover insights, tips, and stories from our team. Stay updated with the latest trends and best practices in AI social media management.";
-  
+  let description =
+    "Discover insights, tips, and stories from our team. Stay updated with the latest trends and best practices in AI social media management.";
+
   // Dynamic titles based on search parameters
   if (params.search) {
     title = `Blog - Search: ${params.search}`;
@@ -384,13 +406,14 @@ export async function generateMetadata({ searchParams }: BlogPageProps): Promise
     title = `Blog - #${params.tag} Tag`;
     description = `All blog posts tagged with #${params.tag}. Learn about AI social media automation and best practices.`;
   }
-  
-  const url = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/blog`;
-  
+
+  const url = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/blog`;
+
   return {
     title,
     description,
-    keywords: "AI social media, blog, automation, social media management, AI responses, content generation",
+    keywords:
+      "AI social media, blog, automation, social media management, AI responses, content generation",
     authors: [{ name: "Replivity Team" }],
     openGraph: {
       title,
@@ -398,18 +421,22 @@ export async function generateMetadata({ searchParams }: BlogPageProps): Promise
       type: "website",
       url,
       siteName: "Replivity",
-      images: [{
-        url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/og-image.svg`,
-        width: 1200,
-        height: 630,
-        alt: "Replivity Blog",
-      }],
+      images: [
+        {
+          url: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/og-image.svg`,
+          width: 1200,
+          height: 630,
+          alt: "Replivity Blog",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [`${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/twitter-image.svg`],
+      images: [
+        `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/twitter-image.svg`,
+      ],
     },
     alternates: {
       canonical: url,
@@ -420,9 +447,9 @@ export async function generateMetadata({ searchParams }: BlogPageProps): Promise
       googleBot: {
         index: true,
         follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
     },
   };

@@ -19,12 +19,12 @@ interface CommentFormProps {
   placeholder?: string;
 }
 
-export function CommentForm({ 
-  postId, 
-  parentId, 
-  onCommentAdded, 
+export function CommentForm({
+  postId,
+  parentId,
+  onCommentAdded,
   onCancel,
-  placeholder = "Share your thoughts..."
+  placeholder = "Share your thoughts...",
 }: CommentFormProps) {
   const { data: session } = useSession();
   const [formData, setFormData] = useState({
@@ -36,7 +36,9 @@ export function CommentForm({
 
   const createComment = api.blog.createComment.useMutation({
     onSuccess: () => {
-      toast.success("Comment submitted successfully! It will be reviewed before appearing.");
+      toast.success(
+        "Comment submitted successfully! It will be reviewed before appearing.",
+      );
       setFormData({
         authorName: session?.user?.name ?? "",
         authorEmail: session?.user?.email ?? "",
@@ -52,17 +54,17 @@ export function CommentForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.content.trim()) {
       toast.error("Please enter a comment");
       return;
     }
-    
+
     if (!formData.authorName.trim()) {
       toast.error("Please enter your name");
       return;
     }
-    
+
     if (!formData.authorEmail.trim()) {
       toast.error("Please enter your email");
       return;
@@ -79,7 +81,7 @@ export function CommentForm({
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -92,14 +94,16 @@ export function CommentForm({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="authorName">Name *</Label>
               <Input
                 id="authorName"
                 type="text"
                 value={formData.authorName}
-                onChange={(e) => handleInputChange("authorName", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("authorName", e.target.value)
+                }
                 placeholder="Your name"
                 required
                 disabled={createComment.isPending}
@@ -111,26 +115,30 @@ export function CommentForm({
                 id="authorEmail"
                 type="email"
                 value={formData.authorEmail}
-                onChange={(e) => handleInputChange("authorEmail", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("authorEmail", e.target.value)
+                }
                 placeholder="your@email.com"
                 required
                 disabled={createComment.isPending}
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="authorWebsite">Website (optional)</Label>
             <Input
               id="authorWebsite"
               type="url"
               value={formData.authorWebsite}
-              onChange={(e) => handleInputChange("authorWebsite", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("authorWebsite", e.target.value)
+              }
               placeholder="https://yourwebsite.com"
               disabled={createComment.isPending}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="content">Comment *</Label>
             <Textarea
@@ -144,8 +152,8 @@ export function CommentForm({
               className="resize-none"
             />
           </div>
-          
-          <div className="flex gap-2 justify-end">
+
+          <div className="flex justify-end gap-2">
             {onCancel && (
               <Button
                 type="button"
@@ -171,9 +179,12 @@ export function CommentForm({
             </Button>
           </div>
         </form>
-        
-        <div className="mt-4 text-sm text-muted-foreground">
-          <p>Your comment will be reviewed before being published. Please be respectful and constructive.</p>
+
+        <div className="text-muted-foreground mt-4 text-sm">
+          <p>
+            Your comment will be reviewed before being published. Please be
+            respectful and constructive.
+          </p>
         </div>
       </CardContent>
     </Card>

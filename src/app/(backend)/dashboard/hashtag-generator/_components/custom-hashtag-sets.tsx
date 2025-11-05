@@ -5,36 +5,63 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Copy, 
-  Users, 
-  Calendar, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Copy,
+  Users,
+  Calendar,
   Hash,
   Bookmark,
-  MoreHorizontal
+  MoreHorizontal,
 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { api } from "@/trpc/react";
 
@@ -75,7 +102,7 @@ const categories = [
   { value: "travel", label: "Travel" },
   { value: "education", label: "Education" },
   { value: "entertainment", label: "Entertainment" },
-  { value: "other", label: "Other" }
+  { value: "other", label: "Other" },
 ];
 
 const platforms = [
@@ -83,7 +110,7 @@ const platforms = [
   { value: "twitter", label: "Twitter/X" },
   { value: "facebook", label: "Facebook" },
   { value: "linkedin", label: "LinkedIn" },
-  { value: "instagram", label: "Instagram" }
+  { value: "instagram", label: "Instagram" },
 ];
 
 export default function CustomHashtagSets() {
@@ -91,24 +118,24 @@ export default function CustomHashtagSets() {
   const [editingSet, setEditingSet] = useState<HashtagSet | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("all");
-  
+
   const utils = api.useUtils();
-  
+
   // Helper functions for type safety
   const getHashtagsArray = (hashtags: unknown): string[] => {
-    return Array.isArray(hashtags) ? hashtags as string[] : [];
+    return Array.isArray(hashtags) ? (hashtags as string[]) : [];
   };
-  
+
   const getTagsArray = (tags: unknown): string[] => {
-    return Array.isArray(tags) ? tags as string[] : [];
+    return Array.isArray(tags) ? (tags as string[]) : [];
   };
-  
+
   // API calls
   const { data: hashtagSets = [] } = api.hashtags.getHashtagSets.useQuery({
     category: selectedCategory,
     platform: selectedPlatform,
   });
-  
+
   const createMutation = api.hashtags.createHashtagSet.useMutation({
     onSuccess: () => {
       toast.success("Hashtag set created successfully!");
@@ -119,7 +146,7 @@ export default function CustomHashtagSets() {
       toast.error(error.message || "Failed to create hashtag set");
     },
   });
-  
+
   const updateMutation = api.hashtags.updateHashtagSet.useMutation({
     onSuccess: () => {
       toast.success("Hashtag set updated successfully!");
@@ -130,7 +157,7 @@ export default function CustomHashtagSets() {
       toast.error(error.message || "Failed to update hashtag set");
     },
   });
-  
+
   const deleteMutation = api.hashtags.deleteHashtagSet.useMutation({
     onSuccess: () => {
       toast.success("Hashtag set deleted successfully!");
@@ -157,8 +184,10 @@ export default function CustomHashtagSets() {
 
   const onSubmit = (values: HashtagSetFormValues) => {
     const hashtagList = values.hashtags.split(/[,\s]+/).filter(Boolean);
-    const tagList = values.tags ? values.tags.split(/[,\s]+/).filter(Boolean) : [];
-    
+    const tagList = values.tags
+      ? values.tags.split(/[,\s]+/).filter(Boolean)
+      : [];
+
     const setData = {
       name: values.name,
       description: values.description ?? "",
@@ -190,7 +219,7 @@ export default function CustomHashtagSets() {
     form.setValue("hashtags", getHashtagsArray(set.hashtags).join(" "));
     form.setValue("platform", set.platform as HashtagSetFormValues["platform"]);
     form.setValue("category", set.category ?? "");
-form.setValue("tags", getTagsArray(set.tags).join(" "));
+    form.setValue("tags", getTagsArray(set.tags).join(" "));
     form.setValue("isPublic", set.isPublic ?? false);
     setIsDialogOpen(true);
   };
@@ -213,44 +242,46 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
   // Filter hashtag sets based on selected category and platform
   const filteredSets = hashtagSets.filter((set) => {
     const setCategory = set.category ?? "uncategorized";
-    const categoryMatch = selectedCategory === "all" || setCategory === selectedCategory;
-    const platformMatch = selectedPlatform === "all" || set.platform === selectedPlatform;
+    const categoryMatch =
+      selectedCategory === "all" || setCategory === selectedCategory;
+    const platformMatch =
+      selectedPlatform === "all" || set.platform === selectedPlatform;
     return categoryMatch && platformMatch;
   });
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   return (
     <div className="space-y-6">
       {/* Header and Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              {categories.map(category => (
+              {categories.map((category) => (
                 <SelectItem key={category.value} value={category.value}>
                   {category.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          
+
           <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Platform" />
             </SelectTrigger>
             <SelectContent>
-              {platforms.map(platform => (
+              {platforms.map((platform) => (
                 <SelectItem key={platform.value} value={platform.value}>
                   {platform.label}
                 </SelectItem>
@@ -268,13 +299,20 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>{editingSet ? "Edit" : "Create"} Hashtag Set</DialogTitle>
+              <DialogTitle>
+                {editingSet ? "Edit" : "Create"} Hashtag Set
+              </DialogTitle>
               <DialogDescription>
-                {editingSet ? "Update your hashtag set" : "Create a new custom hashtag set for your content"}
+                {editingSet
+                  ? "Update your hashtag set"
+                  : "Create a new custom hashtag set for your content"}
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -296,7 +334,10 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Describe this hashtag set..." {...field} />
+                        <Textarea
+                          placeholder="Describe this hashtag set..."
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -310,15 +351,21 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Platform</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select platform" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {platforms.map(platform => (
-                              <SelectItem key={platform.value} value={platform.value}>
+                            {platforms.map((platform) => (
+                              <SelectItem
+                                key={platform.value}
+                                value={platform.value}
+                              >
                                 {platform.label}
                               </SelectItem>
                             ))}
@@ -335,15 +382,21 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Category</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {categories.map(category => (
-                              <SelectItem key={category.value} value={category.value}>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category.value}
+                                value={category.value}
+                              >
                                 {category.label}
                               </SelectItem>
                             ))}
@@ -362,10 +415,10 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
                     <FormItem>
                       <FormLabel>Hashtags</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="#hashtag1 #hashtag2 #hashtag3..." 
+                        <Textarea
+                          placeholder="#hashtag1 #hashtag2 #hashtag3..."
                           className="min-h-[100px]"
-                          {...field} 
+                          {...field}
                         />
                       </FormControl>
                       <FormDescription>
@@ -394,10 +447,19 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
                 />
 
                 <div className="flex justify-end gap-3">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={createMutation.isPending ?? updateMutation.isPending}>
+                  <Button
+                    type="submit"
+                    disabled={
+                      createMutation.isPending ?? updateMutation.isPending
+                    }
+                  >
                     {editingSet ? "Update Set" : "Create Set"}
                   </Button>
                 </div>
@@ -408,7 +470,7 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
       </div>
 
       {/* Hashtag Sets Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredSets.map((set) => (
           <Card key={set.id} className="relative">
             <CardHeader className="pb-3">
@@ -427,25 +489,29 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => handleEdit(set)}>
-                      <Edit className="h-4 w-4 mr-2" />
+                      <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => void handleCopyHashtags(getHashtagsArray(set.hashtags))}>
-                      <Copy className="h-4 w-4 mr-2" />
+                    <DropdownMenuItem
+                      onClick={() =>
+                        void handleCopyHashtags(getHashtagsArray(set.hashtags))
+                      }
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
                       Copy Hashtags
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => handleDelete(set.id)}
                       className="text-red-600"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
+                      <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              
-              <div className="flex items-center gap-2 mt-2">
+
+              <div className="mt-2 flex items-center gap-2">
                 <Badge variant="outline" className="capitalize">
                   {set.platform === "all" ? "All Platforms" : set.platform}
                 </Badge>
@@ -454,7 +520,7 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
                 </Badge>
                 {(set.isPublic ?? false) && (
                   <Badge variant="outline">
-                    <Users className="h-3 w-3 mr-1" />
+                    <Users className="mr-1 h-3 w-3" />
                     Public
                   </Badge>
                 )}
@@ -469,7 +535,11 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
                     return (
                       <>
                         {hashtags.slice(0, 6).map((hashtag, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {hashtag}
                           </Badge>
                         ))}
@@ -487,11 +557,15 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="text-center">
-                  <div className="font-semibold text-primary">{set.usageCount ?? 0}</div>
+                  <div className="text-primary font-semibold">
+                    {set.usageCount ?? 0}
+                  </div>
                   <div className="text-muted-foreground">Uses</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-semibold text-green-600">{set.avgEngagementRate ?? "0"}%</div>
+                  <div className="font-semibold text-green-600">
+                    {set.avgEngagementRate ?? "0"}%
+                  </div>
                   <div className="text-muted-foreground">Avg Engagement</div>
                 </div>
               </div>
@@ -499,23 +573,29 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
               {/* Tags */}
               {(() => {
                 const tags = getTagsArray(set.tags);
-                return tags.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-1">
-                      {tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
+                return (
+                  tags.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-1">
+                        {tags.map((tag, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )
                 );
               })()}
 
               <Separator />
 
               {/* Footer */}
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   {formatDate(set.updatedAt)}
@@ -531,14 +611,14 @@ form.setValue("tags", getTagsArray(set.tags).join(" "));
       </div>
 
       {filteredSets.length === 0 && (
-        <div className="text-center py-12">
-          <Bookmark className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium mb-2">No hashtag sets found</h3>
+        <div className="py-12 text-center">
+          <Bookmark className="text-muted-foreground/50 mx-auto mb-4 h-12 w-12" />
+          <h3 className="mb-2 text-lg font-medium">No hashtag sets found</h3>
           <p className="text-muted-foreground mb-4">
             Create your first hashtag set to get started
           </p>
           <Button onClick={() => setIsDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Create Your First Set
           </Button>
         </div>

@@ -18,13 +18,13 @@ const connectionConfig = {
   max: env.NODE_ENV === "production" ? 20 : 5, // Maximum connections in pool
   idle_timeout: 20, // Close idle connections after 20 seconds
   connect_timeout: 10, // Connection timeout in seconds
-  
+
   // Performance optimizations
   prepare: true, // Use prepared statements for better performance
   transform: {
     undefined: null, // Transform undefined to null for PostgreSQL
   },
-  
+
   // Connection settings
   connection: {
     application_name: "ai-social-replier",
@@ -32,10 +32,10 @@ const connectionConfig = {
     query_timeout: 25000, // 25 seconds
     idle_in_transaction_session_timeout: 60000, // 1 minute
   },
-  
+
   // SSL configuration for production
   ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
-  
+
   // Debug mode for development
   debug: env.NODE_ENV === "development" ? console.log : false,
 };
@@ -74,21 +74,21 @@ export async function checkDatabaseHealth(): Promise<{
   };
 }> {
   const startTime = Date.now();
-  
+
   try {
     // Simple health check query
     await sql`SELECT 1 as health_check`;
-    
+
     const latency = Date.now() - startTime;
-    
+
     // Note: postgres-js doesn't expose runtime connection pool statistics
     // We can only provide the configured maximum connections
     const stats = {
       active: 0, // Runtime stats not available in postgres-js
-      idle: 0,   // Runtime stats not available in postgres-js
+      idle: 0, // Runtime stats not available in postgres-js
       total: connectionConfig.max, // Use configured max connections
     };
-    
+
     return {
       healthy: true,
       latency,
@@ -125,52 +125,55 @@ export async function closeDatabaseConnections(): Promise<void> {
  */
 export function createQueryMonitor() {
   const queryTimes = new Map<string, number[]>();
-  
+
   const monitor = {
     startQuery: (queryId: string) => {
       const startTime = Date.now();
       return () => {
         const duration = Date.now() - startTime;
-        
+
         if (!queryTimes.has(queryId)) {
           queryTimes.set(queryId, []);
         }
-        
+
         const times = queryTimes.get(queryId)!;
         times.push(duration);
-        
+
         // Keep only last 100 measurements
         if (times.length > 100) {
           times.shift();
         }
-        
+
         // Log slow queries (> 1 second)
         if (duration > 1000) {
           console.warn(`Slow query detected: ${queryId} took ${duration}ms`);
         }
       };
     },
-    
+
     getStats: (queryId: string) => {
       const times = queryTimes.get(queryId) ?? [];
       if (times.length === 0) return null;
-      
+
       const avg = times.reduce((a, b) => a + b, 0) / times.length;
       const min = Math.min(...times);
       const max = Math.max(...times);
-      
+
       return { avg, min, max, count: times.length };
     },
-    
+
     getAllStats: () => {
-      const stats: Record<string, { avg: number; min: number; max: number; count: number } | null> = {};
+      const stats: Record<
+        string,
+        { avg: number; min: number; max: number; count: number } | null
+      > = {};
       for (const [queryId] of queryTimes) {
         stats[queryId] = monitor.getStats(queryId);
       }
       return stats;
     },
   };
-  
+
   return monitor;
 }
 
@@ -185,36 +188,41 @@ export const queryMonitor = createQueryMonitor();
 export async function withRetry<T>(
   operation: () => Promise<T>,
   maxRetries = 3,
-  delay = 1000
+  delay = 1000,
 ): Promise<T> {
   let lastError: Error;
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       return await operation();
     } catch (error) {
       lastError = error as Error;
-      
+
       // Don't retry on certain errors
       if (
         error instanceof Error &&
         (error.message.includes("unique constraint") ||
-         error.message.includes("foreign key constraint"))
+          error.message.includes("foreign key constraint"))
       ) {
         throw error;
       }
-      
+
       if (attempt === maxRetries) {
         break;
       }
-      
-      console.warn(`Database operation failed (attempt ${attempt}/${maxRetries}):`, error);
-      
+
+      console.warn(
+        `Database operation failed (attempt ${attempt}/${maxRetries}):`,
+        error,
+      );
+
       // Exponential backoff
-      await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, attempt - 1)));
+      await new Promise((resolve) =>
+        setTimeout(resolve, delay * Math.pow(2, attempt - 1)),
+      );
     }
   }
-  
+
   throw lastError!;
 }
 
@@ -224,7 +232,7 @@ export async function withRetry<T>(
 export async function batchOperation<T>(
   items: T[],
   operation: (batch: T[]) => Promise<void>,
-  batchSize = 100
+  batchSize = 100,
 ): Promise<void> {
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize);

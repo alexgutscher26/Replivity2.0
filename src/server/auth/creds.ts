@@ -23,7 +23,9 @@ export async function getAuthSettingsFromDB() {
         const credentials = auth.providerCredentials[provider];
         const isValid = credentials?.clientId && credentials?.clientSecret;
         if (!isValid && auth.enabledProviders.includes(provider)) {
-          console.warn(`Provider '${provider}' is enabled but missing credentials, removing from enabled list`);
+          console.warn(
+            `Provider '${provider}' is enabled but missing credentials, removing from enabled list`,
+          );
         }
         return isValid;
       }),
@@ -34,7 +36,7 @@ export async function getAuthSettingsFromDB() {
     return validatedAuth;
   } catch (error) {
     console.error("Failed to load settings from DB:", error);
-    
+
     // Return safe defaults
     const defaultAuth = {
       secret: process.env.BETTER_AUTH_SECRET ?? "",
@@ -42,7 +44,7 @@ export async function getAuthSettingsFromDB() {
       enabledProviders: [],
       providerCredentials: {},
     };
-    
+
     configStore.updateAuth(defaultAuth);
     return defaultAuth;
   }

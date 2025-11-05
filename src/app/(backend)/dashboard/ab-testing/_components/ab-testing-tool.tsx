@@ -64,16 +64,27 @@ import { toast } from "sonner";
 
 const testSchema = z.object({
   testName: z.string().min(1, "Test name is required"),
-  platform: z.enum(["instagram", "twitter", "linkedin", "facebook", "youtube", "tiktok"]),
+  platform: z.enum([
+    "instagram",
+    "twitter",
+    "linkedin",
+    "facebook",
+    "youtube",
+    "tiktok",
+  ]),
   testDuration: z.number().min(1).max(30),
   trafficSplit: z.number().min(10).max(90),
-  variants: z.array(z.object({
-    name: z.string().min(1, "Variant name is required"),
-    bio: z.string().min(10, "Bio must be at least 10 characters"),
-    profileImage: z.string().optional(),
-    username: z.string().min(1, "Username is required"),
-    displayName: z.string().min(1, "Display name is required"),
-  })).min(2, "At least 2 variants are required"),
+  variants: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Variant name is required"),
+        bio: z.string().min(10, "Bio must be at least 10 characters"),
+        profileImage: z.string().optional(),
+        username: z.string().min(1, "Username is required"),
+        displayName: z.string().min(1, "Display name is required"),
+      }),
+    )
+    .min(2, "At least 2 variants are required"),
 });
 
 type TestFormData = z.infer<typeof testSchema>;
@@ -175,7 +186,7 @@ const mockTestResults: TestResult[] = [
   },
 ];
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export function ABTestingTool() {
   const [activeTab, setActiveTab] = useState("create");
@@ -213,17 +224,17 @@ export function ABTestingTool() {
 
   const onSubmit = async (data: TestFormData) => {
     setIsCreating(true);
-    
+
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     const newTest: TestResult = {
       id: `test-${Date.now()}`,
       name: data.testName,
       platform: data.platform,
       status: "running" as const,
-      startDate: new Date().toISOString().split('T')[0]!,
-      variants: data.variants.map(variant => ({
+      startDate: new Date().toISOString().split("T")[0]!,
+      variants: data.variants.map((variant) => ({
         name: variant.name,
         impressions: 0,
         clicks: 0,
@@ -239,8 +250,8 @@ export function ABTestingTool() {
         avgEngagement: 0,
       },
     };
-    
-    setTestResults(prev => [newTest, ...prev]);
+
+    setTestResults((prev) => [newTest, ...prev]);
     setIsCreating(false);
     setActiveTab("results");
     toast.success("A/B test created successfully!");
@@ -263,28 +274,35 @@ export function ABTestingTool() {
   };
 
   const toggleTestStatus = (testId: string) => {
-    setTestResults(prev => prev.map(test => {
-      if (test.id === testId) {
-        return {
-          ...test,
-          status: test.status === "running" ? "paused" as const : "running" as const
-        };
-      }
-      return test;
-    }));
+    setTestResults((prev) =>
+      prev.map((test) => {
+        if (test.id === testId) {
+          return {
+            ...test,
+            status:
+              test.status === "running"
+                ? ("paused" as const)
+                : ("running" as const),
+          };
+        }
+        return test;
+      }),
+    );
   };
 
   const stopTest = (testId: string) => {
-    setTestResults(prev => prev.map(test => {
-      if (test.id === testId) {
-        return {
-          ...test,
-          status: "completed" as const,
-          endDate: new Date().toISOString().split('T')[0]
-        };
-      }
-      return test;
-    }));
+    setTestResults((prev) =>
+      prev.map((test) => {
+        if (test.id === testId) {
+          return {
+            ...test,
+            status: "completed" as const,
+            endDate: new Date().toISOString().split("T")[0],
+          };
+        }
+        return test;
+      }),
+    );
   };
 
   const duplicateTest = (test: TestResult) => {
@@ -293,8 +311,8 @@ export function ABTestingTool() {
       id: `test-${Date.now()}`,
       name: `${test.name} (Copy)`,
       status: "paused" as const,
-      startDate: new Date().toISOString().split('T')[0]!,
-      variants: test.variants.map(variant => ({
+      startDate: new Date().toISOString().split("T")[0]!,
+      variants: test.variants.map((variant) => ({
         ...variant,
         impressions: 0,
         clicks: 0,
@@ -311,16 +329,16 @@ export function ABTestingTool() {
       },
       winner: undefined,
     };
-    
+
     // Remove endDate for duplicated test since it's a new test
     delete newTest.endDate;
-    
-    setTestResults(prev => [newTest, ...prev]);
+
+    setTestResults((prev) => [newTest, ...prev]);
     toast.success("Test duplicated successfully!");
   };
 
   const deleteTest = (testId: string) => {
-    setTestResults(prev => prev.filter(test => test.id !== testId));
+    setTestResults((prev) => prev.filter((test) => test.id !== testId));
     toast.success("Test deleted successfully!");
   };
 
@@ -329,22 +347,25 @@ export function ABTestingTool() {
       testName: test.name,
       platform: test.platform,
       status: test.status,
-      duration: test.startDate + (test.endDate ? ` to ${test.endDate}` : " (ongoing)"),
+      duration:
+        test.startDate + (test.endDate ? ` to ${test.endDate}` : " (ongoing)"),
       variants: test.variants,
       metrics: test.metrics,
       winner: test.winner,
     };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `ab-test-${test.name.toLowerCase().replace(/\s+/g, '-')}.json`;
+    a.download = `ab-test-${test.name.toLowerCase().replace(/\s+/g, "-")}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast.success("Test results exported successfully!");
   };
 
@@ -362,13 +383,17 @@ export function ABTestingTool() {
             <CardHeader>
               <CardTitle>Create A/B Test</CardTitle>
               <CardDescription>
-                Set up a new A/B test to compare different profile variations and optimize your social media performance.
+                Set up a new A/B test to compare different profile variations
+                and optimize your social media performance.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="testName"
@@ -376,7 +401,10 @@ export function ABTestingTool() {
                         <FormItem>
                           <FormLabel>Test Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., Bio Optimization Test" {...field} />
+                            <Input
+                              placeholder="e.g., Bio Optimization Test"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -389,14 +417,19 @@ export function ABTestingTool() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Platform</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select platform" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="instagram">Instagram</SelectItem>
+                              <SelectItem value="instagram">
+                                Instagram
+                              </SelectItem>
                               <SelectItem value="twitter">Twitter</SelectItem>
                               <SelectItem value="linkedin">LinkedIn</SelectItem>
                               <SelectItem value="facebook">Facebook</SelectItem>
@@ -421,7 +454,9 @@ export function ABTestingTool() {
                               min="1"
                               max="30"
                               {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value))
+                              }
                             />
                           </FormControl>
                           <FormDescription>
@@ -444,11 +479,14 @@ export function ABTestingTool() {
                               min="10"
                               max="90"
                               {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value))
+                              }
                             />
                           </FormControl>
                           <FormDescription>
-                            Percentage of traffic for Variant A (remaining goes to Variant B)
+                            Percentage of traffic for Variant A (remaining goes
+                            to Variant B)
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -466,18 +504,19 @@ export function ABTestingTool() {
                         onClick={addVariant}
                         disabled={fields.length >= 4}
                       >
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="mr-2 h-4 w-4" />
                         Add Variant
                       </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                       {fields.map((field, index) => (
                         <Card key={field.id} className="relative">
                           <CardHeader className="pb-4">
                             <div className="flex items-center justify-between">
                               <CardTitle className="text-base">
-                                {form.watch(`variants.${index}.name`) || `Variant ${String.fromCharCode(65 + index)}`}
+                                {form.watch(`variants.${index}.name`) ||
+                                  `Variant ${String.fromCharCode(65 + index)}`}
                               </CardTitle>
                               {fields.length > 2 && (
                                 <Button
@@ -499,7 +538,10 @@ export function ABTestingTool() {
                                 <FormItem>
                                   <FormLabel>Variant Name</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="e.g., Original Bio" {...field} />
+                                    <Input
+                                      placeholder="e.g., Original Bio"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -557,9 +599,14 @@ export function ABTestingTool() {
                               name={`variants.${index}.profileImage`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Profile Image URL (Optional)</FormLabel>
+                                  <FormLabel>
+                                    Profile Image URL (Optional)
+                                  </FormLabel>
                                   <FormControl>
-                                    <Input placeholder="https://example.com/image.jpg" {...field} />
+                                    <Input
+                                      placeholder="https://example.com/image.jpg"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -571,7 +618,11 @@ export function ABTestingTool() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isCreating}>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isCreating}
+                  >
                     {isCreating ? "Creating Test..." : "Create A/B Test"}
                   </Button>
                 </form>
@@ -589,7 +640,15 @@ export function ABTestingTool() {
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         {test.name}
-                        <Badge variant={test.status === "running" ? "default" : test.status === "completed" ? "secondary" : "outline"}>
+                        <Badge
+                          variant={
+                            test.status === "running"
+                              ? "default"
+                              : test.status === "completed"
+                                ? "secondary"
+                                : "outline"
+                          }
+                        >
                           {test.status}
                         </Badge>
                         {test.winner && (
@@ -599,8 +658,9 @@ export function ABTestingTool() {
                         )}
                       </CardTitle>
                       <CardDescription>
-                        {test.platform.charAt(0).toUpperCase() + test.platform.slice(1)} • 
-                        Started: {test.startDate}
+                        {test.platform.charAt(0).toUpperCase() +
+                          test.platform.slice(1)}{" "}
+                        • Started: {test.startDate}
                         {test.endDate && ` • Ended: ${test.endDate}`}
                       </CardDescription>
                     </div>
@@ -652,31 +712,39 @@ export function ABTestingTool() {
                 <CardContent>
                   <div className="space-y-6">
                     {/* Overall Metrics */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{test.metrics.totalImpressions.toLocaleString()}</div>
-                        <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                        <div className="text-2xl font-bold">
+                          {test.metrics.totalImpressions.toLocaleString()}
+                        </div>
+                        <div className="text-muted-foreground flex items-center justify-center gap-1 text-sm">
                           <Eye className="h-4 w-4" />
                           Impressions
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{test.metrics.totalClicks.toLocaleString()}</div>
-                        <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                        <div className="text-2xl font-bold">
+                          {test.metrics.totalClicks.toLocaleString()}
+                        </div>
+                        <div className="text-muted-foreground flex items-center justify-center gap-1 text-sm">
                           <Users className="h-4 w-4" />
                           Clicks
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{test.metrics.totalFollowers.toLocaleString()}</div>
-                        <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                        <div className="text-2xl font-bold">
+                          {test.metrics.totalFollowers.toLocaleString()}
+                        </div>
+                        <div className="text-muted-foreground flex items-center justify-center gap-1 text-sm">
                           <Heart className="h-4 w-4" />
                           Followers
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{test.metrics.avgEngagement.toFixed(1)}%</div>
-                        <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                        <div className="text-2xl font-bold">
+                          {test.metrics.avgEngagement.toFixed(1)}%
+                        </div>
+                        <div className="text-muted-foreground flex items-center justify-center gap-1 text-sm">
                           <TrendingUp className="h-4 w-4" />
                           Avg Engagement
                         </div>
@@ -684,11 +752,18 @@ export function ABTestingTool() {
                     </div>
 
                     {/* Variant Comparison */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                       {test.variants.map((variant, index) => (
-                        <Card key={index} className={variant.name === test.winner ? "border-green-500" : ""}>
+                        <Card
+                          key={index}
+                          className={
+                            variant.name === test.winner
+                              ? "border-green-500"
+                              : ""
+                          }
+                        >
                           <CardHeader className="pb-3">
-                            <CardTitle className="text-base flex items-center justify-between">
+                            <CardTitle className="flex items-center justify-between text-base">
                               {variant.name}
                               {variant.name === test.winner && (
                                 <Badge variant="destructive">Winner</Badge>
@@ -698,35 +773,61 @@ export function ABTestingTool() {
                           <CardContent className="space-y-3">
                             <div className="grid grid-cols-2 gap-3 text-sm">
                               <div>
-                                <div className="font-medium">{variant.impressions.toLocaleString()}</div>
-                                <div className="text-muted-foreground">Impressions</div>
+                                <div className="font-medium">
+                                  {variant.impressions.toLocaleString()}
+                                </div>
+                                <div className="text-muted-foreground">
+                                  Impressions
+                                </div>
                               </div>
                               <div>
-                                <div className="font-medium">{variant.clicks.toLocaleString()}</div>
-                                <div className="text-muted-foreground">Clicks</div>
+                                <div className="font-medium">
+                                  {variant.clicks.toLocaleString()}
+                                </div>
+                                <div className="text-muted-foreground">
+                                  Clicks
+                                </div>
                               </div>
                               <div>
-                                <div className="font-medium">{variant.followers.toLocaleString()}</div>
-                                <div className="text-muted-foreground">Followers</div>
+                                <div className="font-medium">
+                                  {variant.followers.toLocaleString()}
+                                </div>
+                                <div className="text-muted-foreground">
+                                  Followers
+                                </div>
                               </div>
                               <div>
-                                <div className="font-medium">{variant.engagement.toFixed(1)}%</div>
-                                <div className="text-muted-foreground">Engagement</div>
+                                <div className="font-medium">
+                                  {variant.engagement.toFixed(1)}%
+                                </div>
+                                <div className="text-muted-foreground">
+                                  Engagement
+                                </div>
                               </div>
                             </div>
                             <div className="space-y-2">
                               <div className="flex justify-between text-sm">
                                 <span>Conversion Rate</span>
-                                <span className="font-medium">{variant.conversionRate.toFixed(1)}%</span>
+                                <span className="font-medium">
+                                  {variant.conversionRate.toFixed(1)}%
+                                </span>
                               </div>
-                              <Progress value={variant.conversionRate} className="h-2" />
+                              <Progress
+                                value={variant.conversionRate}
+                                className="h-2"
+                              />
                             </div>
                             <div className="space-y-2">
                               <div className="flex justify-between text-sm">
                                 <span>Confidence Level</span>
-                                <span className="font-medium">{variant.confidence}%</span>
+                                <span className="font-medium">
+                                  {variant.confidence}%
+                                </span>
                               </div>
-                              <Progress value={variant.confidence} className="h-2" />
+                              <Progress
+                                value={variant.confidence}
+                                className="h-2"
+                              />
                             </div>
                           </CardContent>
                         </Card>
@@ -740,7 +841,7 @@ export function ABTestingTool() {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Performance Comparison Chart */}
             <Card>
               <CardHeader>
@@ -756,8 +857,16 @@ export function ABTestingTool() {
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="conversionRate" fill="#8884d8" name="Conversion Rate (%)" />
-                    <Bar dataKey="engagement" fill="#82ca9d" name="Engagement (%)" />
+                    <Bar
+                      dataKey="conversionRate"
+                      fill="#8884d8"
+                      name="Conversion Rate (%)"
+                    />
+                    <Bar
+                      dataKey="engagement"
+                      fill="#82ca9d"
+                      name="Engagement (%)"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -773,21 +882,33 @@ export function ABTestingTool() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={[
-                    { day: 'Day 1', variantA: 6.2, variantB: 8.1 },
-                    { day: 'Day 2', variantA: 6.8, variantB: 8.9 },
-                    { day: 'Day 3', variantA: 7.1, variantB: 9.2 },
-                    { day: 'Day 4', variantA: 7.0, variantB: 9.5 },
-                    { day: 'Day 5', variantA: 7.3, variantB: 9.8 },
-                    { day: 'Day 6', variantA: 7.2, variantB: 9.7 },
-                    { day: 'Day 7', variantA: 7.2, variantB: 9.7 },
-                  ]}>
+                  <LineChart
+                    data={[
+                      { day: "Day 1", variantA: 6.2, variantB: 8.1 },
+                      { day: "Day 2", variantA: 6.8, variantB: 8.9 },
+                      { day: "Day 3", variantA: 7.1, variantB: 9.2 },
+                      { day: "Day 4", variantA: 7.0, variantB: 9.5 },
+                      { day: "Day 5", variantA: 7.3, variantB: 9.8 },
+                      { day: "Day 6", variantA: 7.2, variantB: 9.7 },
+                      { day: "Day 7", variantA: 7.2, variantB: 9.7 },
+                    ]}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="day" />
                     <YAxis />
                     <Tooltip />
-                    <Line type="monotone" dataKey="variantA" stroke="#8884d8" name="Variant A" />
-                    <Line type="monotone" dataKey="variantB" stroke="#82ca9d" name="Variant B" />
+                    <Line
+                      type="monotone"
+                      dataKey="variantA"
+                      stroke="#8884d8"
+                      name="Variant A"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="variantB"
+                      stroke="#82ca9d"
+                      name="Variant B"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -806,26 +927,31 @@ export function ABTestingTool() {
                   <PieChart>
                     <Pie
                       data={[
-                        { name: 'Instagram', value: 40 },
-                        { name: 'LinkedIn', value: 30 },
-                        { name: 'Twitter', value: 20 },
-                        { name: 'Facebook', value: 10 },
+                        { name: "Instagram", value: 40 },
+                        { name: "LinkedIn", value: 30 },
+                        { name: "Twitter", value: 20 },
+                        { name: "Facebook", value: 10 },
                       ]}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) =>
+                        `${name} ${(percent * 100).toFixed(0)}%`
+                      }
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
                       {[
-                        { name: 'Instagram', value: 40 },
-                        { name: 'LinkedIn', value: 30 },
-                        { name: 'Twitter', value: 20 },
-                        { name: 'Facebook', value: 10 },
+                        { name: "Instagram", value: 40 },
+                        { name: "LinkedIn", value: 30 },
+                        { name: "Twitter", value: 20 },
+                        { name: "Facebook", value: 10 },
                       ].map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -867,15 +993,19 @@ export function ABTestingTool() {
                 <div className="grid grid-cols-3 gap-4 pt-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">12</div>
-                    <div className="text-sm text-muted-foreground">Successful</div>
+                    <div className="text-muted-foreground text-sm">
+                      Successful
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">3</div>
-                    <div className="text-sm text-muted-foreground">Running</div>
+                    <div className="text-muted-foreground text-sm">Running</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-orange-600">2</div>
-                    <div className="text-sm text-muted-foreground">Inconclusive</div>
+                    <div className="text-muted-foreground text-sm">
+                      Inconclusive
+                    </div>
                   </div>
                 </div>
               </CardContent>

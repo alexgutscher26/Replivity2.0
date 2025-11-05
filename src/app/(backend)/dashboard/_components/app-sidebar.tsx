@@ -14,7 +14,10 @@ import {
 import { useSession } from "@/hooks/use-auth-hooks";
 import { api } from "@/trpc/react";
 import { useUserFeatures } from "@/hooks/use-feature-access";
-import { AVAILABLE_FEATURES, type FeatureKey } from "@/server/db/schema/feature-permissions-schema";
+import {
+  AVAILABLE_FEATURES,
+  type FeatureKey,
+} from "@/server/db/schema/feature-permissions-schema";
 import {
   ChartArea,
   Command,
@@ -96,7 +99,7 @@ const SIDEBAR_DATA: SidebarData = {
       icon: MessageSquare,
       requireAdmin: true,
     },
-    // TODO: Need to fix / completely add full functionality    
+    // TODO: Need to fix / completely add full functionality
     // {
     //   title: "Link-in-Bio Creator",
     //   url: "/dashboard/link-in-bio",
@@ -154,12 +157,12 @@ const SIDEBAR_DATA: SidebarData = {
     },
   ],
   navSecondary: [
-   // {
-   //   title: "Support",
-   //   url: "support",
-   //   icon: LifeBuoy,
-   //   dialog: true,
-   // },
+    // {
+    //   title: "Support",
+    //   url: "support",
+    //   icon: LifeBuoy,
+    //   dialog: true,
+    // },
   ],
 };
 
@@ -169,27 +172,29 @@ const DEFAULT_PLAN_NAME = "Free";
 // Plan styling configuration
 const getPlanStyling = (planName: string) => {
   const plan = planName.toLowerCase();
-  
-  if (plan.includes('pro') || plan.includes('premium')) {
+
+  if (plan.includes("pro") || plan.includes("premium")) {
     return {
-      variant: 'default' as const,
+      variant: "default" as const,
       icon: Crown,
-      className: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0'
+      className:
+        "bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0",
     };
   }
-  
-  if (plan.includes('enterprise') || plan.includes('business')) {
+
+  if (plan.includes("enterprise") || plan.includes("business")) {
     return {
-      variant: 'default' as const,
+      variant: "default" as const,
       icon: Sparkles,
-      className: 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0'
+      className:
+        "bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0",
     };
   }
-  
+
   return {
-    variant: 'secondary' as const,
+    variant: "secondary" as const,
     icon: null,
-    className: 'bg-muted/50 text-muted-foreground border-border/50'
+    className: "bg-muted/50 text-muted-foreground border-border/50",
   };
 };
 
@@ -213,57 +218,59 @@ export default function AppSidebar({
 
   const filteredNavMain = useMemo(
     () =>
-      SIDEBAR_DATA.navMain.filter(
-        (item) => {
-          // Check admin requirement
-          if (item.requireAdmin && user?.role !== "admin") {
-            return false;
-          }
-          // Check feature access
-          if (item.feature && !hasFeature(item.feature)) {
-            return false;
-          }
-          return true;
-        },
-      ),
+      SIDEBAR_DATA.navMain.filter((item) => {
+        // Check admin requirement
+        if (item.requireAdmin && user?.role !== "admin") {
+          return false;
+        }
+        // Check feature access
+        if (item.feature && !hasFeature(item.feature)) {
+          return false;
+        }
+        return true;
+      }),
     [user?.role, hasFeature],
   );
 
   const siteName = siteSettings?.name ?? DEFAULT_SITE_NAME;
-  const planName = (currentPlan?.product as { name?: string })?.name ?? DEFAULT_PLAN_NAME;
+  const planName =
+    (currentPlan?.product as { name?: string })?.name ?? DEFAULT_PLAN_NAME;
   const logoSrc = siteSettings?.logo ?? undefined;
   const planStyling = getPlanStyling(planName);
 
   return (
     <Sidebar variant="inset" {...props}>
-      <SidebarHeader className="border-b border-border/50">
+      <SidebarHeader className="border-border/50 border-b">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild className="group">
-              <Link href="/" className="transition-all duration-200 hover:bg-accent/50">
+              <Link
+                href="/"
+                className="hover:bg-accent/50 transition-all duration-200"
+              >
                 <div className="flex aspect-square size-10 items-center justify-center">
-                  <Avatar className="h-10 w-10 shrink-0 rounded-xl ring-2 ring-border/20 transition-all duration-200 group-hover:ring-border/40">
+                  <Avatar className="ring-border/20 group-hover:ring-border/40 h-10 w-10 shrink-0 rounded-xl ring-2 transition-all duration-200">
                     <AvatarImage
                       src={logoSrc}
                       alt={`${siteName} logo`}
                       className="object-cover"
                     />
-                    <AvatarFallback className="rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
-                      <Command className="size-5 text-primary" />
+                    <AvatarFallback className="from-primary/10 to-primary/5 rounded-xl bg-gradient-to-br">
+                      <Command className="text-primary size-5" />
                     </AvatarFallback>
                   </Avatar>
                 </div>
                 <div className="grid flex-1 text-left leading-tight">
-                  <span className="truncate font-semibold text-foreground group-hover:text-primary transition-colors">
+                  <span className="text-foreground group-hover:text-primary truncate font-semibold transition-colors">
                     {siteName}
                   </span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge 
+                  <div className="mt-1 flex items-center gap-2">
+                    <Badge
                       variant={planStyling.variant}
-                      className={`text-xs font-medium px-2 py-0.5 ${planStyling.className}`}
+                      className={`px-2 py-0.5 text-xs font-medium ${planStyling.className}`}
                     >
                       {planStyling.icon && (
-                        <planStyling.icon className="w-3 h-3 mr-1" />
+                        <planStyling.icon className="mr-1 h-3 w-3" />
                       )}
                       {planName}
                     </Badge>
@@ -274,17 +281,17 @@ export default function AppSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      
+
       <SidebarContent className="px-2">
         <div className="py-2">
           <NavMain items={filteredNavMain} />
         </div>
-        <div className="mt-auto pt-4 border-t border-border/50">
+        <div className="border-border/50 mt-auto border-t pt-4">
           <NavSecondary items={SIDEBAR_DATA.navSecondary} className="mt-auto" />
         </div>
       </SidebarContent>
-      
-      <SidebarFooter className="border-t border-border/50 bg-muted/20">
+
+      <SidebarFooter className="border-border/50 bg-muted/20 border-t">
         <NavUser />
       </SidebarFooter>
     </Sidebar>
