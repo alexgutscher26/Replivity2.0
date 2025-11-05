@@ -32,6 +32,7 @@ const config = {
       "@radix-ui/react-tooltip",
       "recharts",
     ],
+    // @ts-ignore
     turbo: {
       rules: {
         "*.svg": {

@@ -2,14 +2,12 @@
 
 ## Supported Versions
 
-We actively maintain security updates for the following versions of our AI Social Replier SaaS:
+We actively maintain security updates for the following versions of our AI Social Media Replier platform:
 
 | Version | Supported          | End of Life |
 | ------- | ------------------ | ----------- |
-| 6.0.x   | :white_check_mark: | TBD         |
-| 5.x.x   | :white_check_mark: | 2025-06-01  |
-| 4.x.x   | :x:                | 2024-12-01  |
-| < 4.0   | :x:                | 2024-01-01  |
+| 6.0.x   | :white_check_mark: | Active      |
+| < 6.0   | :x:                | 2024-11-01  |
 
 ## Reporting a Vulnerability
 
@@ -17,9 +15,10 @@ We actively maintain security updates for the following versions of our AI Socia
 
 We take security vulnerabilities seriously. If you discover a security issue, please report it responsibly:
 
-1. **Email**: Send details to `security@[your-domain].com` comming soon
-2. **Subject**: Include "[SECURITY]" in the subject line
-3. **Encryption**: Use our PGP key for sensitive information (available on request)
+1. **GitHub Security**: Use GitHub's private vulnerability reporting feature
+2. **Email**: Send details to security contact (see repository settings)
+3. **Subject**: Include "[SECURITY] AI Social Media Replier" in the subject line
+4. **Encryption**: Use our PGP key for sensitive information (available on request)
 
 ### What to Include
 
@@ -59,9 +58,11 @@ We follow responsible disclosure:
    - Use environment variables for sensitive configuration
 
 3. **Browser Extension**
-   - Only install from official sources
-   - Keep the extension updated
+   - Only install from official browser stores (Chrome Web Store, Firefox Add-ons, etc.)
+   - Keep the extension updated to the latest version
    - Review permissions before installation
+   - Report suspicious behavior immediately
+   - Use extension only on trusted social media platforms
 
 ### For Developers
 
@@ -84,29 +85,39 @@ We follow responsible disclosure:
    - Regular security audits and penetration testing
 
 4. **Infrastructure Security**
-   - Keep dependencies updated
-   - Use HTTPS everywhere
-   - Implement proper logging and monitoring
+   - Keep dependencies updated (automated with Dependabot)
+   - Use HTTPS everywhere with proper security headers
+   - Implement comprehensive logging and monitoring
    - Regular security scans and vulnerability assessments
+   - Secure AI API key rotation and management
+   - Database security with connection pooling and encryption
 
 ## Security Features
 
 ### Current Implementation
 
-- **Authentication**: Better Auth with multiple providers
-- **Database**: Drizzle ORM with parameterized queries
-- **API Security**: Rate limiting and input validation
-- **HTTPS**: Enforced across all endpoints
-- **Environment Variables**: Secure configuration management
+- **Authentication**: Better Auth with OAuth providers (Google, GitHub, Twitter/X, Facebook)
+- **Two-Factor Authentication**: TOTP support with backup codes
+- **Database Security**: Drizzle ORM with parameterized queries and WHERE clause enforcement
+- **API Security**: tRPC with input validation, rate limiting, and type safety
+- **Session Management**: Secure session handling with IP and user agent tracking
+- **Password Security**: Secure hashing with configurable expiration policies
+- **HTTPS**: Enforced across all endpoints with security headers
+- **Environment Variables**: Secure configuration with @t3-oss/env-nextjs validation
 - **Content Security Policy**: Implemented for XSS protection
+- **AI Provider Security**: Secure API key management for multiple AI providers
+- **Payment Security**: PCI-compliant integration with Stripe and PayPal
+- **Browser Extension Security**: Manifest V3 compliance with minimal permissions
 
 ### Planned Enhancements
 
-- [ ] Advanced threat detection
-- [ ] Enhanced audit logging
-- [ ] Automated security scanning in CI/CD
-- [ ] Regular penetration testing
-- [ ] Security headers optimization
+- [ ] Advanced threat detection and anomaly monitoring
+- [ ] Enhanced audit logging for security events
+- [ ] Automated security scanning in CI/CD pipeline
+- [ ] Regular third-party security audits
+- [ ] Advanced rate limiting and DDoS protection
+- [ ] Enhanced browser extension security monitoring
+- [ ] AI model output safety validation
 
 ## Compliance
 
@@ -124,14 +135,34 @@ Security updates are released as needed and communicated through:
 - In-app notifications for critical updates
 - Release notes and changelog
 
+## Technology-Specific Security
+
+### AI Integration Security
+- **API Key Management**: Secure storage and rotation of AI provider keys
+- **Content Filtering**: Validation of AI-generated responses
+- **Rate Limiting**: Protection against API abuse
+- **Provider Fallbacks**: Secure failover between AI providers
+
+### Browser Extension Security
+- **Manifest V3**: Latest security standards compliance
+- **Content Script Isolation**: Secure interaction with social media platforms
+- **Permission Minimization**: Only request necessary permissions
+- **Secure Communication**: Encrypted communication with web platform
+
+### Database Security
+- **Drizzle ORM**: Built-in SQL injection protection
+- **Connection Security**: Encrypted connections with certificate validation
+- **Data Encryption**: Sensitive data encrypted at rest
+- **Backup Security**: Encrypted backups with access controls
+
 ## Contact
 
 For security-related questions or concerns:
-- **Security Team**: `security@[your-domain].com` comming soon
-- **General Support**: `support@[your-domain].com` comming soon
-- **Emergency Contact**: Available 24/7 for critical security issues
+- **GitHub Security**: Use private vulnerability reporting
+- **Repository Issues**: For non-sensitive security discussions
+- **Emergency Contact**: Critical security issues require immediate attention
 
 ---
 
-*Last updated: December 2024*
-*Next review: March 2025*
+*Last updated: November 2024*
+*Next review: February 2025*

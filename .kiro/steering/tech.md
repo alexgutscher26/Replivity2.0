@@ -108,9 +108,18 @@ bun run zip             # Package for distribution
 
 ### Development
 - Node.js 18+
-- PostgreSQL 13+
+- PostgreSQL 13+ (or use Docker with provided script)
 - API keys for at least one AI provider
 - Stripe/PayPal credentials for payment testing
+
+### Local Database Setup
+```bash
+# Option 1: Use Docker (recommended for development)
+./start-database.sh          # Starts PostgreSQL in Docker container
+
+# Option 2: Install PostgreSQL locally
+# Then configure DATABASE_URL in .env file
+```
 
 ### Production
 - Vercel/similar hosting platform
