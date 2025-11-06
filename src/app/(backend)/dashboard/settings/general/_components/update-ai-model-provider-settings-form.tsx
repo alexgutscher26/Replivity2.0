@@ -31,6 +31,13 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+/**
+ * Update the AI model provider settings form.
+ *
+ * This function initializes the form with current settings, handles submission to update the settings, and manages success and error notifications. It utilizes a mutation for updating settings and invalidates the cache upon success. The form fields include options for selecting an AI model, entering an API key, and defining a system prompt.
+ *
+ * @returns A JSX element representing the form for updating AI model provider settings.
+ */
 export function UpdateAiModelProviderSettingsForm() {
   const utils = api.useUtils();
   const [settings] = api.settings.aiModel.useSuspenseQuery();
