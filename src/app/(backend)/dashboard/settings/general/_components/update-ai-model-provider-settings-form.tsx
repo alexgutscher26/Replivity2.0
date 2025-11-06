@@ -122,8 +122,8 @@ export function UpdateAiModelProviderSettingsForm() {
                   Enter the API key for{" "}
                   {
                     AI_MODEL_LIST.find(
-                      (m) => m.key === form.watch("enabledModels")[0],
-                    )?.name
+                      (m) => m.key === form.watch("enabledModels")?.[0],
+                    )?.name ?? "the selected model"
                   }
                 </FormDescription>
                 <FormMessage />

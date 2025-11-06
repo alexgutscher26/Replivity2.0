@@ -53,6 +53,7 @@ export const authSettingsSchema = z.object({
 export type AuthSettings = z.infer<typeof authSettingsSchema>;
 
 export const AI_MODEL_LIST = [
+  { key: "gpt-4o", name: "GPT-4 Omega", provider: "openai" },
   { key: "gpt-4o-mini", name: "GPT-4 Omega Mini", provider: "openai" },
   {
     key: "mistral-small-latest",

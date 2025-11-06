@@ -195,8 +195,31 @@ export const settingsRouter = createTRPCRouter({
     }),
   aiModel: adminProcedure.query(async ({ ctx }) => {
     const settings = await ctx.db.query.settings.findFirst();
+    let aiSettings = settings?.general?.ai ?? {};
 
-    return aiModelProviderSettingsSchema.parse(settings?.general?.ai ?? {});
+    console.log('Original aiSettings:', JSON.stringify(aiSettings, null, 2));
+
+    // Transform old format model names to new format
+    if (aiSettings.enabledModels && Array.isArray(aiSettings.enabledModels)) {
+      const transformedModels = aiSettings.enabledModels.map((model: any) => {
+        if (typeof model === 'string' && model.includes('/')) {
+          // Handle old format like "openai/gpt-4o" -> "gpt-4o"
+          const transformed = model.split('/')[1];
+          console.log(`Transforming ${model} -> ${transformed}`);
+          return transformed;
+        }
+        return model;
+      });
+
+      aiSettings = {
+        ...aiSettings,
+        enabledModels: transformedModels,
+      };
+
+      console.log('Transformed aiSettings:', JSON.stringify(aiSettings, null, 2));
+    }
+
+    return aiModelProviderSettingsSchema.parse(aiSettings);
   }),
   updateAiModel: adminProcedure
     .input(aiModelProviderSettingsSchema)
